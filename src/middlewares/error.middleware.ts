@@ -9,7 +9,7 @@ export class CustomError extends Error {
   }
 }
 
-const errorHandler = (
+export const errorHandler = (
   err: any,
   req: Request,
   res: Response,
@@ -27,5 +27,3 @@ const errorHandler = (
     .status(customError.statusCode)
     .json({ message: customError.message });
 };
-
-export default errorHandler;

@@ -4,12 +4,12 @@ import {
   deserializeUser,
   errorHandler,
 } from '@middlewares';
-import { establishmentRoutes, userRoutes } from '@routes';
+import { coreRoutes, establishmentRoutes, userRoutes } from '@routes';
 import compression from 'compression';
 import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
-import { notFoundHandler } from './controllers/misc.controllers';
+import { notFoundHandler } from './controllers/core.controllers';
 
 const app = express();
 
@@ -23,6 +23,7 @@ app.use(compression());
 app.use(deserializeUser);
 
 // ROUTERS
+app.use('/api/v1', coreRoutes);
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/establishment', establishmentRoutes);
 app.use('*', notFoundHandler);

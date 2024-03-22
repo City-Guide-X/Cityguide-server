@@ -17,8 +17,14 @@ export const createEstablishmentHandler = async (
   const body = req.body;
   try {
     const establishment = await createEstablishment(body);
-    const accessToken = signAccessToken(establishment._id.toString(), 'USER');
-    const refreshToken = signRefreshToken(establishment._id.toString(), 'USER');
+    const accessToken = signAccessToken(
+      establishment._id.toString(),
+      'ESTABLISHMENT'
+    );
+    const refreshToken = signRefreshToken(
+      establishment._id.toString(),
+      'ESTABLISHMENT'
+    );
     await setEstablishmentRefreshToken(
       establishment._id.toString(),
       refreshToken
@@ -46,8 +52,14 @@ export const loginEstablishmentHandler = async (
   if (!establishment) return res.status(401).json({ message });
   const isEstablishment = await establishment.validatePassword(password);
   if (!isEstablishment) return res.status(401).json({ message });
-  const accessToken = signAccessToken(establishment._id.toString(), 'USER');
-  const refreshToken = signRefreshToken(establishment._id.toString(), 'USER');
+  const accessToken = signAccessToken(
+    establishment._id.toString(),
+    'ESTABLISHMENT'
+  );
+  const refreshToken = signRefreshToken(
+    establishment._id.toString(),
+    'ESTABLISHMENT'
+  );
   await setEstablishmentRefreshToken(
     establishment._id.toString(),
     refreshToken
