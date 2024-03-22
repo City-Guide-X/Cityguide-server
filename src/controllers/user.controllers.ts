@@ -21,7 +21,7 @@ export const createUserHandler = async (
     const accessToken = signAccessToken(user._id.toString(), 'USER');
     const refreshToken = signRefreshToken(user._id.toString(), 'USER');
     await setUserRefreshToken(user._id.toString(), refreshToken);
-    res
+    return res
       .status(201)
       .json({ user: omit(user.toJSON(), privateFields), accessToken });
   } catch (err: any) {
@@ -42,12 +42,12 @@ export const loginUserHandler = async (
   const message = 'Invalid email or password';
   const user = await findUserByEmail(email);
   if (!user) return res.status(401).json({ message });
-  const isUser = await user?.validatePassword(password);
+  const isUser = await user.validatePassword(password);
   if (!isUser) return res.status(401).json({ message });
   const accessToken = signAccessToken(user._id.toString(), 'USER');
   const refreshToken = signRefreshToken(user._id.toString(), 'USER');
   await setUserRefreshToken(user._id.toString(), refreshToken);
-  res
+  return res
     .status(200)
     .json({ user: omit(user.toJSON(), privateFields), accessToken });
 };

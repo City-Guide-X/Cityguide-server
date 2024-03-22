@@ -1,7 +1,8 @@
 import { privateFields } from '@models';
-import { createEstablishmentInput } from '@schemas';
+import { createEstablishmentInput, loginEstablishmentInput } from '@schemas';
 import {
   createEstablishment,
+  findEstablishmentByEmail,
   setEstablishmentRefreshToken,
   signAccessToken,
   signRefreshToken,
@@ -22,7 +23,7 @@ export const createEstablishmentHandler = async (
       establishment._id.toString(),
       refreshToken
     );
-    res
+    return res
       .status(201)
       .json({ user: omit(establishment.toJSON(), privateFields), accessToken });
   } catch (err: any) {
@@ -33,4 +34,26 @@ export const createEstablishmentHandler = async (
         } already exists`,
       });
   }
+};
+
+export const loginEstablishmentHandler = async (
+  req: Request<{}, {}, loginEstablishmentInput>,
+  res: Response
+) => {
+  const { email, password } = req.body;
+  const message = 'Invalid email or password';
+  const establishment = await findEstablishmentByEmail(email);
+  if (!establishment) return res.status(401).json({ message });
+  const isEstablishment = await establishment.validatePassword(password);
+  if (!isEstablishment) return res.status(401).json({ message });
+  const accessToken = signAccessToken(establishment._id.toString(), 'USER');
+  const refreshToken = signRefreshToken(establishment._id.toString(), 'USER');
+  await setEstablishmentRefreshToken(
+    establishment._id.toString(),
+    refreshToken
+  );
+  return res.status(201).json({
+    user: omit(establishment.toJSON(), privateFields),
+    accessToken,
+  });
 };

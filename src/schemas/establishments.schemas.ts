@@ -39,8 +39,23 @@ export const createEstablishmentSchema = object({
   }),
 });
 
+export const loginEstablishmentSchema = object({
+  body: object({
+    email: string({ required_error: 'Email is required' }).email(
+      'Invalid email'
+    ),
+    password: string({ required_error: 'Password is required' }).min(
+      8,
+      'Password should be atleast 8 characters'
+    ),
+  }),
+});
+
 export type createEstablishmentInput = TypeOf<
   typeof createEstablishmentSchema
+>['body'];
+export type loginEstablishmentInput = TypeOf<
+  typeof loginEstablishmentSchema
 >['body'];
 
 // availability: optional(
