@@ -43,10 +43,10 @@ export class Establishment {
   @prop({ lowercase: true, required: true, unique: true })
   email!: string;
 
-  @prop({ required: true, select: false })
+  @prop({ required: true })
   password!: string;
 
-  @prop({ select: false })
+  @prop()
   refreshToken?: string;
 
   @prop({ default: false })
@@ -55,7 +55,7 @@ export class Establishment {
   @prop({ default: false })
   emailIsVerified: boolean;
 
-  @prop({ default: verifyCode, select: false })
+  @prop({ default: verifyCode })
   otp: number;
 
   @prop({ enum: EstablishmentType, required: true, type: String })
@@ -84,9 +84,6 @@ export class Establishment {
 
   @prop({ default: null })
   price: number | null;
-
-  @prop({ select: false })
-  __v?: number;
 
   async validatePassword(this: DocumentType<Establishment>, password: string) {
     try {

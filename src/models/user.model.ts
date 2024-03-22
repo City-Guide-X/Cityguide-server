@@ -44,10 +44,10 @@ export class User {
   @prop({ lowercase: true, required: true, unique: true })
   email!: string;
 
-  @prop({ required: true, select: false })
+  @prop({ required: true })
   password!: string;
 
-  @prop({ select: false })
+  @prop()
   refreshToken?: string;
 
   @prop({ default: false })
@@ -56,7 +56,7 @@ export class User {
   @prop({ default: false })
   emailIsVerified: boolean;
 
-  @prop({ default: verifyCode, select: false })
+  @prop({ default: verifyCode })
   otp: number;
 
   @prop({ default: null })
@@ -64,9 +64,6 @@ export class User {
 
   @prop({ default: [], ref: () => Establishment })
   favouriteEstablishments: Ref<Establishment>[];
-
-  @prop({ select: false })
-  __v?: number;
 
   async validatePassword(this: DocumentType<User>, password: string) {
     try {
