@@ -4,10 +4,8 @@ import {
   createUser,
   findUserByEmail,
   setUserRefreshToken,
-  signAccessToken,
-  signRefreshToken,
+  signTokens,
 } from '@services';
-import { log } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
 
@@ -18,9 +16,11 @@ export const createUserHandler = async (
   const body = req.body;
   try {
     const user = await createUser(body);
-    const accessToken = signAccessToken(user._id.toString(), 'USER');
-    const refreshToken = signRefreshToken(user._id.toString(), 'USER');
-    await setUserRefreshToken(user._id.toString(), refreshToken);
+    const { accessToken, refreshToken } = signTokens({
+      id: user._id.toString(),
+      type: 'USER',
+    });
+    await setUserRefreshToken(user._id.toString(), refreshToken!);
     return res
       .status(201)
       .json({ user: omit(user.toJSON(), privateFields), accessToken });
@@ -44,9 +44,11 @@ export const loginUserHandler = async (
   if (!user) return res.status(401).json({ message });
   const isUser = await user.validatePassword(password);
   if (!isUser) return res.status(401).json({ message });
-  const accessToken = signAccessToken(user._id.toString(), 'USER');
-  const refreshToken = signRefreshToken(user._id.toString(), 'USER');
-  await setUserRefreshToken(user._id.toString(), refreshToken);
+  const { accessToken, refreshToken } = signTokens({
+    id: user._id.toString(),
+    type: 'USER',
+  });
+  await setUserRefreshToken(user._id.toString(), refreshToken!);
   return res
     .status(200)
     .json({ user: omit(user.toJSON(), privateFields), accessToken });

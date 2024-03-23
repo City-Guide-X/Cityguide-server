@@ -41,3 +41,8 @@ export interface IAvailability {
   from: string;
   to: string;
 }
+
+export interface IPayload {
+  id: string;
+  type: 'USER' | 'ESTABLISHMENT';
+}

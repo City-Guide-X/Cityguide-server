@@ -1,18 +1,21 @@
+import { IPayload } from '@types';
 import { signJWT } from '@utils';
 
-export const signAccessToken = (id: string, type: 'USER' | 'ESTABLISHMENT') => {
-  const accessToken = signJWT({ id, type }, 'access', {
-    expiresIn: process.env.ACCESSTOKENTTL,
-  });
-  return accessToken;
-};
+interface IToken extends IPayload {
+  token?: 'access' | 'refresh' | 'both';
+}
 
-export const signRefreshToken = (
-  id: string,
-  type: 'USER' | 'ESTABLISHMENT'
-) => {
-  const refreshToken = signJWT({ id, type }, 'refresh', {
-    expiresIn: process.env.REFRESHTOKENTTL,
-  });
-  return refreshToken;
+export const signTokens = ({ id, type, token = 'both' }: IToken) => {
+  let accessToken, refreshToken;
+  if (token !== 'refresh') {
+    accessToken = signJWT({ id, type }, 'access', {
+      expiresIn: process.env.ACCESSTOKENTTL,
+    });
+  }
+  if (token !== 'access') {
+    refreshToken = signJWT({ id, type }, 'refresh', {
+      expiresIn: process.env.REFRESHTOKENTTL,
+    });
+  }
+  return { accessToken, refreshToken };
 };

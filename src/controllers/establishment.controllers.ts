@@ -4,8 +4,7 @@ import {
   createEstablishment,
   findEstablishmentByEmail,
   setEstablishmentRefreshToken,
-  signAccessToken,
-  signRefreshToken,
+  signTokens,
 } from '@services';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
@@ -17,17 +16,13 @@ export const createEstablishmentHandler = async (
   const body = req.body;
   try {
     const establishment = await createEstablishment(body);
-    const accessToken = signAccessToken(
-      establishment._id.toString(),
-      'ESTABLISHMENT'
-    );
-    const refreshToken = signRefreshToken(
-      establishment._id.toString(),
-      'ESTABLISHMENT'
-    );
+    const { accessToken, refreshToken } = signTokens({
+      id: establishment._id.toString(),
+      type: 'ESTABLISHMENT',
+    });
     await setEstablishmentRefreshToken(
       establishment._id.toString(),
-      refreshToken
+      refreshToken!
     );
     return res
       .status(201)
@@ -52,17 +47,13 @@ export const loginEstablishmentHandler = async (
   if (!establishment) return res.status(401).json({ message });
   const isEstablishment = await establishment.validatePassword(password);
   if (!isEstablishment) return res.status(401).json({ message });
-  const accessToken = signAccessToken(
-    establishment._id.toString(),
-    'ESTABLISHMENT'
-  );
-  const refreshToken = signRefreshToken(
-    establishment._id.toString(),
-    'ESTABLISHMENT'
-  );
+  const { accessToken, refreshToken } = signTokens({
+    id: establishment._id.toString(),
+    type: 'ESTABLISHMENT',
+  });
   await setEstablishmentRefreshToken(
     establishment._id.toString(),
-    refreshToken
+    refreshToken!
   );
   return res.status(201).json({
     user: omit(establishment.toJSON(), privateFields),
