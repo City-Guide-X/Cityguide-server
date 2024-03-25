@@ -6,10 +6,8 @@ import {
   signTokens,
 } from '@services';
 import { IPayload } from '@types';
-import { log, verifyJWT } from '@utils';
+import { verifyJWT } from '@utils';
 import { Request, Response } from 'express';
-import { isEqual } from 'lodash';
-import { string } from 'zod';
 
 export const refreshAccessTokenHandler = async (
   req: Request,
@@ -21,11 +19,7 @@ export const refreshAccessTokenHandler = async (
   if (!user) return res.sendStatus(403);
   const decoded = verifyJWT<IPayload>(user?.refreshToken as string, 'refresh');
   if (!decoded || id !== decoded.id) return res.sendStatus(403);
-  const { accessToken } = signTokens({
-    id: user._id.toString(),
-    type,
-    token: 'access',
-  });
+  const { accessToken } = signTokens({ id, type, token: 'access' });
   return res.status(200).json({ accessToken });
 };
 

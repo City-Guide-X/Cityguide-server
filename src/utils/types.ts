@@ -1,4 +1,8 @@
 /* eslint-disable no-unused-vars */
+
+import { User } from '@models';
+import { Request } from 'express';
+
 // ENUMS
 export enum EstablishmentType {
   STAY = 'Stay',

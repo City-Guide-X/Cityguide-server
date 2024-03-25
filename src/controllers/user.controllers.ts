@@ -1,4 +1,4 @@
-import { privateFields } from '@models';
+import { privateFields, User } from '@models';
 import { createUserInput, loginUserInput } from '@schemas';
 import {
   createUser,
@@ -52,4 +52,35 @@ export const loginUserHandler = async (
   return res
     .status(200)
     .json({ user: omit(user.toJSON(), privateFields), accessToken });
+};
+
+export const socialAuthHandler = async (req: Request, res: Response) => {
+  const data = req.user as Partial<User>;
+  console.log(data);
+  if (!data) return res.status(401).json({ message: 'Invalid login' });
+  const user = await findUserByEmail(data.email!);
+  if (user) {
+    if (!user.isSocial)
+      return res.status(409).json({
+        message: `User with ${data.email} already exists`,
+      });
+    const { accessToken, refreshToken } = signTokens({
+      id: user._id.toString(),
+      type: 'USER',
+    });
+    await setUserRefreshToken(user._id.toString(), refreshToken!);
+    return res
+      .status(200)
+      .json({ user: omit(user.toJSON(), privateFields), accessToken });
+  } else {
+    const user = await createUser(data);
+    const { accessToken, refreshToken } = signTokens({
+      id: user._id.toString(),
+      type: 'USER',
+    });
+    await setUserRefreshToken(user._id.toString(), refreshToken!);
+    return res
+      .status(201)
+      .json({ user: omit(user.toJSON(), privateFields), accessToken });
+  }
 };

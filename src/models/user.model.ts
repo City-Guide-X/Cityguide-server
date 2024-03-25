@@ -13,7 +13,7 @@ import bcrypt from 'bcrypt';
 import { Establishment } from './establishment.model';
 
 @pre<User>('save', async function () {
-  if (!this.isModified('password')) return;
+  if (!this.password || !this.isModified('password')) return;
   this.password = await bcrypt.hash(this.password, 10);
   return;
 })
@@ -38,20 +38,17 @@ export class User {
   @prop()
   dateOfBirth: Date;
 
-  @prop({ required: true, unique: true })
+  @prop({ unique: true })
   phoneNumber!: string;
 
   @prop({ lowercase: true, required: true, unique: true })
   email!: string;
 
-  @prop({ required: true })
-  password!: string;
+  @prop({ default: null })
+  password: string | null;
 
   @prop()
   refreshToken?: string;
-
-  @prop({ default: false })
-  phoneIsVerified: boolean;
 
   @prop({ default: false })
   emailIsVerified: boolean;
@@ -65,9 +62,12 @@ export class User {
   @prop({ default: [], ref: () => Establishment })
   favouriteEstablishments: Ref<Establishment>[];
 
+  @prop({ default: false })
+  isSocial: boolean;
+
   async validatePassword(this: DocumentType<User>, password: string) {
     try {
-      return await bcrypt.compare(password, this.password);
+      return await bcrypt.compare(password, this.password!);
     } catch (err) {
       return false;
     }
