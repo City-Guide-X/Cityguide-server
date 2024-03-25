@@ -57,6 +57,12 @@ export const resendVerifyEmailHandler = async (req: Request, res: Response) => {
   return res.sendStatus(204);
 };
 
+export const uploadImageHandler = async (req: Request, res: Response) => {
+  const imgUrl = req.file?.path;
+  if (!imgUrl) return res.status(400).json({ message: 'Upload failed' });
+  return res.status(200).json({ imgUrl });
+};
+
 export const logoutHandler = async (req: Request, res: Response) => {
   const { id, type } = res.locals.user;
   const user = type === 'USER' ? await findUserById(id) : await findEstablishmentById(id);
