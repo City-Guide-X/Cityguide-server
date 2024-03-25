@@ -6,7 +6,7 @@ import {
   signTokens,
 } from '@services';
 import { IPayload } from '@types';
-import { verifyJWT } from '@utils';
+import { sendEmail, verifyJWT } from '@utils';
 import { Request, Response } from 'express';
 import { verifyEmailInput } from 'src/schemas/core.schemas';
 
@@ -33,6 +33,28 @@ export const verifyEmailHandler = async (req: Request<verifyEmailInput>, res: Re
     return res.sendStatus(204);
   }
   return res.status(400).json({ message });
+};
+
+export const resendVerifyEmailHandler = async (req: Request, res: Response) => {
+  const { id, type } = res.locals.user;
+  if (type === 'USER') {
+    const user = await findUserById(id);
+    if (!user) return res.sendStatus(404);
+    await sendEmail({
+      to: user.email,
+      template: 'verifyUser',
+      locals: { name: `${user.firstName} ${user.lastName}`, verifyCode: user.otp },
+    });
+  } else {
+    const user = await findEstablishmentById(id);
+    if (!user) return res.sendStatus(404);
+    await sendEmail({
+      to: user.email,
+      template: 'verifyUser',
+      locals: { name: user.name, verifyCode: user.otp },
+    });
+  }
+  return res.sendStatus(204);
 };
 
 export const logoutHandler = async (req: Request, res: Response) => {
