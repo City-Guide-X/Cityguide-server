@@ -12,9 +12,6 @@ export const findEstablishmentByEmail = (email: string) => {
   return EstablishmentModel.findOne({ email });
 };
 
-export const setEstablishmentRefreshToken = (
-  _id: string,
-  refreshToken: string | null
-) => {
+export const setEstablishmentRefreshToken = (_id: string, refreshToken: string | null) => {
   return EstablishmentModel.updateOne({ _id }, { refreshToken });
 };

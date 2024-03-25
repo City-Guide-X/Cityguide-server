@@ -50,3 +50,9 @@ export interface IPayload {
   id: string;
   type: 'USER' | 'ESTABLISHMENT';
 }
+
+export interface IEmail {
+  template: string;
+  to: string;
+  locals: object;
+}

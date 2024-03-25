@@ -1,11 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { verifyJWT } from '@utils';
 
-const deserializeUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+const deserializeUser = async (req: Request, res: Response, next: NextFunction) => {
   const accessToken = req.headers.authorization?.split(' ')[1] || '';
   if (!accessToken) return next();
   const decoded = verifyJWT(accessToken, 'access');

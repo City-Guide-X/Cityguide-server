@@ -1,10 +1,4 @@
-import {
-  getModelForClass,
-  modelOptions,
-  prop,
-  Ref,
-  Severity,
-} from '@typegoose/typegoose';
+import { getModelForClass, modelOptions, prop, Ref, Severity } from '@typegoose/typegoose';
 import { Establishment } from './establishment.model';
 import { User } from './user.model';
 import { EstablishmentType, Status } from '@types';

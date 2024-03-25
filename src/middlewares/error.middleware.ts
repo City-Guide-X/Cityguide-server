@@ -9,12 +9,7 @@ export class CustomError extends Error {
   }
 }
 
-export const errorHandler = (
-  err: any,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
   const customError = {
     statusCode: err.statusCode || 500,
     message: err.message || 'Something went wrong. Please try again later',
@@ -23,7 +18,5 @@ export const errorHandler = (
     customError.message = 'User already exists';
     customError.statusCode = 409;
   }
-  return res
-    .status(customError.statusCode)
-    .json({ message: customError.message });
+  return res.status(customError.statusCode).json({ message: customError.message });
 };

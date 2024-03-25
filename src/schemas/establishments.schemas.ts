@@ -22,17 +22,9 @@ export const createEstablishmentSchema = object({
       }),
       extraDetails: string().optional(),
     }),
-    phoneNumber: string({ required_error: 'Phone number is required' }).min(
-      11,
-      'Invalid phone number'
-    ),
-    email: string({ required_error: 'Email is required' }).email(
-      'Invalid email'
-    ),
-    password: string({ required_error: 'Password is required' }).min(
-      8,
-      'Password should be atleast 8 characters'
-    ),
+    phoneNumber: string({ required_error: 'Phone number is required' }).min(11, 'Invalid phone number'),
+    email: string({ required_error: 'Email is required' }).email('Invalid email'),
+    password: string({ required_error: 'Password is required' }).min(8, 'Password should be atleast 8 characters'),
     type: nativeEnum(EstablishmentType, {
       required_error: 'Establishment type is required',
     }),
@@ -41,22 +33,13 @@ export const createEstablishmentSchema = object({
 
 export const loginEstablishmentSchema = object({
   body: object({
-    email: string({ required_error: 'Email is required' }).email(
-      'Invalid email'
-    ),
-    password: string({ required_error: 'Password is required' }).min(
-      8,
-      'Password should be atleast 8 characters'
-    ),
+    email: string({ required_error: 'Email is required' }).email('Invalid email'),
+    password: string({ required_error: 'Password is required' }).min(8, 'Password should be atleast 8 characters'),
   }),
 });
 
-export type createEstablishmentInput = TypeOf<
-  typeof createEstablishmentSchema
->['body'];
-export type loginEstablishmentInput = TypeOf<
-  typeof loginEstablishmentSchema
->['body'];
+export type createEstablishmentInput = TypeOf<typeof createEstablishmentSchema>['body'];
+export type loginEstablishmentInput = TypeOf<typeof loginEstablishmentSchema>['body'];
 
 // availability: optional(
 //   object({

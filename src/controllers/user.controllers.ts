@@ -1,43 +1,37 @@
 import { privateFields, User } from '@models';
 import { createUserInput, loginUserInput } from '@schemas';
-import {
-  createUser,
-  findUserByEmail,
-  setUserRefreshToken,
-  signTokens,
-} from '@services';
+import { createUser, findUserByEmail, setUserRefreshToken, signTokens } from '@services';
+import { sendEmail } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
 
-export const createUserHandler = async (
-  req: Request<{}, {}, createUserInput>,
-  res: Response
-) => {
+export const createUserHandler = async (req: Request<{}, {}, createUserInput>, res: Response) => {
   const body = req.body;
   try {
     const user = await createUser(body);
+    await sendEmail({
+      to: user.email,
+      template: 'verifyUser',
+      locals: {
+        name: `${user.firstName} ${user.lastName}`,
+        verifyCode: user.otp,
+      },
+    });
     const { accessToken, refreshToken } = signTokens({
       id: user._id.toString(),
       type: 'USER',
     });
     await setUserRefreshToken(user._id.toString(), refreshToken!);
-    return res
-      .status(201)
-      .json({ user: omit(user.toJSON(), privateFields), accessToken });
+    return res.status(201).json({ user: omit(user.toJSON(), privateFields), accessToken });
   } catch (err: any) {
     if (err.code === 11000)
       return res.status(409).json({
-        message: `User with ${
-          err.keyValue.phoneNumber || err.keyValue.email
-        } already exists`,
+        message: `User with ${err.keyValue.phoneNumber || err.keyValue.email} already exists`,
       });
   }
 };
 
-export const loginUserHandler = async (
-  req: Request<{}, {}, loginUserInput>,
-  res: Response
-) => {
+export const loginUserHandler = async (req: Request<{}, {}, loginUserInput>, res: Response) => {
   const { email, password } = req.body;
   const message = 'Invalid email or password';
   const user = await findUserByEmail(email);
@@ -49,9 +43,7 @@ export const loginUserHandler = async (
     type: 'USER',
   });
   await setUserRefreshToken(user._id.toString(), refreshToken!);
-  return res
-    .status(200)
-    .json({ user: omit(user.toJSON(), privateFields), accessToken });
+  return res.status(200).json({ user: omit(user.toJSON(), privateFields), accessToken });
 };
 
 export const socialAuthHandler = async (req: Request, res: Response) => {
@@ -69,9 +61,7 @@ export const socialAuthHandler = async (req: Request, res: Response) => {
       type: 'USER',
     });
     await setUserRefreshToken(user._id.toString(), refreshToken!);
-    return res
-      .status(200)
-      .json({ user: omit(user.toJSON(), privateFields), accessToken });
+    return res.status(200).json({ user: omit(user.toJSON(), privateFields), accessToken });
   } else {
     const user = await createUser(data);
     const { accessToken, refreshToken } = signTokens({
@@ -79,8 +69,6 @@ export const socialAuthHandler = async (req: Request, res: Response) => {
       type: 'USER',
     });
     await setUserRefreshToken(user._id.toString(), refreshToken!);
-    return res
-      .status(201)
-      .json({ user: omit(user.toJSON(), privateFields), accessToken });
+    return res.status(201).json({ user: omit(user.toJSON(), privateFields), accessToken });
   }
 };

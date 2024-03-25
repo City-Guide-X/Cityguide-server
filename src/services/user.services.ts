@@ -12,9 +12,6 @@ export const findUserByEmail = (email: string) => {
   return UserModel.findOne({ email });
 };
 
-export const setUserRefreshToken = (
-  _id: string,
-  refreshToken: string | null
-) => {
+export const setUserRefreshToken = (_id: string, refreshToken: string | null) => {
   return UserModel.updateOne({ _id }, { refreshToken });
 };
