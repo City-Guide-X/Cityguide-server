@@ -54,7 +54,7 @@ export const resendVerifyEmailHandler = async (req: Request, res: Response) => {
   }
   await sendEmail({
     to: user.email,
-    template: 'verifyUser',
+    template: 'verificationCode',
     locals: { name, verifyCode: otp ?? user.otp },
   });
   return res.sendStatus(204);

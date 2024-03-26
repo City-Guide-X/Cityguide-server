@@ -11,7 +11,7 @@ export const createEstablishmentHandler = async (req: Request<{}, {}, createEsta
     const establishment = await createEstablishment(body);
     await sendEmail({
       to: establishment.email,
-      template: 'verifyUser',
+      template: 'verificationCode',
       locals: {
         name: establishment.name,
         verifyCode: establishment.otp,

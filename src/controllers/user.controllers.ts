@@ -11,7 +11,7 @@ export const createUserHandler = async (req: Request<{}, {}, createUserInput>, r
     const user = await createUser(body);
     await sendEmail({
       to: user.email,
-      template: 'verifyUser',
+      template: 'verificationCode',
       locals: {
         name: `${user.firstName} ${user.lastName}`,
         verifyCode: user.otp,
