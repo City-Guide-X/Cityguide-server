@@ -1,6 +1,6 @@
 import { privateFields, User } from '@models';
-import { createUserInput, loginUserInput } from '@schemas';
-import { createUser, findUserByEmail, setUserRefreshToken, signTokens } from '@services';
+import { createUserInput, loginUserInput, updateUserInput } from '@schemas';
+import { createUser, findUserByEmail, setUserRefreshToken, signTokens, updateUserInfo } from '@services';
 import { sendEmail } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
@@ -48,7 +48,6 @@ export const loginUserHandler = async (req: Request<{}, {}, loginUserInput>, res
 
 export const socialAuthHandler = async (req: Request, res: Response) => {
   const data = req.user as Partial<User>;
-  console.log(data);
   if (!data) return res.status(401).json({ message: 'Invalid login' });
   const user = await findUserByEmail(data.email!);
   if (user) {
@@ -71,4 +70,12 @@ export const socialAuthHandler = async (req: Request, res: Response) => {
     await setUserRefreshToken(user._id.toString(), refreshToken!);
     return res.status(201).json({ user: omit(user.toJSON(), privateFields), accessToken });
   }
+};
+
+export const updateUserHandler = async (req: Request<{}, {}, updateUserInput>, res: Response) => {
+  const { id } = res.locals.user;
+  const body = req.body;
+  const isUpdated = await updateUserInfo(id, body);
+  if (!isUpdated.modifiedCount) return res.status(400).json({ message: 'Could not update user info' });
+  return res.sendStatus(204);
 };

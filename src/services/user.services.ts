@@ -12,6 +12,10 @@ export const findUserByEmail = (email: string) => {
   return UserModel.findOne({ email });
 };
 
+export const updateUserInfo = (_id: string, options: Partial<User>) => {
+  return UserModel.updateMany({ _id }, { ...options });
+};
+
 export const setUserRefreshToken = (_id: string, refreshToken: string | null) => {
   return UserModel.updateOne({ _id }, { refreshToken });
 };

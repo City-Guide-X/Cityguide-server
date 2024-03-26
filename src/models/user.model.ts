@@ -45,7 +45,7 @@ export class User {
   emailIsVerified: boolean;
 
   @prop({ default: verifyCode })
-  otp: number;
+  otp: number | null;
 
   @prop({ default: null })
   imgUrl: string | null;

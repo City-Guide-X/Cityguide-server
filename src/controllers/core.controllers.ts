@@ -6,9 +6,9 @@ import {
   signTokens,
 } from '@services';
 import { IPayload } from '@types';
-import { sendEmail, verifyJWT } from '@utils';
+import { sendEmail, verifyCode, verifyJWT } from '@utils';
 import { Request, Response } from 'express';
-import { verifyEmailInput } from 'src/schemas/core.schemas';
+import { changePasswordInput, verifyEmailInput } from 'src/schemas/core.schemas';
 
 export const refreshAccessTokenHandler = async (req: Request, res: Response) => {
   const { id, type } = res.locals.user;
@@ -29,6 +29,7 @@ export const verifyEmailHandler = async (req: Request<verifyEmailInput>, res: Re
   if (user.emailIsVerified) return res.sendStatus(204);
   if (user.otp === +otp) {
     user.emailIsVerified = true;
+    user.otp = null;
     await user.save();
     return res.sendStatus(204);
   }
@@ -37,23 +38,25 @@ export const verifyEmailHandler = async (req: Request<verifyEmailInput>, res: Re
 
 export const resendVerifyEmailHandler = async (req: Request, res: Response) => {
   const { id, type } = res.locals.user;
+  let user, name, otp;
   if (type === 'USER') {
-    const user = await findUserById(id);
-    if (!user) return res.sendStatus(404);
-    await sendEmail({
-      to: user.email,
-      template: 'verifyUser',
-      locals: { name: `${user.firstName} ${user.lastName}`, verifyCode: user.otp },
-    });
+    user = await findUserById(id);
+    name = `${user?.firstName} ${user?.lastName}`;
   } else {
-    const user = await findEstablishmentById(id);
-    if (!user) return res.sendStatus(404);
-    await sendEmail({
-      to: user.email,
-      template: 'verifyUser',
-      locals: { name: user.name, verifyCode: user.otp },
-    });
+    user = await findEstablishmentById(id);
+    name = user?.name;
   }
+  if (!user) return res.sendStatus(404);
+  if (!user.otp) {
+    user.otp = otp = verifyCode();
+    console.log(otp);
+    await user.save();
+  }
+  await sendEmail({
+    to: user.email,
+    template: 'verifyUser',
+    locals: { name, verifyCode: otp ?? user.otp },
+  });
   return res.sendStatus(204);
 };
 
@@ -61,6 +64,24 @@ export const uploadImageHandler = async (req: Request, res: Response) => {
   const imgUrl = req.file?.path;
   if (!imgUrl) return res.status(400).json({ message: 'Upload failed' });
   return res.status(200).json({ imgUrl });
+};
+
+export const changePasswordHandler = async (
+  req: Request<changePasswordInput['params'], {}, changePasswordInput['body']>,
+  res: Response
+) => {
+  const {
+    body: { password },
+    params: { otp },
+  } = req;
+  const { id, type } = res.locals.user;
+  const user = type === 'USER' ? await findUserById(id) : await findEstablishmentById(id);
+  if (!user || !user.otp || user.otp !== +otp) return res.status(400).json({ message: 'Invalid OTP code' });
+  if (!user.emailIsVerified) user.emailIsVerified = true;
+  user.otp = null;
+  user.password = password;
+  await user.save();
+  return res.sendStatus(204);
 };
 
 export const logoutHandler = async (req: Request, res: Response) => {
