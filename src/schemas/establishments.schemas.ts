@@ -1,9 +1,12 @@
 import { EstablishmentType } from '@types';
-import { nativeEnum, number, object, string, TypeOf } from 'zod';
+import { nativeEnum, number, object, optional, string, TypeOf } from 'zod';
 
 export const createEstablishmentSchema = object({
   body: object({
-    name: string({ required_error: 'Establishment Name is required' }),
+    name: string({ required_error: 'Establishment Name is required' }).min(
+      3,
+      'Establishment name requires atleast 3 characters'
+    ),
     description: string({
       required_error: 'Description of the establishment is required',
     }),
@@ -38,19 +41,64 @@ export const loginEstablishmentSchema = object({
   }),
 });
 
+export const updateEstablishmentSchema = object({
+  body: object({
+    name: optional(string().min(3, 'Establishment name requires atleast 3 characters')),
+    description: optional(string().min(3, 'Establishment description requires atleast 3 characters')),
+    address: optional(
+      object({
+        name: string({ required_error: 'Address name is required' }),
+        locationId: string({ required_error: 'Address location id is required' }),
+        geoLocation: object({
+          lat: number({
+            required_error: 'Latitude is required',
+            invalid_type_error: 'Latitude has to be a number',
+          }),
+          lng: number({
+            required_error: 'Longitude is required',
+            invalid_type_error: 'Longitude has to be a number',
+          }),
+        }),
+        extraDetails: string().optional(),
+      })
+    ),
+    phoneNumber: optional(string().min(11, 'Invalid phone number')),
+    type: optional(nativeEnum(EstablishmentType)),
+    availability: optional(
+      object({
+        day: string({ required_error: 'Available day is required' }),
+        from: string({ required_error: 'Opening time is required' }).regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, {
+          message: 'The provided value is not a valid 24 hour time',
+        }),
+        to: string({ required_error: 'Opening time is required' }).regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, {
+          message: 'The provided value is not a valid 24 hour time',
+        }),
+      }).array()
+    ),
+  }),
+});
+
+export const addMenuItemSchema = object({
+  body: object({
+    id: string({ required_error: 'Item ID is required' }),
+    name: string({ required_error: 'Item name is required' }).min(3, 'Item name requires atleast 3 characters'),
+    desc: string({ required_error: 'Item description is required' }).min(
+      3,
+      'Item description requires atleast 3 characters'
+    ),
+    imgUrl: string({ required_error: 'Item image is required' }),
+    price: number({ required_error: 'Item price is required', invalid_type_error: 'Item price has to be a number' }),
+  }),
+});
+
+export const removeMenuItemSchema = object({
+  params: object({
+    itemId: string({ required_error: 'Item ID is required' }),
+  }),
+});
+
 export type createEstablishmentInput = TypeOf<typeof createEstablishmentSchema>['body'];
 export type loginEstablishmentInput = TypeOf<typeof loginEstablishmentSchema>['body'];
-
-// availability: optional(
-//   object({
-//     day: string({ required_error: 'Available day is required' }),
-//     from: string({ required_error: 'Opening time is required' }).regex(
-//       /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/,
-//       { message: 'The provided value is not a valid 24 hour time' }
-//     ),
-//     to: string({ required_error: 'Opening time is required' }).regex(
-//       /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/,
-//       { message: 'The provided value is not a valid 24 hour time' }
-//     ),
-//   })
-// ),
+export type updateEstablishmentInput = TypeOf<typeof updateEstablishmentSchema>['body'];
+export type addMenuItemInput = TypeOf<typeof addMenuItemSchema>['body'];
+export type removeMenuItemInput = TypeOf<typeof removeMenuItemSchema>['params'];

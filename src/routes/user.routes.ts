@@ -1,5 +1,5 @@
 import { createUserHandler, loginUserHandler, socialAuthHandler, updateUserHandler } from '@controllers';
-import { validateSchema } from '@middlewares';
+import { requireAuth, validateSchema } from '@middlewares';
 import { createUserSchema, loginUserSchema, updateUserSchema } from '@schemas';
 import { Router } from 'express';
 import passport from 'passport';
@@ -12,6 +12,7 @@ router.get('/login/google', passport.authenticate('google', { scope: ['profile',
 router.get('/login/facebook', passport.authenticate('facebook', { scope: ['email'] }));
 router.get('/login/google/callback', passport.authenticate('google', { session: false }), socialAuthHandler);
 router.get('/login/facebook/callback', passport.authenticate('facebook', { session: false }), socialAuthHandler);
+router.use(requireAuth);
 router.patch('/update', validateSchema(updateUserSchema), updateUserHandler);
 
 export default router;

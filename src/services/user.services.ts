@@ -13,7 +13,7 @@ export const findUserByEmail = (email: string) => {
 };
 
 export const updateUserInfo = (_id: string, options: Partial<User>) => {
-  return UserModel.updateMany({ _id }, { ...options });
+  return UserModel.updateOne({ _id }, { ...options });
 };
 
 export const setUserRefreshToken = (_id: string, refreshToken: string | null) => {

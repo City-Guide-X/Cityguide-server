@@ -1,4 +1,13 @@
-import { DocumentType, getModelForClass, index, modelOptions, pre, prop, Severity } from '@typegoose/typegoose';
+import {
+  DocumentType,
+  getModelForClass,
+  index,
+  isDocumentArray,
+  modelOptions,
+  pre,
+  prop,
+  Severity,
+} from '@typegoose/typegoose';
 import { EstablishmentType, IAddress, IAvailability, IRoomMenu } from '@types';
 import { verifyCode } from '@utils';
 import bcrypt from 'bcrypt';
@@ -42,9 +51,6 @@ export class Establishment {
   refreshToken?: string;
 
   @prop({ default: false })
-  phoneIsVerified: boolean;
-
-  @prop({ default: false })
   emailIsVerified: boolean;
 
   @prop({ default: verifyCode })
@@ -62,17 +68,17 @@ export class Establishment {
   @prop({ default: null })
   imgUrl: string | null;
 
-  @prop({ default: null, _id: false })
-  menu: IRoomMenu[] | null;
+  @prop({ default: [], _id: false })
+  menu: IRoomMenu[];
 
   @prop({ default: null })
   deliveryFee: number | null;
 
-  @prop({ default: null })
-  facilities: string[] | null;
+  @prop({ default: [] })
+  facilities: string[];
 
-  @prop({ default: null, _id: false })
-  rooms: IRoomMenu[] | null;
+  @prop({ default: [], _id: false })
+  rooms: IRoomMenu[];
 
   @prop({ default: null })
   price: number | null;

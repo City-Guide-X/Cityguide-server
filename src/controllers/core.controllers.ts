@@ -49,7 +49,6 @@ export const resendVerifyEmailHandler = async (req: Request, res: Response) => {
   if (!user) return res.sendStatus(404);
   if (!user.otp) {
     user.otp = otp = verifyCode();
-    console.log(otp);
     await user.save();
   }
   await sendEmail({

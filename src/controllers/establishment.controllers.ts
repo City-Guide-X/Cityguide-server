@@ -1,6 +1,22 @@
 import { privateFields } from '@models';
-import { createEstablishmentInput, loginEstablishmentInput } from '@schemas';
-import { createEstablishment, findEstablishmentByEmail, setEstablishmentRefreshToken, signTokens } from '@services';
+import {
+  addMenuItemInput,
+  createEstablishmentInput,
+  loginEstablishmentInput,
+  removeMenuItemInput,
+  updateEstablishmentInput,
+} from '@schemas';
+import {
+  addMenuItem,
+  createEstablishment,
+  findEstablishmentByEmail,
+  findEstablishmentById,
+  removeMenuItem,
+  setEstablishmentRefreshToken,
+  signTokens,
+  updateEstablishmentInfo,
+} from '@services';
+import { EstablishmentType } from '@types';
 import { sendEmail } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
@@ -47,4 +63,36 @@ export const loginEstablishmentHandler = async (req: Request<{}, {}, loginEstabl
     user: omit(establishment.toJSON(), privateFields),
     accessToken,
   });
+};
+
+export const updateEstablishmentHandler = async (req: Request<{}, {}, updateEstablishmentInput>, res: Response) => {
+  const { id } = res.locals.user;
+  const body = req.body;
+  const isUpdated = await updateEstablishmentInfo(id, body);
+  if (!isUpdated.modifiedCount) return res.status(400).json({ message: 'Could not updated establishment info' });
+  return res.sendStatus(204);
+};
+
+export const addMenuItemHandler = async (req: Request<{}, {}, addMenuItemInput>, res: Response) => {
+  const { id } = res.locals.user;
+  const menu = req.body;
+  const establishment = await findEstablishmentById(id);
+  if (!establishment) return res.status(404).json({ message: 'Establishment not found' });
+  if (establishment.type !== EstablishmentType.RESTAURANT)
+    return res.status(403).json({ message: 'Invalid Operation' });
+  const isUpdated = await addMenuItem(id, menu);
+  if (!isUpdated.modifiedCount) return res.status(403).json({ message: 'Invalid Operation' });
+  return res.sendStatus(204);
+};
+
+export const removeMenuItemHandler = async (req: Request<removeMenuItemInput>, res: Response) => {
+  const { id } = res.locals.user;
+  const { itemId } = req.params;
+  const establishment = await findEstablishmentById(id);
+  if (!establishment) return res.status(404).json({ message: 'Establishment not found' });
+  if (establishment.type !== EstablishmentType.RESTAURANT)
+    return res.status(403).json({ message: 'Invalid Operation' });
+  const isUpdated = await removeMenuItem(id, itemId);
+  if (!isUpdated.modifiedCount) return res.status(403).json({ message: 'Invalid Operation' });
+  return res.sendStatus(204);
 };

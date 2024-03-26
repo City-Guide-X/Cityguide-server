@@ -27,6 +27,7 @@ export enum Rating {
 
 // INTERFACES
 export interface IRoomMenu {
+  id: string;
   name: string;
   desc: string;
   imgUrl: string;
