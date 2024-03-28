@@ -20,6 +20,9 @@ export class Review {
   @prop({ required: true })
   message!: string;
 
+  @prop({ select: false })
+  __v?: number;
+
   public createdAt: Date;
   public updatedAt: Date;
 }
