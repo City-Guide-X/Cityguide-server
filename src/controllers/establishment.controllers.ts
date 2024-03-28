@@ -71,7 +71,7 @@ export const updateEstablishmentHandler = async (req: Request<{}, {}, updateEsta
   const { id } = res.locals.user;
   const body = req.body;
   const isUpdated = await updateEstablishmentInfo(id, body);
-  if (!isUpdated.modifiedCount) return res.status(400).json({ message: 'Could not updated establishment info' });
+  if (!isUpdated.modifiedCount) return res.status(400).json({ message: 'Could not update establishment info' });
   return res.sendStatus(204);
 };
 
@@ -86,7 +86,7 @@ export const addMenuRoomHandler = async (req: Request<{}, {}, addMenuRoomInput>,
   )
     return res.status(403).json({ message: 'Invalid Operation' });
   const isUpdated = type === 'MENU' ? await addMenuItem(id, data) : await addRoom(id, data);
-  if (!isUpdated.modifiedCount) return res.status(403).json({ message: 'Invalid Operation' });
+  if (!isUpdated.modifiedCount) return res.status(400).json({ message: 'Operation failed' });
   return res.sendStatus(204);
 };
 
@@ -101,6 +101,6 @@ export const removeMenuRoomHandler = async (req: Request<{}, {}, removeMenuRoomI
   )
     return res.status(403).json({ message: 'Invalid Operation' });
   const isUpdated = type === 'MENU' ? await removeMenuItem(id, itemId) : await removeRoom(id, itemId);
-  if (!isUpdated.modifiedCount) return res.status(403).json({ message: 'Invalid Operation' });
+  if (!isUpdated.modifiedCount) return res.status(400).json({ message: 'Operation failed' });
   return res.sendStatus(204);
 };

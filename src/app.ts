@@ -6,13 +6,13 @@ import {
   facebookStrategy,
   googleStrategy,
 } from '@middlewares';
-import { coreRoutes, establishmentRoutes, userRoutes } from '@routes';
+import { coreRoutes, establishmentRoutes, reservationRoutes, userRoutes } from '@routes';
 import compression from 'compression';
 import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
-import { notFoundHandler } from './controllers/core.controllers';
 import passport from 'passport';
+import { notFoundHandler } from './controllers/core.controllers';
 
 const app = express();
 
@@ -34,6 +34,7 @@ passport.use(facebookStrategy);
 app.use('/api/v1/core', coreRoutes);
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/establishment', establishmentRoutes);
+app.use('/api/v1/reservation', reservationRoutes);
 app.use('*', notFoundHandler);
 
 app.use(errorHandler);

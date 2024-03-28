@@ -8,14 +8,11 @@ import { EstablishmentType, Status } from '@types';
   options: { allowMixed: Severity.ALLOW },
 })
 export class Reservation {
-  @prop({ ref: () => Establishment, required: true })
+  @prop({ ref: () => 'Establishment', required: true })
   establishment!: Ref<Establishment>;
 
-  @prop({ ref: () => User, required: true })
+  @prop({ ref: () => 'User', required: true })
   user!: Ref<User>;
-
-  @prop({ enum: EstablishmentType, required: true, type: String })
-  type!: EstablishmentType;
 
   @prop({ enum: Status, default: Status.PENDING, type: String })
   status: Status;
