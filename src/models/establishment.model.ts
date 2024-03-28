@@ -1,13 +1,4 @@
-import {
-  DocumentType,
-  getModelForClass,
-  index,
-  isDocumentArray,
-  modelOptions,
-  pre,
-  prop,
-  Severity,
-} from '@typegoose/typegoose';
+import { DocumentType, getModelForClass, index, modelOptions, pre, prop, Severity } from '@typegoose/typegoose';
 import { EstablishmentType, IAddress, IAvailability, IRoomMenu } from '@types';
 import { verifyCode } from '@utils';
 import bcrypt from 'bcrypt';

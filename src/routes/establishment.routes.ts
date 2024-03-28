@@ -1,16 +1,16 @@
 import {
-  addMenuItemHandler,
+  addMenuRoomHandler,
   createEstablishmentHandler,
   loginEstablishmentHandler,
-  removeMenuItemHandler,
+  removeMenuRoomHandler,
   updateEstablishmentHandler,
 } from '@controllers';
 import { requireAuth, validateSchema } from '@middlewares';
 import {
-  addMenuItemSchema,
+  addMenuRoomSchema,
   createEstablishmentSchema,
   loginEstablishmentSchema,
-  removeMenuItemSchema,
+  removeMenuRoomSchema,
   updateEstablishmentSchema,
 } from '@schemas';
 import { Router } from 'express';
@@ -21,7 +21,7 @@ router.post('/signup', validateSchema(createEstablishmentSchema), createEstablis
 router.post('/login', validateSchema(loginEstablishmentSchema), loginEstablishmentHandler);
 router.use(requireAuth);
 router.patch('/update', validateSchema(updateEstablishmentSchema), updateEstablishmentHandler);
-router.post('/menu', validateSchema(addMenuItemSchema), addMenuItemHandler);
-router.delete('/menu/:itemId', validateSchema(removeMenuItemSchema), removeMenuItemHandler);
+router.post('/menuroom', validateSchema(addMenuRoomSchema), addMenuRoomHandler);
+router.delete('/menuroom/', validateSchema(removeMenuRoomSchema), removeMenuRoomHandler);
 
 export default router;

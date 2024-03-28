@@ -1,17 +1,19 @@
 import { privateFields } from '@models';
 import {
-  addMenuItemInput,
+  addMenuRoomInput,
   createEstablishmentInput,
   loginEstablishmentInput,
-  removeMenuItemInput,
+  removeMenuRoomInput,
   updateEstablishmentInput,
 } from '@schemas';
 import {
   addMenuItem,
+  addRoom,
   createEstablishment,
   findEstablishmentByEmail,
   findEstablishmentById,
   removeMenuItem,
+  removeRoom,
   setEstablishmentRefreshToken,
   signTokens,
   updateEstablishmentInfo,
@@ -73,26 +75,32 @@ export const updateEstablishmentHandler = async (req: Request<{}, {}, updateEsta
   return res.sendStatus(204);
 };
 
-export const addMenuItemHandler = async (req: Request<{}, {}, addMenuItemInput>, res: Response) => {
+export const addMenuRoomHandler = async (req: Request<{}, {}, addMenuRoomInput>, res: Response) => {
   const { id } = res.locals.user;
-  const menu = req.body;
+  const { data, type } = req.body;
   const establishment = await findEstablishmentById(id);
   if (!establishment) return res.status(404).json({ message: 'Establishment not found' });
-  if (establishment.type !== EstablishmentType.RESTAURANT)
+  if (
+    (establishment.type !== EstablishmentType.STAY && type === 'ROOM') ||
+    (establishment.type !== EstablishmentType.RESTAURANT && type === 'MENU')
+  )
     return res.status(403).json({ message: 'Invalid Operation' });
-  const isUpdated = await addMenuItem(id, menu);
+  const isUpdated = type === 'MENU' ? await addMenuItem(id, data) : await addRoom(id, data);
   if (!isUpdated.modifiedCount) return res.status(403).json({ message: 'Invalid Operation' });
   return res.sendStatus(204);
 };
 
-export const removeMenuItemHandler = async (req: Request<removeMenuItemInput>, res: Response) => {
+export const removeMenuRoomHandler = async (req: Request<{}, {}, removeMenuRoomInput>, res: Response) => {
   const { id } = res.locals.user;
-  const { itemId } = req.params;
+  const { itemId, type } = req.body;
   const establishment = await findEstablishmentById(id);
   if (!establishment) return res.status(404).json({ message: 'Establishment not found' });
-  if (establishment.type !== EstablishmentType.RESTAURANT)
+  if (
+    (establishment.type !== EstablishmentType.STAY && type === 'ROOM') ||
+    (establishment.type !== EstablishmentType.RESTAURANT && type === 'MENU')
+  )
     return res.status(403).json({ message: 'Invalid Operation' });
-  const isUpdated = await removeMenuItem(id, itemId);
+  const isUpdated = type === 'MENU' ? await removeMenuItem(id, itemId) : await removeRoom(id, itemId);
   if (!isUpdated.modifiedCount) return res.status(403).json({ message: 'Invalid Operation' });
   return res.sendStatus(204);
 };

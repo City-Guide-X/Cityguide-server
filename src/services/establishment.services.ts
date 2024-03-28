@@ -28,3 +28,11 @@ export const addMenuItem = (_id: string, menu: IRoomMenu) => {
 export const removeMenuItem = (_id: string, menuId: string) => {
   return EstablishmentModel.updateOne({ _id }, { $pull: { menu: { id: menuId } } });
 };
+
+export const addRoom = (_id: string, rooms: IRoomMenu) => {
+  return EstablishmentModel.updateOne({ _id }, { $addToSet: { rooms } });
+};
+
+export const removeRoom = (_id: string, roomId: string) => {
+  return EstablishmentModel.updateOne({ _id }, { $pull: { rooms: { id: roomId } } });
+};

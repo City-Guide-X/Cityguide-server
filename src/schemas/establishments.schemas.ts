@@ -1,5 +1,5 @@
 import { EstablishmentType } from '@types';
-import { nativeEnum, number, object, optional, string, TypeOf } from 'zod';
+import { nativeEnum, number, object, optional, string, TypeOf, enum as zEnum } from 'zod';
 
 export const createEstablishmentSchema = object({
   body: object({
@@ -75,30 +75,37 @@ export const updateEstablishmentSchema = object({
         }),
       }).array()
     ),
+    deliveryFee: optional(number({ invalid_type_error: 'Delivery fee has to be a number' })),
+    facilities: optional(string().array()),
+    price: optional(number({ invalid_type_error: 'Price has to be a number' })),
   }),
 });
 
-export const addMenuItemSchema = object({
+export const addMenuRoomSchema = object({
   body: object({
-    id: string({ required_error: 'Item ID is required' }),
-    name: string({ required_error: 'Item name is required' }).min(3, 'Item name requires atleast 3 characters'),
-    desc: string({ required_error: 'Item description is required' }).min(
-      3,
-      'Item description requires atleast 3 characters'
+    data: object(
+      {
+        id: string({ required_error: 'ID is required' }),
+        name: string({ required_error: 'Name is required' }).min(3, 'Name requires atleast 3 characters'),
+        desc: string({ required_error: 'Description is required' }).min(3, 'Description requires atleast 3 characters'),
+        imgUrl: string({ required_error: 'Image is required' }),
+        price: number({ required_error: 'Price is required', invalid_type_error: 'Price has to be a number' }),
+      },
+      { required_error: 'Data body is required' }
     ),
-    imgUrl: string({ required_error: 'Item image is required' }),
-    price: number({ required_error: 'Item price is required', invalid_type_error: 'Item price has to be a number' }),
+    type: zEnum(['MENU', 'ROOM'], { required_error: 'Type (MENU/ROOM) is required' }),
   }),
 });
 
-export const removeMenuItemSchema = object({
-  params: object({
-    itemId: string({ required_error: 'Item ID is required' }),
+export const removeMenuRoomSchema = object({
+  body: object({
+    itemId: string({ required_error: 'ID is required' }),
+    type: zEnum(['MENU', 'ROOM']),
   }),
 });
 
 export type createEstablishmentInput = TypeOf<typeof createEstablishmentSchema>['body'];
 export type loginEstablishmentInput = TypeOf<typeof loginEstablishmentSchema>['body'];
 export type updateEstablishmentInput = TypeOf<typeof updateEstablishmentSchema>['body'];
-export type addMenuItemInput = TypeOf<typeof addMenuItemSchema>['body'];
-export type removeMenuItemInput = TypeOf<typeof removeMenuItemSchema>['params'];
+export type addMenuRoomInput = TypeOf<typeof addMenuRoomSchema>['body'];
+export type removeMenuRoomInput = TypeOf<typeof removeMenuRoomSchema>['body'];
