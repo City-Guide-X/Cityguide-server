@@ -1,6 +1,22 @@
 import { privateFields, User } from '@models';
-import { createUserInput, loginUserInput, updateUserInput } from '@schemas';
-import { createUser, findUserByEmail, findUserById, setUserRefreshToken, signTokens, updateUserInfo } from '@services';
+import {
+  createUserInput,
+  getEstablishmentInput,
+  getEstablishmentsInput,
+  loginUserInput,
+  updateUserInput,
+} from '@schemas';
+import {
+  createUser,
+  findEstablishmentById,
+  findEstablishmentByType,
+  findUserByEmail,
+  findUserById,
+  getAllEstablishments,
+  setUserRefreshToken,
+  signTokens,
+  updateUserInfo,
+} from '@services';
 import { sendEmail } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
@@ -86,4 +102,18 @@ export const updateUserHandler = async (req: Request<{}, {}, updateUserInput>, r
   const isUpdated = await updateUserInfo(id, body);
   if (!isUpdated.modifiedCount) return res.status(400).json({ message: 'Could not update user info' });
   return res.sendStatus(204);
+};
+
+export const getEstablishmentsHandler = async (req: Request<{}, {}, getEstablishmentsInput>, res: Response) => {
+  const { types } = req.body;
+  const establishments = !!types ? await findEstablishmentByType(types) : await getAllEstablishments();
+  if (!establishments.length) return res.status(404).json({ message: 'No establishments found' });
+  return res.status(200).json({ establishments: establishments.map((e) => omit(e.toJSON(), privateFields)) });
+};
+
+export const getEstablishmentHandler = async (req: Request<getEstablishmentInput>, res: Response) => {
+  const { id } = req.params;
+  const establishment = await findEstablishmentById(id);
+  if (!establishment) return res.status(404).json({ message: 'Establishment not found' });
+  return res.status(200).json({ establishment: omit(establishment.toJSON(), privateFields) });
 };

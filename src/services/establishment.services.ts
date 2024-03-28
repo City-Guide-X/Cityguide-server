@@ -5,12 +5,18 @@ export const createEstablishment = (input: Partial<Establishment>) => {
   return EstablishmentModel.create({ ...input });
 };
 
+export const getAllEstablishments = () => EstablishmentModel.find();
+
 export const findEstablishmentById = (id: string) => {
   return EstablishmentModel.findById(id);
 };
 
 export const findEstablishmentByEmail = (email: string) => {
   return EstablishmentModel.findOne({ email });
+};
+
+export const findEstablishmentByType = (types: string[]) => {
+  return EstablishmentModel.find({ type: { $in: types } });
 };
 
 export const updateEstablishmentInfo = (_id: string, fields: Partial<Establishment>) => {
