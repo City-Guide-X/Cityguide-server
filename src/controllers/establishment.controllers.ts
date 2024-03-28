@@ -40,7 +40,7 @@ export const createEstablishmentHandler = async (req: Request<{}, {}, createEsta
       type: 'ESTABLISHMENT',
     });
     await setEstablishmentRefreshToken(establishment._id.toString(), refreshToken!);
-    return res.status(201).json({ user: omit(establishment.toJSON(), privateFields), accessToken });
+    return res.status(201).json({ establishment: omit(establishment.toJSON(), privateFields), accessToken });
   } catch (err: any) {
     if (err.code === 11000)
       return res.status(409).json({
@@ -62,9 +62,17 @@ export const loginEstablishmentHandler = async (req: Request<{}, {}, loginEstabl
   });
   await setEstablishmentRefreshToken(establishment._id.toString(), refreshToken!);
   return res.status(201).json({
-    user: omit(establishment.toJSON(), privateFields),
+    establishment: omit(establishment.toJSON(), privateFields),
     accessToken,
   });
+};
+
+export const getEstablishmentProfileHandler = async (req: Request, res: Response) => {
+  const { id, type } = res.locals.user;
+  if (type === 'USER') return res.status(403).json({ message: 'Invalid Operation' });
+  const establishment = await findEstablishmentById(id);
+  if (!establishment) return res.sendStatus(404).json({ message: 'Establishment not found' });
+  return res.status(200).json({ establishment: omit(establishment.toJSON(), privateFields) });
 };
 
 export const updateEstablishmentHandler = async (req: Request<{}, {}, updateEstablishmentInput>, res: Response) => {

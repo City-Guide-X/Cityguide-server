@@ -1,3 +1,4 @@
+import { privateFields } from '@models';
 import {
   findEstablishmentById,
   findUserById,
@@ -8,6 +9,7 @@ import {
 import { IPayload } from '@types';
 import { sendEmail, verifyCode, verifyJWT } from '@utils';
 import { Request, Response } from 'express';
+import { omit } from 'lodash';
 import { changePasswordInput, verifyEmailInput } from 'src/schemas/core.schemas';
 
 export const refreshAccessTokenHandler = async (req: Request, res: Response) => {

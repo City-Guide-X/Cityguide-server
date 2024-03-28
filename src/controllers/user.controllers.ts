@@ -1,6 +1,6 @@
 import { privateFields, User } from '@models';
 import { createUserInput, loginUserInput, updateUserInput } from '@schemas';
-import { createUser, findUserByEmail, setUserRefreshToken, signTokens, updateUserInfo } from '@services';
+import { createUser, findUserByEmail, findUserById, setUserRefreshToken, signTokens, updateUserInfo } from '@services';
 import { sendEmail } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
@@ -70,6 +70,14 @@ export const socialAuthHandler = async (req: Request, res: Response) => {
     await setUserRefreshToken(user._id.toString(), refreshToken!);
     return res.status(201).json({ user: omit(user.toJSON(), privateFields), accessToken });
   }
+};
+
+export const getUserProfileHandler = async (req: Request, res: Response) => {
+  const { id, type } = res.locals.user;
+  if (type === 'ESTABLISHMENT') return res.status(403).json({ message: 'Invalid Operation' });
+  const user = await findUserById(id);
+  if (!user) return res.sendStatus(404).json({ message: 'User not found' });
+  return res.status(200).json({ user: omit(user.toJSON(), privateFields) });
 };
 
 export const updateUserHandler = async (req: Request<{}, {}, updateUserInput>, res: Response) => {

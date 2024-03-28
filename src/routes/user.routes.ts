@@ -1,4 +1,10 @@
-import { createUserHandler, loginUserHandler, socialAuthHandler, updateUserHandler } from '@controllers';
+import {
+  createUserHandler,
+  getUserProfileHandler,
+  loginUserHandler,
+  socialAuthHandler,
+  updateUserHandler,
+} from '@controllers';
 import { requireAuth, validateSchema } from '@middlewares';
 import { createUserSchema, loginUserSchema, updateUserSchema } from '@schemas';
 import { Router } from 'express';
@@ -13,6 +19,7 @@ router.get('/login/facebook', passport.authenticate('facebook', { scope: ['email
 router.get('/login/google/callback', passport.authenticate('google', { session: false }), socialAuthHandler);
 router.get('/login/facebook/callback', passport.authenticate('facebook', { session: false }), socialAuthHandler);
 router.use(requireAuth);
+router.get('/profile', getUserProfileHandler);
 router.patch('/update', validateSchema(updateUserSchema), updateUserHandler);
 
 export default router;
