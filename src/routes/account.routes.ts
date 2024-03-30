@@ -1,5 +1,6 @@
 import {
   changePasswordHandler,
+  deleteAccountHandler,
   logoutHandler,
   refreshAccessTokenHandler,
   resendVerifyEmailHandler,
@@ -20,5 +21,6 @@ router.get('/verifyemail/:otp', validateSchema(verifyEmailSchema), verifyEmailHa
 router.get('/resendverifyemail', resendVerifyEmailHandler);
 router.post('/changepassword/:otp', validateSchema(changePasswordSchema), changePasswordHandler);
 router.post('/upload', parser.single('image'), uploadImageHandler);
+router.delete('/delete', deleteAccountHandler);
 
 export default router;

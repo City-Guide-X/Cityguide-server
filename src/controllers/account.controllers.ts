@@ -94,7 +94,7 @@ export const logoutHandler = async (req: Request, res: Response) => {
   return res.sendStatus(204);
 };
 
-export const deleteAccount = async (req: Request, res: Response) => {
+export const deleteAccountHandler = async (req: Request, res: Response) => {
   const { id, type } = res.locals.user;
   const user = type === 'USER' ? await findUserById(id) : await findEstablishmentById(id);
   if (!user) return res.sendStatus(204);
