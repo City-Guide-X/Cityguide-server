@@ -5,11 +5,11 @@ export const createReservation = (option: Partial<Reservation>, establishment: s
 };
 
 export const getAllUserReservations = (user: string) => {
-  return ReservationModel.find({ user });
+  return ReservationModel.find({ user }).sort('updatedAt');
 };
 
 export const getAllEstablishmentReservations = (establishment: string) => {
-  return ReservationModel.find({ establishment });
+  return ReservationModel.find({ establishment }).sort('updatedAt');
 };
 
 export const findReservationById = (_id: string) => {

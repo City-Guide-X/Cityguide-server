@@ -6,7 +6,7 @@ import {
   facebookStrategy,
   googleStrategy,
 } from '@middlewares';
-import { coreRoutes, establishmentRoutes, reservationRoutes, userRoutes } from '@routes';
+import { coreRoutes, establishmentRoutes, reservationRoutes, reviewRoutes, userRoutes } from '@routes';
 import compression from 'compression';
 import cors from 'cors';
 import express from 'express';
@@ -35,6 +35,7 @@ app.use('/api/v1/core', coreRoutes);
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/establishment', establishmentRoutes);
 app.use('/api/v1/reservation', reservationRoutes);
+app.use('/api/v1/review', reviewRoutes);
 app.use('*', notFoundHandler);
 
 app.use(errorHandler);

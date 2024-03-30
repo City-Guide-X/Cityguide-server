@@ -57,3 +57,11 @@ export interface IEmail {
   to: string;
   locals: object;
 }
+
+export interface IReview {
+  id: string;
+  user: string;
+  rating: Rating;
+  message: string;
+  createdAt: Date;
+}

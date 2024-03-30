@@ -1,7 +1,7 @@
 import { getModelForClass, modelOptions, prop, Ref, Severity } from '@typegoose/typegoose';
+import { Status } from '@types';
 import { Establishment } from './establishment.model';
 import { User } from './user.model';
-import { EstablishmentType, Status } from '@types';
 
 @modelOptions({
   schemaOptions: { timestamps: true },

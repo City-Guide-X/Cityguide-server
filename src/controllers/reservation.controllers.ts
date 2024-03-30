@@ -7,6 +7,7 @@ import {
   getAllUserReservations,
   updateReservation,
 } from '@services';
+import { Status } from '@types';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
 
@@ -31,7 +32,7 @@ export const getReservationsHandler = async (req: Request, res: Response) => {
 export const updateReservationHandler = async (req: Request<{}, {}, updateReservationInput>, res: Response) => {
   const { id, type } = res.locals.user;
   const { id: itemId, status } = req.body;
-  if (type === 'USER') return res.status(403).json({ message: 'Invalid Operation' });
+  if (type === 'USER' && status !== Status.CANCELLED) return res.status(403).json({ message: 'Invalid Operation' });
   const reservation = await findReservationById(itemId);
   if (!reservation) return res.status(404).json({ message: 'Reservation not found' });
   if (reservation.establishment.toString() !== id) return res.status(403).json({ message: 'Unauthorized' });
