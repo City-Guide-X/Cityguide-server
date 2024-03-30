@@ -1,4 +1,6 @@
 import {
+  deleteEstablishment,
+  deleteUser,
   findEstablishmentById,
   findUserById,
   setEstablishmentRefreshToken,
@@ -8,7 +10,7 @@ import {
 import { IPayload } from '@types';
 import { sendEmail, verifyCode, verifyJWT } from '@utils';
 import { Request, Response } from 'express';
-import { changePasswordInput, verifyEmailInput } from 'src/schemas/core.schemas';
+import { changePasswordInput, verifyEmailInput } from 'src/schemas/account.schemas';
 
 export const refreshAccessTokenHandler = async (req: Request, res: Response) => {
   const { id, type } = res.locals.user;
@@ -89,6 +91,15 @@ export const logoutHandler = async (req: Request, res: Response) => {
   if (!user) return res.sendStatus(204);
   if (type === 'USER') await setUserRefreshToken(id, null);
   else await setEstablishmentRefreshToken(id, null);
+  return res.sendStatus(204);
+};
+
+export const deleteAccount = async (req: Request, res: Response) => {
+  const { id, type } = res.locals.user;
+  const user = type === 'USER' ? await findUserById(id) : await findEstablishmentById(id);
+  if (!user) return res.sendStatus(204);
+  if (type === 'USER') await deleteUser(id);
+  else await deleteEstablishment(id);
   return res.sendStatus(204);
 };
 

@@ -19,3 +19,7 @@ export const updateUserInfo = (_id: string, options: Partial<User>) => {
 export const setUserRefreshToken = (_id: string, refreshToken: string | null) => {
   return UserModel.updateOne({ _id }, { refreshToken });
 };
+
+export const deleteUser = (_id: string) => {
+  return UserModel.findOneAndDelete({ _id });
+};

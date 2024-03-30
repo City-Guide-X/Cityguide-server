@@ -65,3 +65,7 @@ export const updateEstablishmentRating = async (_id: string) => {
   ]);
   return EstablishmentModel.updateOne({ _id }, { rating: avgRating[0].avgRating.toFixed(1) });
 };
+
+export const deleteEstablishment = (_id: string) => {
+  return EstablishmentModel.findOneAndDelete({ _id });
+};
