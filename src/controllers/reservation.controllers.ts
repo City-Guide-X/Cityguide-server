@@ -35,7 +35,11 @@ export const updateReservationHandler = async (req: Request<{}, {}, updateReserv
   if (type === 'USER' && status !== Status.CANCELLED) return res.status(403).json({ message: 'Invalid Operation' });
   const reservation = await findReservationById(itemId);
   if (!reservation) return res.status(404).json({ message: 'Reservation not found' });
-  if (reservation.establishment.toString() !== id) return res.status(403).json({ message: 'Unauthorized' });
+  if (
+    (type === 'ESTABLISHMENT' && reservation.establishment.toString() !== id) ||
+    (type === 'USER' && reservation.user.toString !== id)
+  )
+    return res.status(403).json({ message: 'Unauthorized' });
   const isUpdated = await updateReservation(itemId, { status });
   if (!isUpdated.modifiedCount) return res.status(400).json({ message: 'Operation failed' });
   return res.sendStatus(204);

@@ -30,7 +30,7 @@ export const verifyEmailHandler = async (req: Request<verifyEmailInput>, res: Re
   if (!user) return res.status(404).json({ message });
   if (user.emailIsVerified) return res.sendStatus(204);
   if (user.otp === +otp) {
-    user.emailIsVerified = true;
+    if (!user.emailIsVerified) user.emailIsVerified = true;
     user.otp = null;
     await user.save();
     return res.sendStatus(204);
@@ -38,7 +38,7 @@ export const verifyEmailHandler = async (req: Request<verifyEmailInput>, res: Re
   return res.status(400).json({ message });
 };
 
-export const resendVerifyEmailHandler = async (req: Request, res: Response) => {
+export const sendVerifyEmailHandler = async (req: Request, res: Response) => {
   const { id, type } = res.locals.user;
   let user, name, otp;
   if (type === 'USER') {

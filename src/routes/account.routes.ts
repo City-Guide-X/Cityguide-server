@@ -3,7 +3,7 @@ import {
   deleteAccountHandler,
   logoutHandler,
   refreshAccessTokenHandler,
-  resendVerifyEmailHandler,
+  sendVerifyEmailHandler,
   uploadImageHandler,
   verifyEmailHandler,
 } from '@controllers';
@@ -18,7 +18,7 @@ router.delete('/logout', logoutHandler);
 router.use(requireAuth);
 router.get('/refreshaccess', refreshAccessTokenHandler);
 router.get('/verifyemail/:otp', validateSchema(verifyEmailSchema), verifyEmailHandler);
-router.get('/resendverifyemail', resendVerifyEmailHandler);
+router.get('/sendverificationemail', sendVerifyEmailHandler);
 router.post('/changepassword/:otp', validateSchema(changePasswordSchema), changePasswordHandler);
 router.post('/upload', parser.single('image'), uploadImageHandler);
 router.delete('/delete', deleteAccountHandler);
