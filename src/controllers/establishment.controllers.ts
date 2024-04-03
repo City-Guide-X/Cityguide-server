@@ -1,17 +1,21 @@
 import { privateFields } from '@models';
 import {
+  addMenuImgInput,
   addMenuRoomInput,
   createEstablishmentInput,
   loginEstablishmentInput,
   removeMenuRoomInput,
+  removeMenyImgInput,
   updateEstablishmentInput,
 } from '@schemas';
 import {
+  addMenuImg,
   addMenuItem,
   addRoom,
   createEstablishment,
   findEstablishmentByEmail,
   findEstablishmentById,
+  removeMenuImg,
   removeMenuItem,
   removeRoom,
   setEstablishmentRefreshToken,
@@ -68,8 +72,7 @@ export const loginEstablishmentHandler = async (req: Request<{}, {}, loginEstabl
 };
 
 export const getEstablishmentProfileHandler = async (req: Request, res: Response) => {
-  const { id, type } = res.locals.user;
-  if (type === 'USER') return res.status(403).json({ message: 'Invalid Operation' });
+  const { id } = res.locals.user;
   const establishment = await findEstablishmentById(id);
   if (!establishment) return res.sendStatus(404).json({ message: 'Establishment not found' });
   return res.status(200).json({ establishment: omit(establishment.toJSON(), privateFields) });
@@ -100,7 +103,7 @@ export const addMenuRoomHandler = async (req: Request<{}, {}, addMenuRoomInput>,
 
 export const removeMenuRoomHandler = async (req: Request<{}, {}, removeMenuRoomInput>, res: Response) => {
   const { id } = res.locals.user;
-  const { itemId, type } = req.body;
+  const { itemIds, type } = req.body;
   const establishment = await findEstablishmentById(id);
   if (!establishment) return res.status(404).json({ message: 'Establishment not found' });
   if (
@@ -108,7 +111,27 @@ export const removeMenuRoomHandler = async (req: Request<{}, {}, removeMenuRoomI
     (establishment.type !== EstablishmentType.RESTAURANT && type === 'MENU')
   )
     return res.status(403).json({ message: 'Invalid Operation' });
-  const isUpdated = type === 'MENU' ? await removeMenuItem(id, itemId) : await removeRoom(id, itemId);
+  const isUpdated = type === 'MENU' ? await removeMenuItem(id, itemIds) : await removeRoom(id, itemIds);
+  if (!isUpdated.modifiedCount) return res.status(400).json({ message: 'Operation failed' });
+  return res.sendStatus(204);
+};
+
+export const addMenuImgHandler = async (req: Request<{}, {}, addMenuImgInput>, res: Response) => {
+  const { id } = res.locals.user;
+  const { images } = req.body;
+  const establishment = await findEstablishmentById(id);
+  if (!establishment) return res.status(404).json({ message: 'Establishment not found' });
+  if (establishment.type !== EstablishmentType.RESTAURANT)
+    return res.status(403).json({ message: 'Invalid Operation' });
+  const isUpdated = await addMenuImg(id, images);
+  if (!isUpdated.modifiedCount) return res.status(400).json({ message: 'Operation failed' });
+  return res.sendStatus(204);
+};
+
+export const removeMenuImgHandler = async (req: Request<{}, {}, removeMenyImgInput>, res: Response) => {
+  const { id } = res.locals.user;
+  const { itemIds } = req.body;
+  const isUpdated = await removeMenuImg(id, itemIds);
   if (!isUpdated.modifiedCount) return res.status(400).json({ message: 'Operation failed' });
   return res.sendStatus(204);
 };

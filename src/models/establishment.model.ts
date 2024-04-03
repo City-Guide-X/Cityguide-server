@@ -1,5 +1,5 @@
 import { DocumentType, getModelForClass, index, modelOptions, pre, prop, Severity } from '@typegoose/typegoose';
-import { EstablishmentType, IAddress, IAvailability, IRoomMenu } from '@types';
+import { EstablishmentType, IAddress, IAvailability, IMenuImg, IRoomMenu } from '@types';
 import { verifyCode } from '@utils';
 import bcrypt from 'bcrypt';
 
@@ -61,6 +61,9 @@ export class Establishment {
 
   @prop({ default: [], _id: false })
   menu: IRoomMenu[];
+
+  @prop({ default: [] })
+  menuImgs: IMenuImg[];
 
   @prop({ default: null })
   deliveryFee: number | null;

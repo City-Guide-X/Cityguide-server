@@ -89,8 +89,7 @@ export const socialAuthHandler = async (req: Request, res: Response) => {
 };
 
 export const getUserProfileHandler = async (req: Request, res: Response) => {
-  const { id, type } = res.locals.user;
-  if (type === 'ESTABLISHMENT') return res.status(403).json({ message: 'Invalid Operation' });
+  const { id } = res.locals.user;
   const user = await findUserById(id);
   if (!user) return res.sendStatus(404).json({ message: 'User not found' });
   return res.status(200).json({ user: omit(user.toJSON(), privateFields) });

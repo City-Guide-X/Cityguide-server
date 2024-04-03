@@ -6,8 +6,7 @@ import { omit } from 'lodash';
 
 export const createReviewHandler = async (req: Request<{}, {}, createReviewInput>, res: Response) => {
   const { establishment, ...data } = req.body;
-  const { id, type } = res.locals.user;
-  if (type === 'ESTABLISHMENT') return res.status(403).json({ message: 'Invalid Operation' });
+  const { id } = res.locals.user;
   try {
     const review = await createReview(data, id, establishment);
     await updateEstablishmentRating(establishment);
@@ -28,9 +27,8 @@ export const getEstablishmentReviewsHandler = async (req: Request<{}, {}, getRev
 };
 
 export const deleteReviewHandler = async (req: Request<deleteReviewInput>, res: Response) => {
-  const { id, type } = res.locals.user;
+  const { id } = res.locals.user;
   const { reviewId } = req.params;
-  if (type === 'ESTABLISHMENT') return res.status(403).json({ message: 'Invalid Operation' });
   const isDeleted = await deleteReview(reviewId, id);
   if (!isDeleted) return res.status(400).json({ message: 'Operation failed' });
   await updateEstablishmentRating(isDeleted.establishment.toString());

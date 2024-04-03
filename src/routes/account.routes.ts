@@ -20,7 +20,7 @@ router.get('/refreshaccess', refreshAccessTokenHandler);
 router.get('/verifyemail/:otp', validateSchema(verifyEmailSchema), verifyEmailHandler);
 router.get('/sendverificationemail', sendVerifyEmailHandler);
 router.post('/changepassword/:otp', validateSchema(changePasswordSchema), changePasswordHandler);
-router.post('/upload', parser.single('image'), uploadImageHandler);
+router.post('/upload', parser.array('images', 10), uploadImageHandler);
 router.delete('/delete', deleteAccountHandler);
 
 export default router;

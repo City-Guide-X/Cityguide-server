@@ -65,3 +65,8 @@ export interface IReview {
   message: string;
   createdAt: Date;
 }
+
+export interface IMenuImg {
+  id: string;
+  imgUrl: string;
+}

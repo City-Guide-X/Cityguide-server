@@ -13,8 +13,7 @@ import { omit } from 'lodash';
 
 export const createReservationHandler = async (req: Request<{}, {}, createReservationInput>, res: Response) => {
   const { establishment, ...data } = req.body;
-  const { id, type } = res.locals.user;
-  if (type === 'ESTABLISHMENT') return res.status(403).json({ message: 'Invalid Operation' });
+  const { id } = res.locals.user;
   try {
     const reservation = await createReservation(data, establishment, id);
     res.status(201).json({ reservation: omit(reservation.toJSON(), privateFields) });

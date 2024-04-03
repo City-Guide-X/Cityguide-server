@@ -99,8 +99,28 @@ export const addMenuRoomSchema = object({
 
 export const removeMenuRoomSchema = object({
   body: object({
-    itemId: string({ required_error: 'ID is required' }),
+    itemIds: string({ required_error: 'ID is required' }).array().min(1, 'Atleast 1 item ID should be supplied'),
     type: zEnum(['MENU', 'ROOM']),
+  }),
+});
+
+export const addMenuImgSchema = object({
+  body: object({
+    images: object(
+      {
+        id: string({ required_error: 'ID is required' }),
+        imgUrl: string({ required_error: 'Image is required' }),
+      },
+      { required_error: 'Images array is required' }
+    )
+      .array()
+      .min(1, 'There should be atleast 1 menu img to add'),
+  }),
+});
+
+export const removeMenuImgSchema = object({
+  body: object({
+    itemIds: string({ required_error: 'ID is required' }).array().min(1, 'Atleast 1 item ID should be supplied'),
   }),
 });
 
@@ -109,3 +129,5 @@ export type loginEstablishmentInput = TypeOf<typeof loginEstablishmentSchema>['b
 export type updateEstablishmentInput = TypeOf<typeof updateEstablishmentSchema>['body'];
 export type addMenuRoomInput = TypeOf<typeof addMenuRoomSchema>['body'];
 export type removeMenuRoomInput = TypeOf<typeof removeMenuRoomSchema>['body'];
+export type addMenuImgInput = TypeOf<typeof addMenuImgSchema>['body'];
+export type removeMenyImgInput = TypeOf<typeof removeMenuImgSchema>['body'];

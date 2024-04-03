@@ -62,9 +62,9 @@ export const sendVerifyEmailHandler = async (req: Request, res: Response) => {
 };
 
 export const uploadImageHandler = async (req: Request, res: Response) => {
-  const imgUrl = req.file?.path;
-  if (!imgUrl) return res.status(400).json({ message: 'Upload failed' });
-  return res.status(200).json({ imgUrl });
+  const imgUrls = req.files as Express.Multer.File[];
+  if (!imgUrls?.length) return res.status(400).json({ message: 'Upload failed' });
+  res.status(200).json({ imgUrls: imgUrls.map((file: any) => file.path) });
 };
 
 export const changePasswordHandler = async (

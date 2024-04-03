@@ -1,5 +1,5 @@
 import { Establishment, EstablishmentModel } from '@models';
-import { IRoomMenu } from '@types';
+import { IMenuImg, IRoomMenu } from '@types';
 import { Types } from 'mongoose';
 
 export const createEstablishment = (input: Partial<Establishment>) => {
@@ -32,16 +32,24 @@ export const addMenuItem = (_id: string, menu: IRoomMenu) => {
   return EstablishmentModel.updateOne({ _id }, { $addToSet: { menu } });
 };
 
-export const removeMenuItem = (_id: string, menuId: string) => {
-  return EstablishmentModel.updateOne({ _id }, { $pull: { menu: { id: menuId } } });
+export const removeMenuItem = (_id: string, menuIds: string[]) => {
+  return EstablishmentModel.updateOne({ _id }, { $pull: { menu: { id: { $in: menuIds } } } });
 };
 
 export const addRoom = (_id: string, rooms: IRoomMenu) => {
   return EstablishmentModel.updateOne({ _id }, { $addToSet: { rooms } });
 };
 
-export const removeRoom = (_id: string, roomId: string) => {
-  return EstablishmentModel.updateOne({ _id }, { $pull: { rooms: { id: roomId } } });
+export const removeRoom = (_id: string, roomIds: string[]) => {
+  return EstablishmentModel.updateOne({ _id }, { $pull: { rooms: { id: { $in: roomIds } } } });
+};
+
+export const addMenuImg = (_id: string, menuImgs: IMenuImg[]) => {
+  return EstablishmentModel.updateOne({ _id }, { $addToSet: { menuImgs: { $each: menuImgs } } });
+};
+
+export const removeMenuImg = (_id: string, menuImgIds: string[]) => {
+  return EstablishmentModel.updateOne({ _id }, { $pull: { menuImgs: { id: { $in: menuImgIds } } } });
 };
 
 export const updateEstablishmentRating = async (_id: string) => {
