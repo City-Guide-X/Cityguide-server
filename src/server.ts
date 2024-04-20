@@ -54,5 +54,10 @@ mongoose.connection.once('open', () => {
     socket.on('update_establishment', async (data) => {
       socket.broadcast.emit('updated_establishment', data);
     });
+    socket.on('disconnect', () => {
+      onlineUsers.forEach((val, key) => {
+        if (val === socket.id) onlineUsers.delete(key);
+      });
+    });
   });
 });
