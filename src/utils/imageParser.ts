@@ -10,7 +10,7 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary,
   params: {
-    folder: 'bookaholic',
+    folder: 'cityguide',
     transformation: [{ width: 500, height: 500, crop: 'limit' }],
     allowed_formats: ['jpg', 'png'],
     unique_filename: true,

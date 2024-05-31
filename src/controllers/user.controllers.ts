@@ -78,13 +78,21 @@ export const socialAuthHandler = async (req: Request, res: Response) => {
     await setUserRefreshToken(user._id.toString(), refreshToken!);
     return res.status(200).json({ user: omit(user.toJSON(), privateFields), accessToken });
   } else {
-    const user = await createUser(data);
-    const { accessToken, refreshToken } = signTokens({
-      id: user._id.toString(),
-      type: 'USER',
-    });
-    await setUserRefreshToken(user._id.toString(), refreshToken!);
-    return res.status(201).json({ user: omit(user.toJSON(), privateFields), accessToken });
+    try {
+      const user = await createUser(data);
+      const { accessToken, refreshToken } = signTokens({
+        id: user._id.toString(),
+        type: 'USER',
+      });
+      await setUserRefreshToken(user._id.toString(), refreshToken!);
+      return res.status(201).json({ user: omit(user.toJSON(), privateFields), accessToken });
+    } catch (err: any) {
+      console.log(err);
+      if (err.code === 11000)
+        return res.status(409).json({
+          message: `User with ${err.keyValue.phoneNumber || err.keyValue.email} already exists`,
+        });
+    }
   }
 };
 

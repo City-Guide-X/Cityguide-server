@@ -1,4 +1,4 @@
-# Booking App API (Node.js)
+# CityGuide API (Node.js)
 
 This project provides a Node.js backend API for a booking application.
 
@@ -19,13 +19,13 @@ Node.js (version 20.11.0 or higher) and npm (or yarn) package manager installed 
 Clone this repository:
 
 ```bash
-git clone https://github.com/Toby2507/Bookaholic.git
+git clone https://github.com/Toby2507/Cityguide-server.git
 ```
 
 Navigate to the project directory and open it in your code editor (e.g., Visual Studio Code):
 
 ```bash
-cd bookaholic
+cd Cityguide-server
 code .
 ```
 

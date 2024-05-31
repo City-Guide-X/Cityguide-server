@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-vars */
 
-import { Establishment, Reservation, Review, User } from '@models';
-import { Request } from 'express';
+import { Establishment, Reservation, Review } from '@models';
 
 // ENUMS
 export enum EstablishmentType {

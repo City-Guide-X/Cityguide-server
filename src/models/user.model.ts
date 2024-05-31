@@ -29,7 +29,7 @@ export class User {
   @prop()
   dateOfBirth: Date;
 
-  @prop({ unique: true })
+  @prop()
   phoneNumber!: string;
 
   @prop({ lowercase: true, required: true, unique: true })
