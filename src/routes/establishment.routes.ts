@@ -1,21 +1,21 @@
 import {
-  addMenuImgHandler,
-  addMenuRoomHandler,
+  // addMenuImgHandler,
+  // addMenuRoomHandler,
   createEstablishmentHandler,
   getEstablishmentProfileHandler,
   loginEstablishmentHandler,
-  removeMenuImgHandler,
-  removeMenuRoomHandler,
+  // removeMenuImgHandler,
+  // removeMenuRoomHandler,
   updateEstablishmentHandler,
 } from '@controllers';
 import { establishmentOnly, requireAuth, validateSchema } from '@middlewares';
 import {
-  addMenuImgSchema,
-  addMenuRoomSchema,
+  // addMenuImgSchema,
+  // addMenuRoomSchema,
   createEstablishmentSchema,
   loginEstablishmentSchema,
-  removeMenuImgSchema,
-  removeMenuRoomSchema,
+  // removeMenuImgSchema,
+  // removeMenuRoomSchema,
   updateEstablishmentSchema,
 } from '@schemas';
 import { Router } from 'express';
@@ -27,9 +27,9 @@ router.post('/login', validateSchema(loginEstablishmentSchema), loginEstablishme
 router.use(requireAuth, establishmentOnly);
 router.get('/profile', getEstablishmentProfileHandler);
 router.patch('/update', validateSchema(updateEstablishmentSchema), updateEstablishmentHandler);
-router.post('/menuroom', validateSchema(addMenuRoomSchema), addMenuRoomHandler);
-router.delete('/menuroom/', validateSchema(removeMenuRoomSchema), removeMenuRoomHandler);
-router.post('/menuimg', validateSchema(addMenuImgSchema), addMenuImgHandler);
-router.delete('/menuimg', validateSchema(removeMenuImgSchema), removeMenuImgHandler);
+// router.post('/menuroom', validateSchema(addMenuRoomSchema), addMenuRoomHandler);
+// router.delete('/menuroom/', validateSchema(removeMenuRoomSchema), removeMenuRoomHandler);
+// router.post('/menuimg', validateSchema(addMenuImgSchema), addMenuImgHandler);
+// router.delete('/menuimg', validateSchema(removeMenuImgSchema), removeMenuImgHandler);
 
 export default router;

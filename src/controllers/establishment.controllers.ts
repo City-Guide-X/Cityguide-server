@@ -1,11 +1,11 @@
 import { privateFields } from '@models';
 import {
-  addMenuImgInput,
-  addMenuRoomInput,
+  // addMenuImgInput,
+  // addMenuRoomInput,
   createEstablishmentInput,
   loginEstablishmentInput,
-  removeMenuRoomInput,
-  removeMenyImgInput,
+  // removeMenuRoomInput,
+  // removeMenyImgInput,
   updateEstablishmentInput,
 } from '@schemas';
 import {
