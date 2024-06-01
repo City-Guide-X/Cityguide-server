@@ -1,5 +1,4 @@
 import { DocumentType, getModelForClass, index, modelOptions, pre, prop, Severity } from '@typegoose/typegoose';
-import { EstablishmentType, IAddress, IAvailability, IMenuImg, IRoomMenu } from '@types';
 import { verifyCode } from '@utils';
 import bcrypt from 'bcrypt';
 
@@ -23,11 +22,8 @@ export class Establishment {
   @prop({ required: true })
   name!: string;
 
-  @prop({ required: true })
-  description!: string;
-
-  @prop({ required: true, _id: false })
-  address!: IAddress;
+  @prop()
+  description: string;
 
   @prop({ required: true, unique: true })
   phoneNumber!: string;
@@ -47,35 +43,11 @@ export class Establishment {
   @prop({ default: verifyCode })
   otp: number;
 
-  @prop({ enum: EstablishmentType, required: true, type: String })
-  type: EstablishmentType;
-
   @prop({ default: 0.0 })
   rating: number;
 
-  @prop({ _id: false, default: null })
-  availability: IAvailability[] | null;
-
   @prop({ default: null })
   imgUrl: string | null;
-
-  @prop({ default: [], _id: false })
-  menu: IRoomMenu[];
-
-  @prop({ default: [] })
-  menuImgs: IMenuImg[];
-
-  @prop({ default: null })
-  deliveryFee: number | null;
-
-  @prop({ default: [] })
-  facilities: string[];
-
-  @prop({ default: [], _id: false })
-  rooms: IRoomMenu[];
-
-  @prop({ default: null })
-  price: number | null;
 
   async validatePassword(this: DocumentType<Establishment>, password: string) {
     try {

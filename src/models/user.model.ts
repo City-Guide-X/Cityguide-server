@@ -56,6 +56,9 @@ export class User {
   @prop({ default: false })
   isSocial: boolean;
 
+  @prop({ default: false })
+  isPartner: boolean;
+
   async validatePassword(this: DocumentType<User>, password: string) {
     try {
       return await bcrypt.compare(password, this.password!);
