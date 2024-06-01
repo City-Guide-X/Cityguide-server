@@ -1,3 +1,4 @@
+import { changePasswordInput, verifyEmailInput } from '@schemas';
 import {
   deleteEstablishment,
   deleteUser,
@@ -10,15 +11,14 @@ import {
 import { IPayload } from '@types';
 import { sendEmail, verifyCode, verifyJWT } from '@utils';
 import { Request, Response } from 'express';
-import { changePasswordInput, verifyEmailInput } from 'src/schemas/account.schemas';
 
 export const refreshAccessTokenHandler = async (req: Request, res: Response) => {
-  const { id, type } = res.locals.user;
+  const { id, type, isPartner } = res.locals.user;
   const user = type === 'USER' ? await findUserById(id) : await findEstablishmentById(id);
   if (!user) return res.sendStatus(403);
   const decoded = verifyJWT<IPayload>(user?.refreshToken as string, 'refresh');
   if (!decoded || id !== decoded.id) return res.sendStatus(403);
-  const { accessToken } = signTokens({ id, type, token: 'access' });
+  const { accessToken } = signTokens({ id, type, isPartner, token: 'access' });
   return res.status(200).json({ accessToken });
 };
 

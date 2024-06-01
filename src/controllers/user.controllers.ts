@@ -36,6 +36,7 @@ export const createUserHandler = async (req: Request<{}, {}, createUserInput>, r
     const { accessToken, refreshToken } = signTokens({
       id: user._id.toString(),
       type: 'USER',
+      isPartner: user.isPartner,
     });
     await setUserRefreshToken(user._id.toString(), refreshToken!);
     return res.status(201).json({ user: omit(user.toJSON(), privateFields), accessToken });
@@ -57,6 +58,7 @@ export const loginUserHandler = async (req: Request<{}, {}, loginUserInput>, res
   const { accessToken, refreshToken } = signTokens({
     id: user._id.toString(),
     type: 'USER',
+    isPartner: user.isPartner,
   });
   await setUserRefreshToken(user._id.toString(), refreshToken!);
   return res.status(200).json({ user: omit(user.toJSON(), privateFields), accessToken });
@@ -74,6 +76,7 @@ export const socialAuthHandler = async (req: Request, res: Response) => {
     const { accessToken, refreshToken } = signTokens({
       id: user._id.toString(),
       type: 'USER',
+      isPartner: user.isPartner,
     });
     await setUserRefreshToken(user._id.toString(), refreshToken!);
     return res.status(200).json({ user: omit(user.toJSON(), privateFields), accessToken });
@@ -83,6 +86,7 @@ export const socialAuthHandler = async (req: Request, res: Response) => {
       const { accessToken, refreshToken } = signTokens({
         id: user._id.toString(),
         type: 'USER',
+        isPartner: user.isPartner,
       });
       await setUserRefreshToken(user._id.toString(), refreshToken!);
       return res.status(201).json({ user: omit(user.toJSON(), privateFields), accessToken });

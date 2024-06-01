@@ -1,5 +1,5 @@
-import { NextFunction, Request, Response } from 'express';
 import { verifyJWT } from '@utils';
+import { NextFunction, Request, Response } from 'express';
 
 const deserializeUser = async (req: Request, res: Response, next: NextFunction) => {
   const accessToken = req.headers.authorization?.split(' ')[1] || '';
