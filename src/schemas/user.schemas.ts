@@ -1,4 +1,4 @@
-import { EstablishmentType } from '@types';
+import { PropertyType } from '@types';
 import { date, nativeEnum, object, optional, string, TypeOf } from 'zod';
 
 export const createUserSchema = object({
@@ -36,7 +36,7 @@ export const getEstablishmentSchema = object({
 
 export const getEstablishmentsSchema = object({
   body: object({
-    types: optional(nativeEnum(EstablishmentType, { required_error: 'Establishment types required' }).array()),
+    types: optional(nativeEnum(PropertyType, { required_error: 'Establishment types required' }).array()),
   }),
 });
 
