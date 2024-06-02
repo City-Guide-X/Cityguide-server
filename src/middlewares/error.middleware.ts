@@ -1,22 +1,26 @@
+import { CustomError } from '@errors';
+import { log } from '@utils';
 import { NextFunction, Request, Response } from 'express';
 
-export class CustomError extends Error {
-  statusCode: number;
-
-  constructor(message: string, statusCode: number) {
-    super(message);
-    this.statusCode = statusCode;
+class ErrorHandler {
+  public handleErrors(err: Error) {
+    log.error(err);
+    process.exit(1);
   }
 }
 
+export const handler = new ErrorHandler();
+
 export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
-  const customError = {
-    statusCode: err.statusCode || 500,
-    message: err.message || 'Something went wrong. Please try again later',
-  };
-  if (err.code && err.code === 11000) {
-    customError.message = 'User already exists';
-    customError.statusCode = 409;
+  log.error(err.message);
+  if (err.name === 'ValidationError') {
+    return res.status(400).json({ message: err.message });
   }
-  return res.status(customError.statusCode).json({ message: customError.message });
+  if (err instanceof CustomError) {
+    return res.status(err.statusCode).json(err.serialize());
+  }
+  if (err.code && err.code === 11000) {
+    return res.status(409).json('User already exists');
+  }
+  return res.status(500).json({ message: 'Something went wrong. Please try again later' });
 };
