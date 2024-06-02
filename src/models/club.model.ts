@@ -48,6 +48,9 @@ export class Club {
 
   @prop()
   entryFee?: number;
+
+  public createdAt: Date;
+  public updatedAt: Date;
 }
 
 export const ClubModel = getModelForClass(Club);

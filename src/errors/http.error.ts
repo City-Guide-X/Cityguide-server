@@ -3,7 +3,7 @@ import { CustomError } from './custom.error';
 export class BadRequestError extends CustomError {
   statusCode = 400;
 
-  constructor(public message: string) {
+  constructor(public message = 'Bad request') {
     super(message);
     Object.setPrototypeOf(this, new.target.prototype);
   }
@@ -16,7 +16,7 @@ export class BadRequestError extends CustomError {
 export class AuthenticationError extends CustomError {
   statusCode = 401;
 
-  constructor(public message: string) {
+  constructor(public message = 'User not authenticated') {
     super(message);
     Object.setPrototypeOf(this, new.target.prototype);
   }
@@ -42,7 +42,7 @@ export class AuthorizationError extends CustomError {
 export class NotFoundError extends CustomError {
   statusCode = 404;
 
-  constructor(public message: string) {
+  constructor(public message = 'User not found') {
     super(message);
     Object.setPrototypeOf(this, new.target.prototype);
   }
@@ -55,25 +55,12 @@ export class NotFoundError extends CustomError {
 export class ConflictError extends CustomError {
   statusCode = 409;
 
-  constructor(public message: string) {
+  constructor(public message = 'User already exists') {
     super(message);
     Object.setPrototypeOf(this, new.target.prototype);
   }
 
   serialize() {
     return { message: this.message };
-  }
-}
-
-export class InternalServerError extends CustomError {
-  statusCode = 500;
-
-  constructor() {
-    super('An unexpected error occurred, please try again later.');
-    Object.setPrototypeOf(this, new.target.prototype);
-  }
-
-  serialize() {
-    return { message: 'An unexpected error occurred, please try again later.' };
   }
 }

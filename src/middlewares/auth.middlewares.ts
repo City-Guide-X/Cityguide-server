@@ -1,3 +1,4 @@
+import { AuthorizationError } from '@errors';
 import { NextFunction, Request, Response } from 'express';
 
 export const requireAuth = (req: Request, res: Response, next: NextFunction) => {
@@ -7,12 +8,18 @@ export const requireAuth = (req: Request, res: Response, next: NextFunction) => 
 
 export const userOnly = (req: Request, res: Response, next: NextFunction) => {
   const { type } = res.locals.user;
-  if (type !== 'USER') return res.status(403).json({ message: 'Invalid Operation' });
+  if (type !== 'USER') throw new AuthorizationError('Only users can perform this operation');
   return next();
 };
 
 export const establishmentOnly = (req: Request, res: Response, next: NextFunction) => {
   const { type } = res.locals.user;
-  if (type !== 'ESTABLISHMENT') return res.status(403).json({ message: 'Invalid Operation' });
+  if (type !== 'ESTABLISHMENT') throw new AuthorizationError('Only establishments can perform this operation');
+  return next();
+};
+
+export const partnerOnly = (req: Request, res: Response, next: NextFunction) => {
+  const { isPartner } = res.locals.user;
+  if (!isPartner) throw new AuthorizationError('Only partners can perform this operation');
   return next();
 };

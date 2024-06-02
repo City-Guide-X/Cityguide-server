@@ -5,8 +5,17 @@ import {
   errorHandler,
   facebookStrategy,
   googleStrategy,
+  handler,
 } from '@middlewares';
-import { accountRoutes, establishmentRoutes, reservationRoutes, reviewRoutes, userRoutes, vtuRoutes } from '@routes';
+import {
+  accountRoutes,
+  establishmentRoutes,
+  propertyRoutes,
+  reservationRoutes,
+  reviewRoutes,
+  userRoutes,
+  vtuRoutes,
+} from '@routes';
 import compression from 'compression';
 import cors from 'cors';
 import express from 'express';
@@ -34,11 +43,15 @@ passport.use(facebookStrategy);
 app.use('/api/v1/account', accountRoutes);
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/establishment', establishmentRoutes);
+app.use('/api/v1/property', propertyRoutes);
 app.use('/api/v1/reservation', reservationRoutes);
 app.use('/api/v1/review', reviewRoutes);
 app.use('/api/v1/vtu', vtuRoutes);
 app.use('*', notFoundHandler);
 
 app.use(errorHandler);
+process.on('uncaughtException', (err) => {
+  handler.handleErrors(err);
+});
 
 export default app;

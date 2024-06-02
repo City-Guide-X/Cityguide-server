@@ -1,3 +1,4 @@
+import { AuthorizationError, BadRequestError, NotFoundError } from '@errors';
 import { User } from '@models';
 import { changePasswordInput, verifyEmailInput } from '@schemas';
 import {
@@ -10,26 +11,26 @@ import {
   signTokens,
 } from '@services';
 import { IPayload } from '@types';
-import { sendEmail, verifyCode, verifyJWT } from '@utils';
+import { asyncWrapper, sendEmail, verifyCode, verifyJWT } from '@utils';
 import { Request, Response } from 'express';
 
-export const refreshAccessTokenHandler = async (req: Request, res: Response) => {
+export const refreshAccessTokenHandler = asyncWrapper(async (req: Request, res: Response) => {
   const { id, type } = res.locals.user;
   const user = type === 'USER' ? await findUserById(id) : await findEstablishmentById(id);
-  if (!user) return res.sendStatus(403);
+  if (!user) throw new NotFoundError();
   const decoded = verifyJWT<IPayload>(user?.refreshToken as string, 'refresh');
-  if (!decoded || id !== decoded.id) return res.sendStatus(403);
+  if (!decoded || id !== decoded.id) throw new AuthorizationError();
   const isPartner = type === 'USER' ? (user as User).isPartner : true;
   const { accessToken } = signTokens({ id, type, isPartner, token: 'access' });
   return res.status(200).json({ accessToken });
-};
+});
 
-export const verifyEmailHandler = async (req: Request<verifyEmailInput>, res: Response) => {
+export const verifyEmailHandler = asyncWrapper(async (req: Request<verifyEmailInput>, res: Response) => {
   const { otp } = req.params;
   const { id, type } = res.locals.user;
   const message = 'Verification failed';
   const user = type === 'USER' ? await findUserById(id) : await findEstablishmentById(id);
-  if (!user) return res.status(404).json({ message });
+  if (!user) throw new NotFoundError(message);
   if (user.emailIsVerified) return res.sendStatus(204);
   if (user.otp === +otp) {
     if (!user.emailIsVerified) user.emailIsVerified = true;
@@ -37,10 +38,9 @@ export const verifyEmailHandler = async (req: Request<verifyEmailInput>, res: Re
     await user.save();
     return res.sendStatus(204);
   }
-  return res.status(400).json({ message });
-};
+});
 
-export const sendVerifyEmailHandler = async (req: Request, res: Response) => {
+export const sendVerifyEmailHandler = asyncWrapper(async (req: Request, res: Response) => {
   const { id, type } = res.locals.user;
   let user, name, otp;
   if (type === 'USER') {
@@ -50,7 +50,7 @@ export const sendVerifyEmailHandler = async (req: Request, res: Response) => {
     user = await findEstablishmentById(id);
     name = user?.name;
   }
-  if (!user) return res.sendStatus(404);
+  if (!user) throw new NotFoundError();
   if (!user.otp) {
     user.otp = otp = verifyCode();
     await user.save();
@@ -61,49 +61,48 @@ export const sendVerifyEmailHandler = async (req: Request, res: Response) => {
     locals: { name, verifyCode: otp ?? user.otp },
   });
   return res.sendStatus(204);
-};
+});
 
-export const uploadImageHandler = async (req: Request, res: Response) => {
+export const uploadImageHandler = asyncWrapper(async (req: Request, res: Response) => {
   const imgUrls = req.files as Express.Multer.File[];
-  if (!imgUrls?.length) return res.status(400).json({ message: 'Upload failed' });
+  if (!imgUrls?.length) throw new BadRequestError('Upload failed');
   res.status(200).json({ imgUrls: imgUrls.map((file: any) => file.path) });
-};
+});
 
-export const changePasswordHandler = async (
-  req: Request<changePasswordInput['params'], {}, changePasswordInput['body']>,
-  res: Response
-) => {
-  const {
-    body: { password },
-    params: { otp },
-  } = req;
-  const { id, type } = res.locals.user;
-  const user = type === 'USER' ? await findUserById(id) : await findEstablishmentById(id);
-  if (!user || !user.otp || user.otp !== +otp) return res.status(400).json({ message: 'Invalid OTP code' });
-  if (!user.emailIsVerified) user.emailIsVerified = true;
-  user.otp = null;
-  user.password = password;
-  await user.save();
-  return res.sendStatus(204);
-};
+export const changePasswordHandler = asyncWrapper(
+  async (req: Request<changePasswordInput['params'], {}, changePasswordInput['body']>, res: Response) => {
+    const {
+      body: { password },
+      params: { otp },
+    } = req;
+    const { id, type } = res.locals.user;
+    const user = type === 'USER' ? await findUserById(id) : await findEstablishmentById(id);
+    if (!user || !user.otp || user.otp !== +otp) throw new BadRequestError('Invalid OTP code');
+    if (!user.emailIsVerified) user.emailIsVerified = true;
+    user.otp = null;
+    user.password = password;
+    await user.save();
+    return res.sendStatus(204);
+  }
+);
 
-export const logoutHandler = async (req: Request, res: Response) => {
+export const logoutHandler = asyncWrapper(async (req: Request, res: Response) => {
   const { id, type } = res.locals.user;
   const user = type === 'USER' ? await findUserById(id) : await findEstablishmentById(id);
   if (!user) return res.sendStatus(204);
   if (type === 'USER') await setUserRefreshToken(id, null);
   else await setEstablishmentRefreshToken(id, null);
   return res.sendStatus(204);
-};
+});
 
-export const deleteAccountHandler = async (req: Request, res: Response) => {
+export const deleteAccountHandler = asyncWrapper(async (req: Request, res: Response) => {
   const { id, type } = res.locals.user;
   const user = type === 'USER' ? await findUserById(id) : await findEstablishmentById(id);
   if (!user) return res.sendStatus(204);
   if (type === 'USER') await deleteUser(id);
   else await deleteEstablishment(id);
   return res.sendStatus(204);
-};
+});
 
 export const notFoundHandler = (req: Request, res: Response) => {
   return res.status(404).json({ message: "This route doesn't exist" });

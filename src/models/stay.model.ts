@@ -1,6 +1,7 @@
 import {
   getDiscriminatorModelForClass,
   getModelForClass,
+  index,
   modelOptions,
   prop,
   Ref,
@@ -46,7 +47,7 @@ export class Stay {
   amenities: string[];
 
   @prop({ enum: Rating, type: Number })
-  hotelRating?: string;
+  hotelRating?: Rating;
 
   @prop({ required: true, _id: false })
   rules: IStayRules;
@@ -66,12 +67,12 @@ export class Stay {
 
 export class UserStay extends Stay {
   @prop({ ref: () => User, required: true })
-  partner!: Ref<User>;
+  partnerId!: Ref<User>;
 }
 
 export class EstablishmentStay extends Stay {
   @prop({ ref: () => Establishment, required: true })
-  partner!: Ref<Establishment>;
+  partnerId!: Ref<Establishment>;
 }
 
 export const StayModel = getModelForClass(Stay);

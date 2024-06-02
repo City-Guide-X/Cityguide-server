@@ -28,7 +28,6 @@ export const facebookStrategy = new FbStrategy(
     enableProof: true,
   },
   function (accessToken, refreshToken, profile, done) {
-    console.log(profile);
     const data = {
       firstName: profile.name?.givenName,
       lastName: profile.name?.familyName,

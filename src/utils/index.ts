@@ -1,3 +1,4 @@
+export * from './asyncWrapper';
 export { default as parser } from './imageParser';
 export * from './jwt';
 export { default as log } from './logger';

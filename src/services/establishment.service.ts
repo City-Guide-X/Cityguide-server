@@ -52,27 +52,27 @@ export const setEstablishmentRefreshToken = (_id: string, refreshToken: string |
 //   return EstablishmentModel.updateOne({ _id }, { $pull: { menuImgs: { id: { $in: menuImgIds } } } });
 // };
 
-// export const updateEstablishmentRating = async (_id: string) => {
-//   const avgRating = await EstablishmentModel.aggregate([
-//     { $match: { _id: new Types.ObjectId(_id) } },
-//     {
-//       $lookup: {
-//         from: 'reviews',
-//         localField: '_id',
-//         foreignField: 'establishment',
-//         as: 'reviews',
-//       },
-//     },
-//     { $unwind: '$reviews' },
-//     {
-//       $group: {
-//         _id: 0,
-//         avgRating: { $avg: '$reviews.rating' },
-//       },
-//     },
-//   ]);
-//   return EstablishmentModel.updateOne({ _id }, { rating: avgRating[0].avgRating.toFixed(1) });
-// };
+export const updateEstablishmentRating = async (_id: string) => {
+  const avgRating = await EstablishmentModel.aggregate([
+    { $match: { _id: new Types.ObjectId(_id) } },
+    {
+      $lookup: {
+        from: 'reviews',
+        localField: '_id',
+        foreignField: 'establishment',
+        as: 'reviews',
+      },
+    },
+    { $unwind: '$reviews' },
+    {
+      $group: {
+        _id: 0,
+        avgRating: { $avg: '$reviews.rating' },
+      },
+    },
+  ]);
+  return EstablishmentModel.updateOne({ _id }, { rating: avgRating[0].avgRating.toFixed(1) });
+};
 
 export const deleteEstablishment = (_id: string) => {
   return EstablishmentModel.findOneAndDelete({ _id });

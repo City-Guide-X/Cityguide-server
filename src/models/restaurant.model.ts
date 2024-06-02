@@ -1,7 +1,6 @@
 import { getModelForClass, modelOptions, prop, Ref, Severity } from '@typegoose/typegoose';
 import { IAddress, ICustomAvailability, IMenu, IResAdditionalInfo, PriceRange, Rating } from '@types';
 import { Establishment } from './establishment.model';
-import { User } from './user.model';
 
 @modelOptions({
   schemaOptions: { timestamps: true },
@@ -61,11 +60,6 @@ export class Restaurant {
 
   public createdAt: Date;
   public updatedAt: Date;
-}
-
-export class UserRestaurant extends Restaurant {
-  @prop({ ref: () => 'User', required: true })
-  user!: Ref<User>;
 }
 
 export const RestaurantModel = getModelForClass(Restaurant);
