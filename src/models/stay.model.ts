@@ -67,12 +67,12 @@ export class Stay {
 
 export class UserStay extends Stay {
   @prop({ ref: () => User, required: true })
-  partnerId!: Ref<User>;
+  partner!: Ref<User>;
 }
 
 export class EstablishmentStay extends Stay {
   @prop({ ref: () => Establishment, required: true })
-  partnerId!: Ref<Establishment>;
+  partner!: Ref<Establishment>;
 }
 
 export const StayModel = getModelForClass(Stay);
