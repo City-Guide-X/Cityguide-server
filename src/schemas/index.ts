@@ -1,4 +1,5 @@
 export * from './account.schemas';
+export * from './club.schemas';
 export * from './establishments.schemas';
 export * from './reservation.schemas';
 export * from './restaurant.schemas';

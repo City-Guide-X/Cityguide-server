@@ -1,4 +1,6 @@
 import {
+  Club,
+  ClubModel,
   EstablishmentStay,
   EstablishmentStayModel,
   Restaurant,
@@ -19,4 +21,9 @@ export const createEstablishmentStay = async (input: Partial<EstablishmentStay>)
 // Restaurants
 export const createRestaurant = async (input: Partial<Restaurant>) => {
   return RestaurantModel.create({ ...input });
+};
+
+// Clubs
+export const createClub = async (input: Partial<Club>) => {
+  return ClubModel.create({ ...input });
 };
