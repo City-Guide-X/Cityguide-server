@@ -3,7 +3,6 @@ import { number, object, string, TypeOf } from 'zod';
 export const getPlanSchema = object({
   params: object({
     provider: string().regex(/^(AIRTEL|MTN|GLO|ETISALAT)$/, 'Provider Invalid'),
-    // provider: nativeEnum(ProviderID, { invalid_type_error: 'Provider not valid' }),
   }),
 });
 

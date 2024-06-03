@@ -12,7 +12,7 @@ export enum Status {
 }
 
 export enum Rating {
-  NO_RATING = 0,
+  NO_RATING,
   ONE,
   TWO,
   THREE,

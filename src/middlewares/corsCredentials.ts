@@ -1,5 +1,5 @@
-import { NextFunction, Request, Response } from 'express';
 import { CorsOptions } from 'cors';
+import { NextFunction, Request, Response } from 'express';
 
 export const allowedOrigins = ['http://localhost:3000'];
 

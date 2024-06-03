@@ -49,6 +49,7 @@ app.use('/api/v1/review', reviewRoutes);
 app.use('/api/v1/vtu', vtuRoutes);
 app.use('*', notFoundHandler);
 
+// ERROR HANDLING
 app.use(errorHandler);
 process.on('uncaughtException', (err) => {
   handler.handleErrors(err);

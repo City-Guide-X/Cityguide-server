@@ -1,5 +1,5 @@
 import { PropertyType } from '@types';
-import { nativeEnum, number, object, optional, string, TypeOf, enum as zEnum } from 'zod';
+import { nativeEnum, number, object, optional, string, TypeOf } from 'zod';
 
 export const createEstablishmentSchema = object({
   body: object({
@@ -81,53 +81,6 @@ export const updateEstablishmentSchema = object({
   }),
 });
 
-// export const addMenuRoomSchema = object({
-//   body: object({
-//     data: object(
-//       {
-//         id: string({ required_error: 'ID is required' }),
-//         name: string({ required_error: 'Name is required' }).min(3, 'Name requires atleast 3 characters'),
-//         desc: string({ required_error: 'Description is required' }).min(3, 'Description requires atleast 3 characters'),
-//         imgUrl: string({ required_error: 'Image is required' }),
-//         price: number({ required_error: 'Price is required', invalid_type_error: 'Price has to be a number' }),
-//       },
-//       { required_error: 'Data body is required' }
-//     ),
-//     type: zEnum(['MENU', 'ROOM'], { required_error: 'Type (MENU/ROOM) is required' }),
-//   }),
-// });
-
-// export const removeMenuRoomSchema = object({
-//   body: object({
-//     itemIds: string({ required_error: 'ID is required' }).array().min(1, 'Atleast 1 item ID should be supplied'),
-//     type: zEnum(['MENU', 'ROOM']),
-//   }),
-// });
-
-// export const addMenuImgSchema = object({
-//   body: object({
-//     images: object(
-//       {
-//         id: string({ required_error: 'ID is required' }),
-//         imgUrl: string({ required_error: 'Image is required' }),
-//       },
-//       { required_error: 'Images array is required' }
-//     )
-//       .array()
-//       .min(1, 'There should be atleast 1 menu img to add'),
-//   }),
-// });
-
-// export const removeMenuImgSchema = object({
-//   body: object({
-//     itemIds: string({ required_error: 'ID is required' }).array().min(1, 'Atleast 1 item ID should be supplied'),
-//   }),
-// });
-
 export type createEstablishmentInput = TypeOf<typeof createEstablishmentSchema>['body'];
 export type loginEstablishmentInput = TypeOf<typeof loginEstablishmentSchema>['body'];
 export type updateEstablishmentInput = TypeOf<typeof updateEstablishmentSchema>['body'];
-// export type addMenuRoomInput = TypeOf<typeof addMenuRoomSchema>['body'];
-// export type removeMenuRoomInput = TypeOf<typeof removeMenuRoomSchema>['body'];
-// export type addMenuImgInput = TypeOf<typeof addMenuImgSchema>['body'];
-// export type removeMenyImgInput = TypeOf<typeof removeMenuImgSchema>['body'];

@@ -1,20 +1,12 @@
 import {
   createUserHandler,
-  getEstablishmentHandler,
-  getEstablishmentsHandler,
   getUserProfileHandler,
   loginUserHandler,
   socialAuthHandler,
   updateUserHandler,
 } from '@controllers';
 import { requireAuth, userOnly, validateSchema } from '@middlewares';
-import {
-  createUserSchema,
-  getEstablishmentSchema,
-  getEstablishmentsSchema,
-  loginUserSchema,
-  updateUserSchema,
-} from '@schemas';
+import { createUserSchema, loginUserSchema, updateUserSchema } from '@schemas';
 import { Router } from 'express';
 import passport from 'passport';
 
@@ -29,7 +21,5 @@ router.get('/login/facebook/callback', passport.authenticate('facebook', { sessi
 router.use(requireAuth, userOnly);
 router.get('/profile', getUserProfileHandler);
 router.patch('/update', validateSchema(updateUserSchema), updateUserHandler);
-router.get('/establishments', validateSchema(getEstablishmentsSchema), getEstablishmentsHandler);
-router.get('/establishment/:id', validateSchema(getEstablishmentSchema), getEstablishmentHandler);
 
 export default router;

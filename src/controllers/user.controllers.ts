@@ -1,23 +1,7 @@
 import { AuthenticationError, BadRequestError, ConflictError, NotFoundError } from '@errors';
 import { privateFields, User } from '@models';
-import {
-  createUserInput,
-  getEstablishmentInput,
-  getEstablishmentsInput,
-  loginUserInput,
-  updateUserInput,
-} from '@schemas';
-import {
-  createUser,
-  findEstablishmentById,
-  findEstablishmentByType,
-  findUserByEmail,
-  findUserById,
-  getAllEstablishments,
-  setUserRefreshToken,
-  signTokens,
-  updateUserInfo,
-} from '@services';
+import { createUserInput, loginUserInput, updateUserInput } from '@schemas';
+import { createUser, findUserByEmail, findUserById, setUserRefreshToken, signTokens, updateUserInfo } from '@services';
 import { asyncWrapper } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
@@ -98,18 +82,18 @@ export const updateUserHandler = asyncWrapper(async (req: Request<{}, {}, update
   return res.sendStatus(204);
 });
 
-export const getEstablishmentsHandler = asyncWrapper(
-  async (req: Request<{}, {}, getEstablishmentsInput>, res: Response) => {
-    const { types } = req.body;
-    const establishments = !!types ? await findEstablishmentByType(types) : await getAllEstablishments();
-    if (!establishments.length) throw new NotFoundError('No establishments found');
-    return res.status(200).json({ establishments: establishments.map((e) => omit(e.toJSON(), privateFields)) });
-  }
-);
+// export const getEstablishmentsHandler = asyncWrapper(
+//   async (req: Request<{}, {}, getEstablishmentsInput>, res: Response) => {
+//     const { types } = req.body;
+//     const establishments = !!types ? await findEstablishmentByType(types) : await getAllEstablishments();
+//     if (!establishments.length) throw new NotFoundError('No establishments found');
+//     return res.status(200).json({ establishments: establishments.map((e) => omit(e.toJSON(), privateFields)) });
+//   }
+// );
 
-export const getEstablishmentHandler = asyncWrapper(async (req: Request<getEstablishmentInput>, res: Response) => {
-  const { id } = req.params;
-  const establishment = await findEstablishmentById(id);
-  if (!establishment) throw new NotFoundError('Establishment not found');
-  return res.status(200).json({ establishment: omit(establishment.toJSON(), privateFields) });
-});
+// export const getEstablishmentHandler = asyncWrapper(async (req: Request<getEstablishmentInput>, res: Response) => {
+//   const { id } = req.params;
+//   const establishment = await findEstablishmentById(id);
+//   if (!establishment) throw new NotFoundError('Establishment not found');
+//   return res.status(200).json({ establishment: omit(establishment.toJSON(), privateFields) });
+// });
