@@ -1,4 +1,6 @@
+import { Review } from '@models';
 import { Rating } from './enums';
+import mongoose from 'mongoose';
 
 export interface IAddress {
   name: string;
@@ -36,4 +38,10 @@ export interface IReview {
   rating: Rating;
   message: string;
   createdAt: Date;
+}
+
+export interface ReviewPopulateConfig {
+  path: string;
+  select?: string;
+  model?: (doc: Review) => mongoose.Model<any>;
 }

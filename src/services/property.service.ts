@@ -5,9 +5,11 @@ import {
   EstablishmentStayModel,
   Restaurant,
   RestaurantModel,
+  StayModel,
   UserStay,
   UserStayModel,
 } from '@models';
+import { PropertyType } from '@types';
 
 // Stays
 export const createUserStay = async (input: Partial<UserStay>) => {
@@ -26,4 +28,11 @@ export const createRestaurant = async (input: Partial<Restaurant>) => {
 // Clubs
 export const createClub = async (input: Partial<Club>) => {
   return ClubModel.create({ ...input });
+};
+
+// General
+export const isPropertyType = async (_id: string, type: PropertyType) => {
+  if (type === PropertyType.STAY) return await StayModel.exists({ _id });
+  if (type === PropertyType.RESTAURANT) return await RestaurantModel.exists({ _id });
+  if (type === PropertyType.CLUB) return await ClubModel.exists({ _id });
 };

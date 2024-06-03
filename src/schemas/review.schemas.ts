@@ -1,14 +1,18 @@
-import { Rating } from '@types';
+import { PropertyType, Rating } from '@types';
 import { nativeEnum, object, optional, string, TypeOf } from 'zod';
 
 export const createReviewSchema = object({
   body: object({
-    establishment: string({ required_error: 'Establishment id is required' }),
+    property: string({ required_error: 'Property id is required' }),
+    propertyType: nativeEnum(PropertyType, {
+      required_error: 'Property type is required',
+      invalid_type_error: 'Property type should be a Stay | Restaurant | Club',
+    }),
     rating: nativeEnum(Rating, {
       required_error: 'Rating is required',
-      invalid_type_error: 'Rating should be a number [1-5]',
+      invalid_type_error: 'Rating should be a 0 | 1 | 2 | 3 | 4 | 5',
     }),
-    message: string({ required_error: 'Message is required' }).min(3, 'Message requires atleast 3 characters'),
+    message: string({ required_error: 'Message is required' }).min(10, 'Message requires atleast 10 characters'),
   }),
 });
 
