@@ -13,14 +13,21 @@ export const handler = new ErrorHandler();
 
 export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
   if (err.name === 'ValidationError') {
-    if (err.errors?.establishment) return res.status(400).json({ message: 'Invalid Establishment ID' });
-    return res.status(400).json({ message: `${err._message}: ${Object.keys(err.errors).join(', ')}` });
+    return res.status(400).json({
+      message: Object.keys(err.errors)
+        .map((key) => `Invalid ${key[0].toUpperCase()}${key.slice(1)} ID`)
+        .join(', '),
+    });
   }
   if (err instanceof CustomError) {
     return res.status(err.statusCode).json(err.serialize());
   }
   if (err.code && err.code === 11000) {
-    return res.status(409).json({ message: 'User already exists' });
+    return res.status(409).json({
+      message: `User with ${Object.entries(err.keyValue)
+        .map((entry) => `${entry[0]} ${entry[1]}`)
+        .join(', ')} already exists`,
+    });
   }
   if (err.response?.status === 417)
     return res.status(400).json({ message: 'Try again in 120 seconds. Payment code not available' });
