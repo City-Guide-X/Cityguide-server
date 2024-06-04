@@ -11,7 +11,7 @@ export const createRestaurantSchema = object({
       10,
       'Summary should be atleast 10 characters'
     ),
-    description: string().optional(),
+    description: string().min(10, 'Description should be atleast 10 characters').optional(),
     address: object(
       {
         name: string({ required_error: 'Address name is required' }),
@@ -42,12 +42,13 @@ export const createRestaurantSchema = object({
     )
       .array()
       .min(1, 'Atleast one availability is required'),
-    priceRange: nativeEnum(PriceRange, { required_error: 'Price range is required' }),
+    priceRange: nativeEnum(PriceRange, {
+      required_error: 'Price range is required',
+      invalid_type_error: 'Price range should be Budget-friendly | Mid-range | Fine-dining',
+    }),
     serviceStyle: string({ invalid_type_error: 'Service style should be an array' }).array().optional(),
     cuisine: string({ invalid_type_error: 'Cuisine should be an array' }).array().optional(),
     dietaryProvisions: string({ invalid_type_error: 'Dietary provisions should be an array' }).array().optional(),
-    amenities: string({ invalid_type_error: 'Amenities should be an array' }).array().optional(),
-    paymentOptions: string({ invalid_type_error: 'Payment options should be an array' }).array().optional(),
     menu: object(
       {
         id: string({ required_error: 'Menu id is required' }),
@@ -67,10 +68,22 @@ export const createRestaurantSchema = object({
     )
       .array()
       .min(1, 'Atleast one menu is required'),
-    additionalInfo: object(
+    details: object(
       {
-        delivery: boolean({ required_error: 'Delivery availability is required' }),
-        reservations: boolean({ required_error: 'Reservation availability is required' }),
+        delivery: boolean({
+          required_error: 'Delivery availability is required',
+          invalid_type_error: 'Delivery availability should be a boolean',
+        }),
+        reservation: number({ invalid_type_error: 'Max number of guests for reservation is required' }).optional(),
+        amenities: string({ invalid_type_error: 'Amenities should be an array' }).array().optional(),
+        paymentOptions: string({ invalid_type_error: 'Payment options should be an array' }).array().optional(),
+      },
+      { required_error: 'Restaurant details is required' }
+    ),
+    contact: object(
+      {
+        email: string({ required_error: 'Email is required' }).email('Email should be a valid email'),
+        phone: string().min(11, 'Invalid phone number').optional(),
         socialMedia: object(
           {
             name: string({ required_error: 'Social media name is required' }),
@@ -81,7 +94,7 @@ export const createRestaurantSchema = object({
           .array()
           .optional(),
       },
-      { required_error: 'Additional info is required' }
+      { required_error: 'Contact is required' }
     ),
   }),
 });

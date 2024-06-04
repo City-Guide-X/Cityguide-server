@@ -1,5 +1,5 @@
 import { getModelForClass, modelOptions, prop, Ref, Severity } from '@typegoose/typegoose';
-import { IAddress, IClubRules, ICustomAvailability, ISocialLink, Rating } from '@types';
+import { IAddress, ICustomAvailability, IClubRules, ISocialLink, Rating, IContact, IClubDetails } from '@types';
 import { Establishment } from './establishment.model';
 
 @modelOptions({
@@ -34,20 +34,14 @@ export class Club {
   @prop({ required: true, _id: false })
   availability: ICustomAvailability[];
 
-  @prop({ _id: false })
-  socialMedia?: ISocialLink[];
-
-  @prop()
-  paymentOptions: string[];
-
   @prop({ required: true, _id: false })
   rules: IClubRules;
 
   @prop({ required: true, _id: false })
-  amenities: string[];
+  details: IClubDetails;
 
-  @prop()
-  entryFee?: number;
+  @prop({ required: true, _id: false })
+  contact: IContact;
 
   public createdAt: Date;
   public updatedAt: Date;

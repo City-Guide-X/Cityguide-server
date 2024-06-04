@@ -11,7 +11,7 @@ export const createClubSchema = object({
       10,
       'Summary should be atleast 10 characters'
     ),
-    description: string().optional(),
+    description: string().min(10, 'Description should be atleast 10 characters').optional(),
     address: object(
       {
         name: string({ required_error: 'Address name is required' }),
@@ -42,41 +42,55 @@ export const createClubSchema = object({
     )
       .array()
       .min(1, 'Atleast one availability is required'),
-    socialMedia: object(
+    rules: object(
       {
-        name: string({ required_error: 'Social media name is required' }),
-        handle: string({ required_error: 'Social media handle is required' }),
+        dressCode: string({ invalid_type_error: 'Dress code should be an array' }).array().optional(),
+        minAge: number({
+          required_error: 'Minimum age is required',
+          invalid_type_error: 'Minimum age should be a number',
+        }),
+        parking: nativeEnum(Parking, {
+          required_error: 'Parking is required',
+          invalid_type_error: 'Parking should be Free | Paid | No',
+        }),
+        musicGenre: string({ invalid_type_error: 'Music genre should be an array' }).array().optional(),
       },
-      { required_error: 'Social media is required', invalid_type_error: 'Social media should be an array' }
-    )
-      .array()
-      .optional(),
-    paymentOptions: string({ invalid_type_error: 'Payment options should be an array' }).array().optional(),
-    rules: object({
-      dressCode: string({
-        required_error: 'Dress code is required',
-        invalid_type_error: 'Dress code should be an array',
-      }).array(),
-      minAge: number({
-        required_error: 'Minimum age is required',
-        invalid_type_error: 'Minimum age should be a number',
-      }),
-      parking: nativeEnum(Parking, {
-        required_error: 'Parking is required',
-        invalid_type_error: 'Parking should be Free | Paid | No',
-      }),
-      musicGenre: string({
-        required_error: 'Music genre is required',
-        invalid_type_error: 'Music genre should be an array',
-      }).array(),
-    }).optional(),
-    amenities: string({
-      required_error: 'Atleast 1 amenity is required',
-      invalid_type_error: 'Amenities should be an array',
-    })
-      .array()
-      .min(1, 'Atleast one amenity is required'),
-    entryFee: number({ invalid_type_error: 'Entry fee should be a number' }).optional(),
+      { required_error: 'Club rules are required' }
+    ),
+    details: object(
+      {
+        entryFee: number({ invalid_type_error: 'Entry fee should be a number' }).optional(),
+        paymentOptions: string({
+          required_error: 'Payment options are required',
+          invalid_type_error: 'Payment options should be an array',
+        })
+          .array()
+          .min(1, 'Atleast one payment option is required'),
+        amenities: string({
+          required_error: 'Atleast 1 amenity is required',
+          invalid_type_error: 'Amenities should be an array',
+        })
+          .array()
+          .min(1, 'Atleast one amenity is required'),
+      },
+      { required_error: 'Club details are required' }
+    ),
+    contact: object(
+      {
+        email: string({ required_error: 'Email is required' }).email('Email should be a valid email'),
+        phone: string().min(11, 'Invalid phone number').optional(),
+        socialMedia: object(
+          {
+            name: string({ required_error: 'Social media name is required' }),
+            handle: string({ required_error: 'Social media handle is required' }),
+          },
+          { required_error: 'Social media is required', invalid_type_error: 'Social media should be an array' }
+        )
+          .array()
+          .optional(),
+      },
+      { required_error: 'Contact is required' }
+    ),
   }),
 });
 
