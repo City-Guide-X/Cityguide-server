@@ -6,19 +6,35 @@ import {
   findReservationById,
   getAllEstablishmentReservations,
   getAllUserReservations,
+  reserveClub,
+  reserveRestaurant,
+  reserveStay,
+  updateAccommodationAvailability,
   updateReservation,
+  validateReservationInput,
 } from '@services';
-import { Status } from '@types';
-import { asyncWrapper } from '@utils';
+import { PropertyType, Status } from '@types';
+import { asyncWrapper, log } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
 
 export const createReservationHandler = asyncWrapper(
   async (req: Request<{}, {}, createReservationInput>, res: Response) => {
-    const { establishment, ...data } = req.body;
     const { id } = res.locals.user;
-    const reservation = await createReservation(data, establishment, id);
-    res.status(201).json({ reservation: omit(reservation.toJSON(), privateFields) });
+    const { property, ...body } = req.body;
+    const data = { ...body, property: property as any, user: id };
+    const notValid = await validateReservationInput(data);
+    if (notValid) throw new BadRequestError(notValid);
+    const reservation =
+      data.propertyType === PropertyType.STAY
+        ? await reserveStay(data)
+        : data.propertyType === PropertyType.RESTAURANT
+        ? await reserveRestaurant(data)
+        : await reserveClub(data);
+    res.status(201).json({ reservation: omit(reservation, privateFields) });
+    if (data.propertyType === PropertyType.STAY)
+      return await updateAccommodationAvailability(property, data.roomId!, -data.reservationCount);
+    return;
   }
 );
 
@@ -33,10 +49,10 @@ export const updateReservationHandler = asyncWrapper(
     const { id, type } = res.locals.user;
     const { id: itemId, status } = req.body;
     if (type === 'USER' && status !== Status.CANCELLED) throw new AuthorizationError();
-    const reservation = await findReservationById(itemId);
+    const reservation = await findReservationById(itemId).populate('establishment', 'name', 'Establishment');
     if (!reservation) throw new NotFoundError();
     if (
-      (type === 'ESTABLISHMENT' && reservation.establishment.toString() !== id) ||
+      (type === 'ESTABLISHMENT' && reservation.user.toString() !== id) ||
       (type === 'USER' && reservation.user.toString !== id)
     )
       throw new AuthorizationError();

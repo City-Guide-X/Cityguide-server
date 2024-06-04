@@ -1,4 +1,4 @@
-import { Parking } from '@types';
+import { DayOfWeek, Parking } from '@types';
 import { nativeEnum, number, object, string, TypeOf } from 'zod';
 
 export const createClubSchema = object({
@@ -34,7 +34,10 @@ export const createClubSchema = object({
     images: string({ invalid_type_error: 'Images should be an array' }).array().optional(),
     availability: object(
       {
-        day: string({ required_error: 'Day is required' }),
+        day: nativeEnum(DayOfWeek, {
+          required_error: 'Day is required',
+          invalid_type_error: 'Day should be a day of the week in full and capitalized',
+        }),
         from: string({ required_error: 'From time is required' }),
         to: string({ required_error: 'To time is required' }),
       },

@@ -1,6 +1,4 @@
-export * from './club.interface';
 export * from './common.interface';
 export * from './enums';
-export * from './restaurant.interface';
+export * from './model.interface';
 export * from './socket.interface';
-export * from './stay.interface';

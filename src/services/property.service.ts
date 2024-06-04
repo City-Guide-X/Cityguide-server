@@ -20,6 +20,10 @@ export const createEstablishmentStay = async (input: Partial<EstablishmentStay>)
   return EstablishmentStayModel.create({ ...input });
 };
 
+export const updateAccommodationAvailability = async (_id: string, roomId: string, quantity: number) => {
+  return StayModel.updateOne({ _id, 'accommodation.id': roomId }, { $inc: { 'accommodation.$.available': quantity } });
+};
+
 // Restaurants
 export const createRestaurant = async (input: Partial<Restaurant>) => {
   return RestaurantModel.create({ ...input });

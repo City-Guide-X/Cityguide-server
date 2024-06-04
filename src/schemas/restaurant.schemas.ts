@@ -1,4 +1,4 @@
-import { PriceRange } from '@types';
+import { DayOfWeek, PriceRange } from '@types';
 import { boolean, nativeEnum, number, object, string, TypeOf } from 'zod';
 
 export const createRestaurantSchema = object({
@@ -34,7 +34,10 @@ export const createRestaurantSchema = object({
     images: string({ invalid_type_error: 'Images should be an array' }).array().optional(),
     availability: object(
       {
-        day: string({ required_error: 'Day is required' }),
+        day: nativeEnum(DayOfWeek, {
+          required_error: 'Day is required',
+          invalid_type_error: 'Day should be a day of the week in full and capitalized',
+        }),
         from: string({ required_error: 'From time is required' }),
         to: string({ required_error: 'To time is required' }),
       },
@@ -77,6 +80,10 @@ export const createRestaurantSchema = object({
         reservation: number({ invalid_type_error: 'Max number of guests for reservation is required' }).optional(),
         amenities: string({ invalid_type_error: 'Amenities should be an array' }).array().optional(),
         paymentOptions: string({ invalid_type_error: 'Payment options should be an array' }).array().optional(),
+        children: boolean({
+          required_error: 'Children allowance rule is required',
+          invalid_type_error: 'Children allowance rul should be a boolean',
+        }),
       },
       { required_error: 'Restaurant details is required' }
     ),

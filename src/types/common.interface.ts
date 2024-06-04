@@ -1,5 +1,5 @@
 import { Review } from '@models';
-import { Rating } from './enums';
+import { DayOfWeek, Rating } from './enums';
 import mongoose from 'mongoose';
 
 export interface IAddress {
@@ -10,7 +10,7 @@ export interface IAddress {
 }
 
 export interface ICustomAvailability {
-  day: string;
+  day: DayOfWeek;
   from: string;
   to: string;
 }
@@ -38,10 +38,4 @@ export interface IReview {
   rating: Rating;
   message: string;
   createdAt: Date;
-}
-
-export interface ReviewPopulateConfig {
-  path: string;
-  select?: string;
-  model?: (doc: Review) => mongoose.Model<any>;
 }

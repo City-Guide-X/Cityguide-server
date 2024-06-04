@@ -46,3 +46,13 @@ export enum PriceRange {
   MODERATE = 'Mid-range',
   FINE = 'Fine-dining',
 }
+
+export enum DayOfWeek {
+  MONDAY = 'Monday',
+  TUESDAY = 'Tuesday',
+  WEDNESDAY = 'Wednesday',
+  THURSDAY = 'Thursday',
+  FRIDAY = 'Friday',
+  SATURDAY = 'Saturday',
+  SUNDAY = 'Sunday',
+}

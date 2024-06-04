@@ -1,4 +1,5 @@
 export * from './asyncWrapper';
+export * from './dayjs';
 export { default as parser } from './imageParser';
 export * from './jwt';
 export { default as log } from './logger';

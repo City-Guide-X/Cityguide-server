@@ -19,6 +19,7 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
         .join(', '),
     });
   }
+  if (err.name === 'CastError') return res.status(400).json({ message: 'Invalid ID' });
   if (err instanceof CustomError) {
     return res.status(err.statusCode).json(err.serialize());
   }
