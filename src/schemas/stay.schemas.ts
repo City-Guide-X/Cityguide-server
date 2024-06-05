@@ -154,4 +154,11 @@ export const createStaySchema = object({
   }),
 });
 
+export const getStayDetailSchema = object({
+  params: object({
+    stayId: string({ required_error: 'Stay id is required' }),
+  }),
+});
+
 export type createStayInput = TypeOf<typeof createStaySchema>['body'];
+export type getStayDetailInput = TypeOf<typeof getStayDetailSchema>['params'];

@@ -1,7 +1,6 @@
 import {
   getDiscriminatorModelForClass,
   getModelForClass,
-  index,
   modelOptions,
   prop,
   Ref,

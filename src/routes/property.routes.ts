@@ -1,10 +1,11 @@
-import { createNightLifeHandler, createRestaurantHandler, createStayHandler } from '@controllers';
+import { createNightLifeHandler, createRestaurantHandler, createStayHandler, getStayDetailHandler } from '@controllers';
 import { establishmentOnly, partnerOnly, requireAuth, validateSchema } from '@middlewares';
-import { createNightLifeSchema, createRestaurantSchema, createStaySchema } from '@schemas';
+import { createNightLifeSchema, createRestaurantSchema, createStaySchema, getStayDetailSchema } from '@schemas';
 import { Router } from 'express';
 
 const router = Router();
 
+router.get('/stay/:stayId', validateSchema(getStayDetailSchema), getStayDetailHandler);
 router.use(requireAuth);
 router.post('/stay', partnerOnly, validateSchema(createStaySchema), createStayHandler);
 router.post('/restaurant', establishmentOnly, validateSchema(createRestaurantSchema), createRestaurantHandler);

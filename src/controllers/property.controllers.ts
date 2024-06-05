@@ -1,11 +1,13 @@
-import { privateFields } from '@models';
-import { createNightLifeInput, createReservationInput, createStayInput } from '@schemas';
-import { createEstablishmentStay, createNightLife, createRestaurant, createUserStay } from '@services';
+import { NotFoundError } from '@errors';
+import { EstablishmentModel, privateFields, UserModel } from '@models';
+import { createNightLifeInput, createReservationInput, createStayInput, getStayDetailInput } from '@schemas';
+import { createEstablishmentStay, createNightLife, createRestaurant, createUserStay, getStayById } from '@services';
 import { asyncWrapper } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
 import { Document } from 'mongoose';
 
+// Stays
 export const createStayHandler = asyncWrapper(async (req: Request<{}, {}, createStayInput>, res: Response) => {
   const { id, type } = res.locals.user;
   const data = { ...req.body, partner: id };
@@ -13,6 +15,14 @@ export const createStayHandler = asyncWrapper(async (req: Request<{}, {}, create
   return res.status(201).json({ stay: omit(stay.toJSON(), privateFields) });
 });
 
+export const getStayDetailHandler = asyncWrapper(async (req: Request<getStayDetailInput>, res: Response) => {
+  const { stayId } = req.params;
+  const stay = await getStayById(stayId);
+  if (!stay) throw new NotFoundError('Stay not found');
+  return res.status(200).json({ stay: omit(stay.toJSON(), privateFields) });
+});
+
+// Restaurants
 export const createRestaurantHandler = asyncWrapper(
   async (req: Request<{}, {}, createReservationInput>, res: Response) => {
     const { id } = res.locals.user;
@@ -22,6 +32,7 @@ export const createRestaurantHandler = asyncWrapper(
   }
 );
 
+// NightLifes
 export const createNightLifeHandler = asyncWrapper(
   async (req: Request<{}, {}, createNightLifeInput>, res: Response) => {
     const { id } = res.locals.user;
