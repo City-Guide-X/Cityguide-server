@@ -7,12 +7,13 @@ export const createEstablishmentSchema = object({
       3,
       'Establishment name requires atleast 3 characters'
     ),
-    description: string({
-      required_error: 'Description of the establishment is required',
-    }),
+    description: string().optional(),
     address: object({
       name: string({ required_error: 'Address name is required' }),
       locationId: string({ required_error: 'Address location id is required' }),
+      city: string().optional(),
+      state: string({ required_error: 'State is required' }),
+      country: string({ required_error: 'Country is required' }),
       geoLocation: object({
         lat: number({
           required_error: 'Latitude is required',
@@ -28,9 +29,6 @@ export const createEstablishmentSchema = object({
     phoneNumber: string({ required_error: 'Phone number is required' }).min(11, 'Invalid phone number'),
     email: string({ required_error: 'Email is required' }).email('Invalid email'),
     password: string({ required_error: 'Password is required' }).min(8, 'Password should be atleast 8 characters'),
-    type: nativeEnum(PropertyType, {
-      required_error: 'Establishment type is required',
-    }),
   }),
 });
 

@@ -1,4 +1,5 @@
 import { DocumentType, getModelForClass, index, modelOptions, pre, prop, Severity } from '@typegoose/typegoose';
+import { IAddress } from '@types';
 import { verifyCode } from '@utils';
 import bcrypt from 'bcrypt';
 
@@ -30,6 +31,9 @@ export class Establishment {
 
   @prop({ lowercase: true, required: true, unique: true })
   email!: string;
+
+  @prop({ required: true, _id: false })
+  address: IAddress;
 
   @prop({ required: true })
   password!: string;
