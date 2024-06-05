@@ -36,6 +36,10 @@ export const createRestaurant = async (input: Partial<Restaurant>) => {
   return RestaurantModel.create({ ...input });
 };
 
+export const getRestaurantById = async (_id: string) => {
+  return RestaurantModel.findById(_id).populate('establishment', 'name email phoneNumber imgUrl', 'Establishment');
+};
+
 // NightLifes
 export const createNightLife = async (input: Partial<NightLife>) => {
   return NightLifeModel.create({ ...input });

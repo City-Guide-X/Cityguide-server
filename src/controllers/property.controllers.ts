@@ -1,7 +1,20 @@
 import { NotFoundError } from '@errors';
 import { EstablishmentModel, privateFields, UserModel } from '@models';
-import { createNightLifeInput, createReservationInput, createStayInput, getStayDetailInput } from '@schemas';
-import { createEstablishmentStay, createNightLife, createRestaurant, createUserStay, getStayById } from '@services';
+import {
+  createNightLifeInput,
+  createReservationInput,
+  createStayInput,
+  getRestaurantDetailInput,
+  getStayDetailInput,
+} from '@schemas';
+import {
+  createEstablishmentStay,
+  createNightLife,
+  createRestaurant,
+  createUserStay,
+  getRestaurantById,
+  getStayById,
+} from '@services';
 import { asyncWrapper } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
@@ -29,6 +42,15 @@ export const createRestaurantHandler = asyncWrapper(
     const data = { ...req.body, establishment: id };
     const reservation = await createRestaurant(data);
     return res.status(201).json({ reservation: omit(reservation.toJSON(), privateFields) });
+  }
+);
+
+export const getRestaurantDetailHandler = asyncWrapper(
+  async (req: Request<getRestaurantDetailInput>, res: Response) => {
+    const { restaurantId } = req.params;
+    const restaurant = await getRestaurantById(restaurantId);
+    if (!restaurant) throw new NotFoundError('Restaurant not found');
+    return res.status(200).json({ restaurant: omit(restaurant.toJSON(), privateFields) });
   }
 );
 

@@ -109,4 +109,11 @@ export const createRestaurantSchema = object({
   }),
 });
 
+export const getRestaurantDetailSchema = object({
+  params: object({
+    restaurantId: string({ required_error: 'Stay id is required' }),
+  }),
+});
+
 export type createRestaurantInput = TypeOf<typeof createRestaurantSchema>['body'];
+export type getRestaurantDetailInput = TypeOf<typeof getRestaurantDetailSchema>['params'];
