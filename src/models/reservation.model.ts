@@ -38,7 +38,7 @@ export class Reservation {
   @prop({ required: true })
   checkOutTime!: string;
 
-  @prop({ required: true })
+  @prop()
   roomId: string;
 
   @prop({ required: true })

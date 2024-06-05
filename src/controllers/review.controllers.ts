@@ -12,7 +12,7 @@ export const createReviewHandler = asyncWrapper(async (req: Request<{}, {}, crea
   const { property, ...body } = req.body;
   const data = { ...body, property: property as any, user: id };
   const isValid = await isPropertyType(property, data.propertyType);
-  if (!isValid) throw new BadRequestError(`The provided property ID is not a ${data.propertyType}`);
+  if (!isValid) throw new BadRequestError(`Invalid ${data.propertyType} ID`);
   const review =
     data.propertyType === PropertyType.STAY
       ? await reviewStay(data)

@@ -61,7 +61,7 @@ export const validateReservationInput = async ({
   if (isFuture(checkInDay!, checkInTime!)) return 'The reservation date must be in the future';
   if (propertyType === PropertyType.STAY) {
     const stay = await StayModel.findById(property);
-    if (!stay) return `The provided stay ID is not for a ${propertyType}`;
+    if (!stay) return 'Invalid Stay ID';
     if (dayjs(checkOutDay).diff(checkInDay, 'd') > stay.maxDays) return 'The reservation exceeds the maximum stay';
     const room = stay.accommodation.find((room) => room.id === roomId);
     if (!room) return 'The provided room ID is not valid';
@@ -73,7 +73,7 @@ export const validateReservationInput = async ({
   }
   if (propertyType === PropertyType.RESTAURANT) {
     const restaurant = await RestaurantModel.findById(property);
-    if (!restaurant) return `The provided property ID is not a ${propertyType}`;
+    if (!restaurant) return 'Invalid Restaurant ID';
     const isAvailable = [
       restaurant.availability
         .map(({ day, from, to }) => isValidDate(checkInDay!, checkInTime!, day, from, to))
@@ -93,7 +93,7 @@ export const validateReservationInput = async ({
   }
   if (propertyType === PropertyType.CLUB) {
     const club = await ClubModel.findById(property);
-    if (!(await ClubModel.exists({ _id: property }))) return `The provided property ID is not a ${propertyType}`;
+    if (!club) return 'Invalid Club ID';
     return null;
   }
 };

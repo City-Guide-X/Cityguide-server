@@ -1,10 +1,11 @@
-import { Review } from '@models';
 import { DayOfWeek, Rating } from './enums';
-import mongoose from 'mongoose';
 
 export interface IAddress {
   name: string;
   locationId: string;
+  city?: string;
+  state: string;
+  country: string;
   geoLocation: { lat: number; lng: number };
   extraDetails?: string;
 }

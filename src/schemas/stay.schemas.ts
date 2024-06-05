@@ -27,6 +27,9 @@ export const createStaySchema = object({
       {
         name: string({ required_error: 'Address name is required' }),
         locationId: string({ required_error: 'Address location id is required' }),
+        city: string().optional(),
+        state: string({ required_error: 'State is required' }),
+        country: string({ required_error: 'Country is required' }),
         geoLocation: object({
           lat: number({
             required_error: 'Latitude is required',
