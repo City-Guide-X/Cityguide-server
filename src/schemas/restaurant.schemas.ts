@@ -111,7 +111,7 @@ export const createRestaurantSchema = object({
 
 export const getRestaurantDetailSchema = object({
   params: object({
-    restaurantId: string({ required_error: 'Stay id is required' }),
+    restaurantId: string({ required_error: 'Restaurant id is required' }),
   }),
 });
 

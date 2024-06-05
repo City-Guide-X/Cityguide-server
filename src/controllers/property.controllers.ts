@@ -4,6 +4,7 @@ import {
   createNightLifeInput,
   createReservationInput,
   createStayInput,
+  getNightLifeDetailInput,
   getRestaurantDetailInput,
   getStayDetailInput,
 } from '@schemas';
@@ -12,6 +13,7 @@ import {
   createNightLife,
   createRestaurant,
   createUserStay,
+  getNightLifeById,
   getRestaurantById,
   getStayById,
 } from '@services';
@@ -59,7 +61,14 @@ export const createNightLifeHandler = asyncWrapper(
   async (req: Request<{}, {}, createNightLifeInput>, res: Response) => {
     const { id } = res.locals.user;
     const data = { ...req.body, establishment: id };
-    const nightLife = await createNightLife(data);
-    return res.status(201).json({ nightLife: omit(nightLife.toJSON(), privateFields) });
+    const nightlife = await createNightLife(data);
+    return res.status(201).json({ nightlife: omit(nightlife.toJSON(), privateFields) });
   }
 );
+
+export const getNightLifeDetailHandler = asyncWrapper(async (req: Request<getNightLifeDetailInput>, res: Response) => {
+  const { nightLifeId } = req.params;
+  const nightlife = await getNightLifeById(nightLifeId);
+  if (!nightlife) throw new NotFoundError('NightLife not found');
+  return res.status(200).json({ nightlife: omit(nightlife.toJSON(), privateFields) });
+});

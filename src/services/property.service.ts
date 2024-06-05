@@ -45,6 +45,10 @@ export const createNightLife = async (input: Partial<NightLife>) => {
   return NightLifeModel.create({ ...input });
 };
 
+export const getNightLifeById = async (_id: string) => {
+  return NightLifeModel.findById(_id).populate('establishment', 'name email phoneNumber imgUrl', 'Establishment');
+};
+
 // General
 export const isPropertyType = async (_id: string, type: PropertyType) => {
   if (type === PropertyType.STAY) return await StayModel.exists({ _id });

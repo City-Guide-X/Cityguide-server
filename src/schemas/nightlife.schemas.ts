@@ -104,4 +104,11 @@ export const createNightLifeSchema = object({
   }),
 });
 
+export const getNightLifeDetailSchema = object({
+  params: object({
+    nightLifeId: string({ required_error: 'NightLife id is required' }),
+  }),
+});
+
 export type createNightLifeInput = TypeOf<typeof createNightLifeSchema>['body'];
+export type getNightLifeDetailInput = TypeOf<typeof getNightLifeDetailSchema>['params'];
