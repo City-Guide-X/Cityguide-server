@@ -1,14 +1,25 @@
 import { getModelForClass, modelOptions, prop, Ref, Severity } from '@typegoose/typegoose';
-import { IAddress, ICustomAvailability, IClubRules, ISocialLink, Rating, IContact, IClubDetails } from '@types';
+import {
+  IAddress,
+  IContact,
+  ICustomAvailability,
+  INightLifeDetails,
+  INightLifeRules,
+  NightLifeType,
+  Rating,
+} from '@types';
 import { Establishment } from './establishment.model';
 
 @modelOptions({
   schemaOptions: { timestamps: true },
   options: { allowMixed: Severity.ALLOW },
 })
-export class Club {
+export class NightLife {
   @prop({ ref: () => 'Establishment', required: true })
   establishment!: Ref<Establishment>;
+
+  @prop({ enum: NightLifeType, required: true, type: String })
+  type: NightLifeType;
 
   @prop({ required: true })
   name: string;
@@ -35,10 +46,10 @@ export class Club {
   availability: ICustomAvailability[];
 
   @prop({ required: true, _id: false })
-  rules: IClubRules;
+  rules: INightLifeRules;
 
   @prop({ required: true, _id: false })
-  details: IClubDetails;
+  details: INightLifeDetails;
 
   @prop({ required: true, _id: false })
   contact: IContact;
@@ -47,4 +58,4 @@ export class Club {
   public updatedAt: Date;
 }
 
-export const ClubModel = getModelForClass(Club);
+export const NightLifeModel = getModelForClass(NightLife);

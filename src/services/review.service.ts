@@ -1,6 +1,6 @@
 import {
-  ClubReview,
-  ClubReviewModel,
+  NightLifeReview,
+  NightLifeReviewModel,
   RestaurantReview,
   RestaurantReviewModel,
   ReviewModel,
@@ -16,8 +16,8 @@ export const reviewRestaurant = (input: Partial<RestaurantReview>) => {
   return RestaurantReviewModel.create({ ...input });
 };
 
-export const reviewClub = (input: Partial<ClubReview>) => {
-  return ClubReviewModel.create({ ...input });
+export const reviewNightLife = (input: Partial<NightLifeReview>) => {
+  return NightLifeReviewModel.create({ ...input });
 };
 
 export const deleteReview = (_id: string, user: string) => {
@@ -25,5 +25,5 @@ export const deleteReview = (_id: string, user: string) => {
 };
 
 export const getReviews = () => {
-  return ReviewModel.find({}).populate({ path: 'property', select: 'name', model: 'Club' });
+  return ReviewModel.find({}).populate({ path: 'property', select: 'name', model: 'NightLife' });
 };

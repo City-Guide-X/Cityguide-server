@@ -29,14 +29,14 @@ export interface IEvent {
   availableTickets: number;
 }
 
-export interface IClubRules {
+export interface INightLifeRules {
   minAge: number;
   parking: Parking;
   dressCode?: string[];
   musicGenre?: string[];
 }
 
-export interface IClubDetails {
+export interface INightLifeDetails {
   entryFee?: number;
   paymentOptions: string[];
   amenities: string[];

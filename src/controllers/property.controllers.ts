@@ -1,6 +1,6 @@
 import { privateFields } from '@models';
-import { createClubInput, createReservationInput, createStayInput } from '@schemas';
-import { createClub, createEstablishmentStay, createRestaurant, createUserStay } from '@services';
+import { createNightLifeInput, createReservationInput, createStayInput } from '@schemas';
+import { createEstablishmentStay, createNightLife, createRestaurant, createUserStay } from '@services';
 import { asyncWrapper } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
@@ -22,9 +22,11 @@ export const createRestaurantHandler = asyncWrapper(
   }
 );
 
-export const createClubHandler = asyncWrapper(async (req: Request<{}, {}, createClubInput>, res: Response) => {
-  const { id } = res.locals.user;
-  const data = { ...req.body, establishment: id };
-  const club = await createClub(data);
-  return res.status(201).json({ club: omit(club.toJSON(), privateFields) });
-});
+export const createNightLifeHandler = asyncWrapper(
+  async (req: Request<{}, {}, createNightLifeInput>, res: Response) => {
+    const { id } = res.locals.user;
+    const data = { ...req.body, establishment: id };
+    const nightLife = await createNightLife(data);
+    return res.status(201).json({ nightLife: omit(nightLife.toJSON(), privateFields) });
+  }
+);

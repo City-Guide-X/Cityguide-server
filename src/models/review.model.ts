@@ -7,7 +7,7 @@ import {
   Severity,
 } from '@typegoose/typegoose';
 import { PropertyType, Rating } from '@types';
-import { Club } from './club.model';
+import { NightLife } from './nightlife.model';
 import { Restaurant } from './restaurant.model';
 import { Stay } from './stay.model';
 import { User } from './user.model';
@@ -41,9 +41,9 @@ export class RestaurantReview extends Review {
   @prop({ ref: () => Restaurant, required: true })
   property!: Ref<Restaurant>;
 }
-export class ClubReview extends Review {
-  @prop({ ref: () => Club, required: true })
-  property!: Ref<Club>;
+export class NightLifeReview extends Review {
+  @prop({ ref: () => NightLife, required: true })
+  property!: Ref<NightLife>;
 }
 
 export const ReviewModel = getModelForClass(Review);
@@ -53,4 +53,4 @@ export const RestaurantReviewModel = getDiscriminatorModelForClass(
   RestaurantReview,
   PropertyType.RESTAURANT
 );
-export const ClubReviewModel = getDiscriminatorModelForClass(ReviewModel, ClubReview, PropertyType.CLUB);
+export const NightLifeReviewModel = getDiscriminatorModelForClass(ReviewModel, NightLifeReview, PropertyType.NIGHTLIFE);

@@ -1,4 +1,4 @@
-export * from './club.model';
+export * from './nightlife.model';
 export * from './establishment.model';
 export * from './reservation.model';
 export * from './restaurant.model';

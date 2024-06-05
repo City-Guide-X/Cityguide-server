@@ -6,7 +6,7 @@ export const createReviewSchema = object({
     property: string({ required_error: 'Property id is required' }),
     propertyType: nativeEnum(PropertyType, {
       required_error: 'Property type is required',
-      invalid_type_error: 'Property type should be a Stay | Restaurant | Club',
+      invalid_type_error: 'Property type should be a Stay | Restaurant | NightLife',
     }),
     rating: nativeEnum(Rating, {
       required_error: 'Rating is required',

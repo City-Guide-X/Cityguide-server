@@ -1,7 +1,7 @@
 import {
-  ClubModel,
-  ClubReservation,
-  ClubReservationModel,
+  NightLifeModel,
+  NightLifeReservation,
+  NightLifeReservationModel,
   Reservation,
   ReservationModel,
   RestaurantModel,
@@ -12,7 +12,7 @@ import {
   StayReservationModel,
 } from '@models';
 import { PropertyType } from '@types';
-import { isFuture, isValidDate, log } from '@utils';
+import { isFuture, isValidDate } from '@utils';
 import dayjs from 'dayjs';
 
 export const reserveStay = (input: Partial<StayReservation>) => {
@@ -23,8 +23,8 @@ export const reserveRestaurant = (input: Partial<RestaurantReservation>) => {
   return RestaurantReservationModel.create({ ...input });
 };
 
-export const reserveClub = (input: Partial<ClubReservation>) => {
-  return ClubReservationModel.create({ ...input });
+export const reserveNightLife = (input: Partial<NightLifeReservation>) => {
+  return NightLifeReservationModel.create({ ...input });
 };
 
 export const createReservation = (option: Partial<Reservation>, establishment: string, user: string) => {
@@ -91,9 +91,9 @@ export const validateReservationInput = async ({
     if (restaurant.details.reservation < noOfGuests!.adults + noOfGuests!.children) return 'Reservation max reached';
     return null;
   }
-  if (propertyType === PropertyType.CLUB) {
-    const club = await ClubModel.findById(property);
-    if (!club) return 'Invalid Club ID';
+  if (propertyType === PropertyType.NIGHTLIFE) {
+    const nightLife = await NightLifeModel.findById(property);
+    if (!nightLife) return 'Invalid NightLife ID';
     return null;
   }
 };

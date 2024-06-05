@@ -1,7 +1,22 @@
 export enum PropertyType {
   STAY = 'Stay',
   RESTAURANT = 'Restaurant',
+  NIGHTLIFE = 'NightLife',
+}
+
+export enum StayType {
+  HOTEL = 'Hotel',
+  HOSTEL = 'Hostel',
+  RESORT = 'Resort',
+  APARTMENT = 'Apartment',
+  BnB = 'BnB',
+}
+
+export enum NightLifeType {
   CLUB = 'Club',
+  BAR = 'Bar',
+  LOUNGE = 'Lounge',
+  OTHER = 'Other',
 }
 
 export enum Status {
@@ -18,14 +33,6 @@ export enum Rating {
   THREE,
   FOUR,
   FIVE,
-}
-
-export enum StayType {
-  HOTEL = 'Hotel',
-  HOSTEL = 'Hostel',
-  RESORT = 'Resort',
-  APARTMENT = 'Apartment',
-  BnB = 'BnB',
 }
 
 export enum Parking {

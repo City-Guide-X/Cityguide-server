@@ -2,11 +2,10 @@ import { AuthorizationError, BadRequestError, NotFoundError } from '@errors';
 import { privateFields } from '@models';
 import { createReservationInput, updateReservationInput } from '@schemas';
 import {
-  createReservation,
   findReservationById,
   getAllEstablishmentReservations,
   getAllUserReservations,
-  reserveClub,
+  reserveNightLife,
   reserveRestaurant,
   reserveStay,
   updateAccommodationAvailability,
@@ -14,7 +13,7 @@ import {
   validateReservationInput,
 } from '@services';
 import { PropertyType, Status } from '@types';
-import { asyncWrapper, log } from '@utils';
+import { asyncWrapper } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
 
@@ -30,7 +29,7 @@ export const createReservationHandler = asyncWrapper(
         ? await reserveStay(data)
         : data.propertyType === PropertyType.RESTAURANT
         ? await reserveRestaurant(data)
-        : await reserveClub(data);
+        : await reserveNightLife(data);
     res.status(201).json({ reservation: omit(reservation, privateFields) });
     if (data.propertyType === PropertyType.STAY)
       return await updateAccommodationAvailability(property, data.roomId!, -data.reservationCount);

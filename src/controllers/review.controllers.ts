@@ -1,7 +1,7 @@
 import { BadRequestError } from '@errors';
 import { privateFields } from '@models';
 import { createReviewInput, deleteReviewInput } from '@schemas';
-import { deleteReview, isPropertyType, reviewClub, reviewRestaurant, reviewStay } from '@services';
+import { deleteReview, isPropertyType, reviewNightLife, reviewRestaurant, reviewStay } from '@services';
 import { PropertyType } from '@types';
 import { asyncWrapper } from '@utils';
 import { Request, Response } from 'express';
@@ -18,7 +18,7 @@ export const createReviewHandler = asyncWrapper(async (req: Request<{}, {}, crea
       ? await reviewStay(data)
       : data.propertyType === PropertyType.RESTAURANT
       ? await reviewRestaurant(data)
-      : await reviewClub(data);
+      : await reviewNightLife(data);
   return res.status(201).json({ review: omit(review, privateFields) });
 });
 

@@ -1,13 +1,17 @@
-import { DayOfWeek, Parking } from '@types';
+import { DayOfWeek, NightLifeType, Parking } from '@types';
 import { nativeEnum, number, object, string, TypeOf } from 'zod';
 
-export const createClubSchema = object({
+export const createNightLifeSchema = object({
   body: object({
-    name: string({ required_error: 'Restaurant Name is required' }).min(
+    type: nativeEnum(NightLifeType, {
+      required_error: 'NightLife type is required',
+      invalid_type_error: 'NightLife type should be a Club | Bar | Lounge | Other',
+    }),
+    name: string({ required_error: 'NightLife Name is required' }).min(
       3,
-      'Restaurant name requires atleast 3 characters'
+      'NightLife name requires atleast 3 characters'
     ),
-    summary: string({ required_error: 'Summary of the restaurant is required' }).min(
+    summary: string({ required_error: 'Summary of the NightLife is required' }).min(
       10,
       'Summary should be atleast 10 characters'
     ),
@@ -61,7 +65,7 @@ export const createClubSchema = object({
         }),
         musicGenre: string({ invalid_type_error: 'Music genre should be an array' }).array().optional(),
       },
-      { required_error: 'Club rules are required' }
+      { required_error: 'NightLife rules are required' }
     ),
     details: object(
       {
@@ -79,7 +83,7 @@ export const createClubSchema = object({
           .array()
           .min(1, 'Atleast one amenity is required'),
       },
-      { required_error: 'Club details are required' }
+      { required_error: 'NightLife details are required' }
     ),
     contact: object(
       {
@@ -100,4 +104,4 @@ export const createClubSchema = object({
   }),
 });
 
-export type createClubInput = TypeOf<typeof createClubSchema>['body'];
+export type createNightLifeInput = TypeOf<typeof createNightLifeSchema>['body'];

@@ -7,7 +7,7 @@ import {
   Severity,
 } from '@typegoose/typegoose';
 import { IGuests, PropertyType, Status } from '@types';
-import { Club } from './club.model';
+import { NightLife } from './nightlife.model';
 import { Restaurant } from './restaurant.model';
 import { Stay } from './stay.model';
 import { User } from './user.model';
@@ -62,9 +62,9 @@ export class RestaurantReservation extends Reservation {
   @prop({ ref: () => Restaurant, required: true })
   property!: Ref<Restaurant>;
 }
-export class ClubReservation extends Reservation {
-  @prop({ ref: () => Club, required: true })
-  property!: Ref<Club>;
+export class NightLifeReservation extends Reservation {
+  @prop({ ref: () => NightLife, required: true })
+  property!: Ref<NightLife>;
 }
 
 export const ReservationModel = getModelForClass(Reservation);
@@ -74,4 +74,8 @@ export const RestaurantReservationModel = getDiscriminatorModelForClass(
   RestaurantReservation,
   PropertyType.RESTAURANT
 );
-export const ClubReservationModel = getDiscriminatorModelForClass(ReservationModel, ClubReservation, PropertyType.CLUB);
+export const NightLifeReservationModel = getDiscriminatorModelForClass(
+  ReservationModel,
+  NightLifeReservation,
+  PropertyType.NIGHTLIFE
+);
