@@ -1,4 +1,5 @@
 import {
+  addAccommodationHandler,
   createNightLifeHandler,
   createRestaurantHandler,
   createStayHandler,
@@ -8,6 +9,7 @@ import {
 } from '@controllers';
 import { establishmentOnly, partnerOnly, requireAuth, validateSchema } from '@middlewares';
 import {
+  addAccommodationSchema,
   createNightLifeSchema,
   createRestaurantSchema,
   createStaySchema,
@@ -24,6 +26,12 @@ router.get('/restaurant/:restaurantId', validateSchema(getRestaurantDetailSchema
 router.get('/nightlife/:nightLifeId', validateSchema(getNightLifeDetailSchema), getNightLifeDetailHandler);
 router.use(requireAuth);
 router.post('/stay', partnerOnly, validateSchema(createStaySchema), createStayHandler);
+router.post(
+  '/stay/:stayId/accommodation',
+  partnerOnly,
+  validateSchema(addAccommodationSchema),
+  addAccommodationHandler
+);
 router.post('/restaurant', establishmentOnly, validateSchema(createRestaurantSchema), createRestaurantHandler);
 router.post('/nightlife', establishmentOnly, validateSchema(createNightLifeSchema), createNightLifeHandler);
 

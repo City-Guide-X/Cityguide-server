@@ -63,7 +63,6 @@ export interface IRestaurantDetails {
 
 // Stays
 export interface IBed {
-  id: string;
   type: string;
   count: number;
 }

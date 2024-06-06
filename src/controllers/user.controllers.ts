@@ -81,19 +81,3 @@ export const updateUserHandler = asyncWrapper(async (req: Request<{}, {}, update
   if (!isUpdated.modifiedCount) throw new BadRequestError('Could not update user info');
   return res.sendStatus(204);
 });
-
-// export const getEstablishmentsHandler = asyncWrapper(
-//   async (req: Request<{}, {}, getEstablishmentsInput>, res: Response) => {
-//     const { types } = req.body;
-//     const establishments = !!types ? await findEstablishmentByType(types) : await getAllEstablishments();
-//     if (!establishments.length) throw new NotFoundError('No establishments found');
-//     return res.status(200).json({ establishments: establishments.map((e) => omit(e.toJSON(), privateFields)) });
-//   }
-// );
-
-// export const getEstablishmentHandler = asyncWrapper(async (req: Request<getEstablishmentInput>, res: Response) => {
-//   const { id } = req.params;
-//   const establishment = await findEstablishmentById(id);
-//   if (!establishment) throw new NotFoundError('Establishment not found');
-//   return res.status(200).json({ establishment: omit(establishment.toJSON(), privateFields) });
-// });

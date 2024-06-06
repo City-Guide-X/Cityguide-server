@@ -1,3 +1,4 @@
+import { AuthorizationError } from '@errors';
 import {
   EstablishmentStay,
   EstablishmentStayModel,
@@ -5,6 +6,7 @@ import {
   NightLifeModel,
   Restaurant,
   RestaurantModel,
+  Stay,
   StayModel,
   UserStay,
   UserStayModel,
@@ -25,6 +27,12 @@ export const getStayById = async (_id: string) => {
   if (stay?.partnerType === 'USER')
     return stay?.populate({ path: 'partner', select: 'name email phoneNumber imgUrl', model: 'User' });
   return stay?.populate({ path: 'partner', select: 'name email phoneNumber imgUrl', model: 'Establishment' });
+};
+
+export const addAccommodation = async (_id: string, partner: string, body: UserStay['accommodation']) => {
+  const stay = (await StayModel.findOne({ _id })) as UserStay;
+  if (stay.partner.toString() !== partner) throw new AuthorizationError();
+  return StayModel.updateOne({ _id }, { $addToSet: { accommodation: { $each: body } } });
 };
 
 export const updateAccommodationAvailability = async (_id: string, roomId: string, quantity: number) => {

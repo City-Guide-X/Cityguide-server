@@ -1,6 +1,7 @@
 import { NotFoundError } from '@errors';
 import { EstablishmentModel, privateFields, UserModel } from '@models';
 import {
+  addAccommodationInput,
   createNightLifeInput,
   createReservationInput,
   createStayInput,
@@ -9,6 +10,7 @@ import {
   getStayDetailInput,
 } from '@schemas';
 import {
+  addAccommodation,
   createEstablishmentStay,
   createNightLife,
   createRestaurant,
@@ -36,6 +38,19 @@ export const getStayDetailHandler = asyncWrapper(async (req: Request<getStayDeta
   if (!stay) throw new NotFoundError('Stay not found');
   return res.status(200).json({ stay: omit(stay.toJSON(), privateFields) });
 });
+
+export const addAccommodationHandler = asyncWrapper(
+  async (req: Request<addAccommodationInput['params'], {}, addAccommodationInput['body']>, res: Response) => {
+    const { id } = res.locals.user;
+    const {
+      body,
+      params: { stayId },
+    } = req;
+    const stay = await addAccommodation(stayId, id, body);
+    if (!stay.modifiedCount) throw new NotFoundError('Stay not found');
+    return res.sendStatus(204);
+  }
+);
 
 // Restaurants
 export const createRestaurantHandler = asyncWrapper(
