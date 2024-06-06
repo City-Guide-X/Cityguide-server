@@ -9,6 +9,7 @@ import {
   getRestaurantDetailInput,
   getStayDetailInput,
   removeAccommodationInput,
+  updateAccommodationInput,
 } from '@schemas';
 import {
   addAccommodation,
@@ -20,6 +21,7 @@ import {
   getRestaurantById,
   getStayById,
   removeAccommodation,
+  updateAccommodation,
 } from '@services';
 import { asyncWrapper } from '@utils';
 import { Request, Response } from 'express';
@@ -49,6 +51,19 @@ export const addAccommodationHandler = asyncWrapper(
       params: { stayId },
     } = req;
     const stay = await addAccommodation(stayId, id, body);
+    if (!stay.modifiedCount) throw new NotFoundError('Stay not found');
+    return res.sendStatus(204);
+  }
+);
+
+export const updateAccommodationHandler = asyncWrapper(
+  async (req: Request<updateAccommodationInput['params'], {}, updateAccommodationInput['body']>, res: Response) => {
+    const { id } = res.locals.user;
+    const {
+      body,
+      params: { stayId, accommodationId },
+    } = req;
+    const stay = await updateAccommodation(stayId, id, accommodationId, body);
     if (!stay.modifiedCount) throw new NotFoundError('Stay not found');
     return res.sendStatus(204);
   }

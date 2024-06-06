@@ -7,6 +7,7 @@ import {
   getRestaurantDetailHandler,
   getStayDetailHandler,
   removeAccommodationHandler,
+  updateAccommodationHandler,
 } from '@controllers';
 import { establishmentOnly, partnerOnly, requireAuth, validateSchema } from '@middlewares';
 import {
@@ -18,6 +19,7 @@ import {
   getRestaurantDetailSchema,
   getStayDetailSchema,
   removeAccommodationSchema,
+  updateAccommodationSchema,
 } from '@schemas';
 import { Router } from 'express';
 
@@ -33,6 +35,12 @@ router.post(
   partnerOnly,
   validateSchema(addAccommodationSchema),
   addAccommodationHandler
+);
+router.patch(
+  '/stay/:stayId/accommodation/:accommodationId',
+  partnerOnly,
+  validateSchema(updateAccommodationSchema),
+  updateAccommodationHandler
 );
 router.delete(
   '/stay/:stayId/accommodation/:accommodationId',

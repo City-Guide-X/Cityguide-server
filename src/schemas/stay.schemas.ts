@@ -75,14 +75,23 @@ export const createStaySchema = object({
     accommodation: object(
       {
         id: string({ required_error: 'Accommodation id is required' }),
-        name: string({ required_error: 'Accommodation name is required' }),
-        description: string().optional(),
+        name: string({ required_error: 'Accommodation name is required' }).min(
+          3,
+          'Accommodation name should be atleast 3 characters'
+        ),
+        description: string().min(10, 'Accommodation description should be atleast 10 characters').optional(),
         rooms: object(
           {
-            name: string({ required_error: 'Room name is required' }),
+            name: string({ required_error: 'Room name is required' }).min(
+              3,
+              'Room name should be atleast 3 characters'
+            ),
             beds: object(
               {
-                type: string({ required_error: 'Bed type is required' }),
+                type: string({ required_error: 'Bed type is required' }).min(
+                  3,
+                  'Bed type should be atleast 3 characters'
+                ),
                 count: number({ required_error: 'Bed count is required' }),
               },
               { invalid_type_error: 'Accommodation rooms beds should be an array' }
@@ -163,14 +172,20 @@ export const addAccommodationSchema = object({
   body: object(
     {
       id: string({ required_error: 'Accommodation id is required' }),
-      name: string({ required_error: 'Accommodation name is required' }),
-      description: string().optional(),
+      name: string({ required_error: 'Accommodation name is required' }).min(
+        3,
+        'Accommodation name should be atleast 3 characters'
+      ),
+      description: string().min(10, 'Accommodation description should be atleast 10 characters').optional(),
       rooms: object(
         {
-          name: string({ required_error: 'Room name is required' }),
+          name: string({ required_error: 'Room name is required' }).min(3, 'Room name should be atleast 3 characters'),
           beds: object(
             {
-              type: string({ required_error: 'Bed type is required' }),
+              type: string({ required_error: 'Bed type is required' }).min(
+                3,
+                'Bed type should be atleast 3 characters'
+              ),
               count: number({ required_error: 'Bed count is required' }),
             },
             { invalid_type_error: 'Accommodation rooms beds should be an array' }
@@ -233,6 +248,79 @@ export const addAccommodationSchema = object({
   }),
 });
 
+export const updateAccommodationSchema = object({
+  body: object({
+    id: string({ required_error: 'Accommodation id is required' }),
+    name: string({ required_error: 'Accommodation name is required' }).min(
+      3,
+      'Accommodation name should be atleast 3 characters'
+    ),
+    description: string().min(10, 'Accommodation description should be atleast 10 characters').optional(),
+    rooms: object(
+      {
+        name: string({ required_error: 'Room name is required' }).min(3, 'Room name should be atleast 3 characters'),
+        beds: object(
+          {
+            type: string({ required_error: 'Bed type is required' }).min(3, 'Bed type should be atleast 3 characters'),
+            count: number({ required_error: 'Bed count is required' }),
+          },
+          { invalid_type_error: 'Accommodation rooms beds should be an array' }
+        )
+          .array()
+          .min(1, 'Atleast one bed is required'),
+      },
+      {
+        required_error: 'Atleast one room is required',
+        invalid_type_error: 'Accommodation rooms should be an array',
+      }
+    )
+      .array()
+      .min(1, 'Atleast one room is required'),
+    maxGuests: number({
+      required_error: 'Maximum guests is required',
+      invalid_type_error: 'Maximum guests should be a number',
+    }),
+    bathrooms: number({
+      required_error: 'Number of bathrooms is required',
+      invalid_type_error: 'Number of bathrooms should be a number',
+    }),
+    children: boolean({
+      required_error: 'Children allowed is required',
+      invalid_type_error: 'Children allowed should be a boolean',
+    }),
+    infants: boolean({
+      required_error: 'Infants allowed is required',
+      invalid_type_error: 'Infants allowed should be a boolean',
+    }),
+    breakfast: boolean({
+      required_error: 'Breakfast availability is required',
+      invalid_type_error: 'Breakfast should be a boolean',
+    }),
+    parking: nativeEnum(Parking, {
+      required_error: 'Parking availability is required',
+      invalid_type_error: 'Parking should be Paid | Free | No',
+    }),
+    size: number({ invalid_type_error: 'Accommodation size should be a number' }).optional(),
+    initialAvailable: number({
+      required_error: 'Initial number of available accommodations is required',
+      invalid_type_error: 'Initial number of available accommodations should be a number',
+    }),
+    available: number({
+      required_error: 'Number of available accommodations is required',
+      invalid_type_error: 'Number of available accommodations should be a number',
+    }),
+    amenities: string({ invalid_type_error: 'Accommodation amenities should be an array' }).array().optional(),
+    price: number({
+      required_error: 'Price of the accommodation is required',
+      invalid_type_error: 'Price of the accommodation should be a number',
+    }),
+  }),
+  params: object({
+    stayId: string({ required_error: 'Stay id is required' }),
+    accommodationId: string({ required_error: 'Accommodation id is required' }),
+  }),
+});
+
 export const removeAccommodationSchema = object({
   params: object({
     stayId: string({ required_error: 'Stay id is required' }),
@@ -243,4 +331,5 @@ export const removeAccommodationSchema = object({
 export type createStayInput = TypeOf<typeof createStaySchema>['body'];
 export type getStayDetailInput = TypeOf<typeof getStayDetailSchema>['params'];
 export type addAccommodationInput = TypeOf<typeof addAccommodationSchema>;
+export type updateAccommodationInput = TypeOf<typeof updateAccommodationSchema>;
 export type removeAccommodationInput = TypeOf<typeof removeAccommodationSchema>['params'];

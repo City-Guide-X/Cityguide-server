@@ -34,6 +34,18 @@ export const addAccommodation = async (_id: string, partner: string, body: UserS
   return StayModel.updateOne({ _id }, { $addToSet: { accommodation: { $each: body } } });
 };
 
+export const updateAccommodation = async (
+  _id: string,
+  partner: string,
+  roomId: string,
+  body: Partial<UserStay['accommodation'][0]>
+) => {
+  const stay = (await StayModel.findById(_id)) as UserStay;
+  if (stay.partner.toString() !== partner) throw new AuthorizationError();
+  if (!stay.accommodation.find((room) => room.id === roomId)) throw new BadRequestError('Accommodation not found');
+  return StayModel.updateOne({ _id, 'accommodation.id': roomId }, { $set: { 'accommodation.$': body } });
+};
+
 export const removeAccommodation = async (_id: string, partner: string, roomId: string) => {
   const stay = (await StayModel.findById(_id)) as UserStay;
   if (stay.partner.toString() !== partner) throw new AuthorizationError();
