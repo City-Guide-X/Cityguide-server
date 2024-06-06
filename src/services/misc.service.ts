@@ -1,4 +1,5 @@
-import { IPayload } from '@types';
+import { NightLifeModel, RestaurantModel, StayModel } from '@models';
+import { IPayload, PropertyType } from '@types';
 import { signJWT } from '@utils';
 
 interface IToken extends IPayload {
@@ -18,4 +19,10 @@ export const signTokens = ({ id, type, isPartner, token = 'both' }: IToken) => {
     });
   }
   return { accessToken, refreshToken };
+};
+
+export const isPropertyType = async (_id: string, type: PropertyType) => {
+  if (type === PropertyType.STAY) return await StayModel.exists({ _id });
+  if (type === PropertyType.RESTAURANT) return await RestaurantModel.exists({ _id });
+  if (type === PropertyType.NIGHTLIFE) return await NightLifeModel.exists({ _id });
 };

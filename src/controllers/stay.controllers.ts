@@ -1,12 +1,8 @@
 import { NotFoundError } from '@errors';
-import { EstablishmentModel, privateFields, UserModel } from '@models';
+import { privateFields } from '@models';
 import {
   addAccommodationInput,
-  createNightLifeInput,
-  createReservationInput,
   createStayInput,
-  getNightLifeDetailInput,
-  getRestaurantDetailInput,
   getStayDetailInput,
   removeAccommodationInput,
   updateAccommodationInput,
@@ -14,11 +10,7 @@ import {
 import {
   addAccommodation,
   createEstablishmentStay,
-  createNightLife,
-  createRestaurant,
   createUserStay,
-  getNightLifeById,
-  getRestaurantById,
   getStayById,
   removeAccommodation,
   updateAccommodation,
@@ -28,7 +20,6 @@ import { Request, Response } from 'express';
 import { omit } from 'lodash';
 import { Document } from 'mongoose';
 
-// Stays
 export const createStayHandler = asyncWrapper(async (req: Request<{}, {}, createStayInput>, res: Response) => {
   const { id, type } = res.locals.user;
   const data = { ...req.body, partner: id };
@@ -79,39 +70,3 @@ export const removeAccommodationHandler = asyncWrapper(
     return res.sendStatus(204);
   }
 );
-
-// Restaurants
-export const createRestaurantHandler = asyncWrapper(
-  async (req: Request<{}, {}, createReservationInput>, res: Response) => {
-    const { id } = res.locals.user;
-    const data = { ...req.body, establishment: id };
-    const reservation = await createRestaurant(data);
-    return res.status(201).json({ reservation: omit(reservation.toJSON(), privateFields) });
-  }
-);
-
-export const getRestaurantDetailHandler = asyncWrapper(
-  async (req: Request<getRestaurantDetailInput>, res: Response) => {
-    const { restaurantId } = req.params;
-    const restaurant = await getRestaurantById(restaurantId);
-    if (!restaurant) throw new NotFoundError('Restaurant not found');
-    return res.status(200).json({ restaurant: omit(restaurant.toJSON(), privateFields) });
-  }
-);
-
-// NightLifes
-export const createNightLifeHandler = asyncWrapper(
-  async (req: Request<{}, {}, createNightLifeInput>, res: Response) => {
-    const { id } = res.locals.user;
-    const data = { ...req.body, establishment: id };
-    const nightlife = await createNightLife(data);
-    return res.status(201).json({ nightlife: omit(nightlife.toJSON(), privateFields) });
-  }
-);
-
-export const getNightLifeDetailHandler = asyncWrapper(async (req: Request<getNightLifeDetailInput>, res: Response) => {
-  const { nightLifeId } = req.params;
-  const nightlife = await getNightLifeById(nightLifeId);
-  if (!nightlife) throw new NotFoundError('NightLife not found');
-  return res.status(200).json({ nightlife: omit(nightlife.toJSON(), privateFields) });
-});

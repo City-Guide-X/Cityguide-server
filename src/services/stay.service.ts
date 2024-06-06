@@ -1,18 +1,6 @@
 import { AuthorizationError, BadRequestError } from '@errors';
-import {
-  EstablishmentStay,
-  EstablishmentStayModel,
-  NightLife,
-  NightLifeModel,
-  Restaurant,
-  RestaurantModel,
-  StayModel,
-  UserStay,
-  UserStayModel,
-} from '@models';
-import { PropertyType } from '@types';
+import { EstablishmentStay, EstablishmentStayModel, StayModel, UserStay, UserStayModel } from '@models';
 
-// Stays
 export const createUserStay = async (input: Partial<UserStay>) => {
   return UserStayModel.create({ ...input });
 };
@@ -55,29 +43,4 @@ export const removeAccommodation = async (_id: string, partner: string, roomId: 
 
 export const updateAccommodationAvailability = async (_id: string, roomId: string, quantity: number) => {
   return StayModel.updateOne({ _id, 'accommodation.id': roomId }, { $inc: { 'accommodation.$.available': quantity } });
-};
-
-// Restaurants
-export const createRestaurant = async (input: Partial<Restaurant>) => {
-  return RestaurantModel.create({ ...input });
-};
-
-export const getRestaurantById = async (_id: string) => {
-  return RestaurantModel.findById(_id).populate('establishment', 'name email phoneNumber imgUrl', 'Establishment');
-};
-
-// NightLifes
-export const createNightLife = async (input: Partial<NightLife>) => {
-  return NightLifeModel.create({ ...input });
-};
-
-export const getNightLifeById = async (_id: string) => {
-  return NightLifeModel.findById(_id).populate('establishment', 'name email phoneNumber imgUrl', 'Establishment');
-};
-
-// General
-export const isPropertyType = async (_id: string, type: PropertyType) => {
-  if (type === PropertyType.STAY) return await StayModel.exists({ _id });
-  if (type === PropertyType.RESTAURANT) return await RestaurantModel.exists({ _id });
-  if (type === PropertyType.NIGHTLIFE) return await NightLifeModel.exists({ _id });
 };
