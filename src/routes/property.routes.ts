@@ -6,6 +6,7 @@ import {
   getNightLifeDetailHandler,
   getRestaurantDetailHandler,
   getStayDetailHandler,
+  removeAccommodationHandler,
 } from '@controllers';
 import { establishmentOnly, partnerOnly, requireAuth, validateSchema } from '@middlewares';
 import {
@@ -16,6 +17,7 @@ import {
   getNightLifeDetailSchema,
   getRestaurantDetailSchema,
   getStayDetailSchema,
+  removeAccommodationSchema,
 } from '@schemas';
 import { Router } from 'express';
 
@@ -31,6 +33,12 @@ router.post(
   partnerOnly,
   validateSchema(addAccommodationSchema),
   addAccommodationHandler
+);
+router.delete(
+  '/stay/:stayId/accommodation/:accommodationId',
+  partnerOnly,
+  validateSchema(removeAccommodationSchema),
+  removeAccommodationHandler
 );
 router.post('/restaurant', establishmentOnly, validateSchema(createRestaurantSchema), createRestaurantHandler);
 router.post('/nightlife', establishmentOnly, validateSchema(createNightLifeSchema), createNightLifeHandler);

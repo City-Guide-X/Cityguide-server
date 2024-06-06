@@ -1,4 +1,4 @@
-import { AuthorizationError } from '@errors';
+import { AuthorizationError, BadRequestError } from '@errors';
 import {
   EstablishmentStay,
   EstablishmentStayModel,
@@ -29,9 +29,16 @@ export const getStayById = async (_id: string) => {
 };
 
 export const addAccommodation = async (_id: string, partner: string, body: UserStay['accommodation']) => {
-  const stay = (await StayModel.findOne({ _id })) as UserStay;
+  const stay = (await StayModel.findById(_id)) as UserStay;
   if (stay.partner.toString() !== partner) throw new AuthorizationError();
   return StayModel.updateOne({ _id }, { $addToSet: { accommodation: { $each: body } } });
+};
+
+export const removeAccommodation = async (_id: string, partner: string, roomId: string) => {
+  const stay = (await StayModel.findById(_id)) as UserStay;
+  if (stay.partner.toString() !== partner) throw new AuthorizationError();
+  if (!stay.accommodation.find((room) => room.id === roomId)) throw new BadRequestError('Accommodation not found');
+  return StayModel.updateOne({ _id }, { $pull: { accommodation: { id: roomId } } });
 };
 
 export const updateAccommodationAvailability = async (_id: string, roomId: string, quantity: number) => {
