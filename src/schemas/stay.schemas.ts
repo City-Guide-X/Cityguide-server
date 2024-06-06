@@ -1,5 +1,5 @@
 import { MaxDays, Parking, Rating, StayType } from '@types';
-import { boolean, nativeEnum, number, object, string, TypeOf } from 'zod';
+import { boolean, nativeEnum, number, object, strictObject, string, TypeOf } from 'zod';
 
 export const createStaySchema = object({
   body: object({
@@ -163,6 +163,75 @@ export const createStaySchema = object({
 });
 
 export const getStayDetailSchema = object({
+  params: object({
+    stayId: string({ required_error: 'Stay id is required' }),
+  }),
+});
+
+export const updateStaySchema = object({
+  body: strictObject({
+    name: string().min(3, 'Stay name should be atleast 3 characters').optional(),
+    summary: string().min(10, 'Summary should be atleast 10 characters').optional(),
+    extraInfo: object({
+      host: object({
+        name: string({ required_error: 'Host name is required' }),
+        info: string({ required_error: 'Host description is required' }).min(
+          10,
+          'Host description should be atleast 10 characters'
+        ),
+      }).optional(),
+      property: string().min(10, 'Property description should be atleast 10 characters').optional(),
+      neighborhood: string().min(10, 'Neighborhood description should be atleast 10 characters').optional(),
+    }).optional(),
+    address: object({
+      name: string({ required_error: 'Address name is required' }),
+      locationId: string({ required_error: 'Address location id is required' }),
+      city: string().optional(),
+      state: string({ required_error: 'State is required' }),
+      country: string({ required_error: 'Country is required' }),
+      geoLocation: object({
+        lat: number({
+          required_error: 'Latitude is required',
+          invalid_type_error: 'Latitude has to be a number',
+        }),
+        lng: number({
+          required_error: 'Longitude is required',
+          invalid_type_error: 'Longitude has to be a number',
+        }),
+      }),
+      extraDetails: string().optional(),
+    }).optional(),
+    avatar: string().optional(),
+    images: string({ invalid_type_error: 'Images should be an array' }).array().optional(),
+    amenities: string({ invalid_type_error: 'Amenities should be an array' })
+      .array()
+      .min(1, 'Atleast one amenity is required')
+      .optional(),
+    hotelRating: nativeEnum(Rating, {
+      invalid_type_error: 'Hotel rating should be 0 | 1 | 2 | 3 | 4 | 5',
+    }).optional(),
+    rules: object({
+      checkIn: string({ required_error: 'Check-in time is required' }),
+      checkOut: string({ required_error: 'Check-out time is required' }),
+      smoking: boolean({
+        required_error: 'Smoking rules are required',
+        invalid_type_error: 'Smoking rules should be a boolean',
+      }),
+      pets: boolean({
+        required_error: 'Pet rules are required',
+        invalid_type_error: 'Pet rules should be a boolean',
+      }),
+      parties: boolean({
+        required_error: 'Party rules are required',
+        invalid_type_error: 'Party rules should be a boolean',
+      }),
+    }).optional(),
+    maxDays: nativeEnum(MaxDays, { invalid_type_error: 'maxDays should be 30 | 45 | 60 | 90' }).optional(),
+    language: string({ invalid_type_error: 'Languages should be an array' })
+      .array()
+      .min(1, 'Atleast one language is required')
+      .optional(),
+  }),
   params: object({
     stayId: string({ required_error: 'Stay id is required' }),
   }),
@@ -336,6 +405,7 @@ export const deleteStaySchema = object({
 
 export type createStayInput = TypeOf<typeof createStaySchema>['body'];
 export type getStayDetailInput = TypeOf<typeof getStayDetailSchema>['params'];
+export type updateStayInput = TypeOf<typeof updateStaySchema>;
 export type addAccommodationInput = TypeOf<typeof addAccommodationSchema>;
 export type updateAccommodationInput = TypeOf<typeof updateAccommodationSchema>;
 export type removeAccommodationInput = TypeOf<typeof removeAccommodationSchema>['params'];

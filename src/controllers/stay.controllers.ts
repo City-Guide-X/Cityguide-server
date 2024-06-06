@@ -6,6 +6,7 @@ import {
   getStayDetailInput,
   removeAccommodationInput,
   updateAccommodationInput,
+  updateStayInput,
 } from '@schemas';
 import {
   addAccommodation,
@@ -15,6 +16,7 @@ import {
   getStayById,
   removeAccommodation,
   updateAccommodation,
+  udpateStay,
 } from '@services';
 import { asyncWrapper } from '@utils';
 import { Request, Response } from 'express';
@@ -34,6 +36,19 @@ export const getStayDetailHandler = asyncWrapper(async (req: Request<getStayDeta
   if (!stay) throw new NotFoundError('Stay not found');
   return res.status(200).json({ stay: omit(stay.toJSON(), privateFields) });
 });
+
+export const updateStayHandler = asyncWrapper(
+  async (req: Request<updateStayInput['params'], {}, updateStayInput['body']>, res: Response) => {
+    const { id } = res.locals.user;
+    const {
+      body,
+      params: { stayId },
+    } = req;
+    const stay = await udpateStay(stayId, id, body);
+    if (!stay.modifiedCount) throw new NotFoundError('Stay not found');
+    return res.sendStatus(204);
+  }
+);
 
 export const addAccommodationHandler = asyncWrapper(
   async (req: Request<addAccommodationInput['params'], {}, addAccommodationInput['body']>, res: Response) => {

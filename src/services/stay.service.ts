@@ -25,6 +25,12 @@ export const getStayById = async (_id: string) => {
   return stay?.populate({ path: 'partner', select: 'name email phoneNumber imgUrl', model: 'Establishment' });
 };
 
+export const udpateStay = async (_id: string, partner: string, body: Partial<UserStay>) => {
+  const stay = (await StayModel.findById(_id)) as UserStay;
+  if (stay.partner.toString() !== partner) throw new AuthorizationError();
+  return StayModel.updateOne({ _id }, { $set: body });
+};
+
 export const addAccommodation = async (_id: string, partner: string, body: UserStay['accommodation']) => {
   const stay = (await StayModel.findById(_id)) as UserStay;
   if (stay.partner.toString() !== partner) throw new AuthorizationError();
