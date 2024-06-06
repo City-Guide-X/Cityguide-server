@@ -1,5 +1,14 @@
 import { AuthorizationError, BadRequestError } from '@errors';
-import { EstablishmentStay, EstablishmentStayModel, StayModel, UserStay, UserStayModel } from '@models';
+import {
+  EstablishmentStay,
+  EstablishmentStayModel,
+  ReservationModel,
+  StayModel,
+  StayReservationModel,
+  StayReviewModel,
+  UserStay,
+  UserStayModel,
+} from '@models';
 
 export const createUserStay = async (input: Partial<UserStay>) => {
   return UserStayModel.create({ ...input });
@@ -43,4 +52,13 @@ export const removeAccommodation = async (_id: string, partner: string, roomId: 
 
 export const updateAccommodationAvailability = async (_id: string, roomId: string, quantity: number) => {
   return StayModel.updateOne({ _id, 'accommodation.id': roomId }, { $inc: { 'accommodation.$.available': quantity } });
+};
+
+export const deleteStay = async (_id: string, partner: string) => {
+  const stay = (await StayModel.findById(_id)) as UserStay;
+  if (stay.partner.toString() !== partner) throw new AuthorizationError();
+  const deleted = await StayModel.deleteOne({ _id });
+  await StayReservationModel.deleteMany({ property: _id });
+  await StayReviewModel.deleteMany({ property: _id });
+  return deleted;
 };

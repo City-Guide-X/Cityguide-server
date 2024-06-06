@@ -1,6 +1,7 @@
 import {
   addAccommodationHandler,
   createStayHandler,
+  deleteStayHandler,
   getStayDetailHandler,
   removeAccommodationHandler,
   updateAccommodationHandler,
@@ -9,6 +10,7 @@ import { partnerOnly, requireAuth, validateSchema } from '@middlewares';
 import {
   addAccommodationSchema,
   createStaySchema,
+  deleteStaySchema,
   getStayDetailSchema,
   removeAccommodationSchema,
   updateAccommodationSchema,
@@ -31,5 +33,6 @@ router.delete(
   validateSchema(removeAccommodationSchema),
   removeAccommodationHandler
 );
+router.delete('/:stayId', validateSchema(deleteStaySchema), deleteStayHandler);
 
 export default router;

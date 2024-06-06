@@ -11,6 +11,7 @@ import {
   addAccommodation,
   createEstablishmentStay,
   createUserStay,
+  deleteStay,
   getStayById,
   removeAccommodation,
   updateAccommodation,
@@ -70,3 +71,11 @@ export const removeAccommodationHandler = asyncWrapper(
     return res.sendStatus(204);
   }
 );
+
+export const deleteStayHandler = asyncWrapper(async (req: Request<removeAccommodationInput>, res: Response) => {
+  const { id } = res.locals.user;
+  const { stayId } = req.params;
+  const deleted = await deleteStay(stayId, id);
+  if (!deleted.deletedCount) throw new NotFoundError('Stay not found');
+  return res.sendStatus(204);
+});

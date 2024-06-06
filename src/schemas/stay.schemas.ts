@@ -328,8 +328,15 @@ export const removeAccommodationSchema = object({
   }),
 });
 
+export const deleteStaySchema = object({
+  params: object({
+    stayId: string({ required_error: 'Stay id is required' }),
+  }),
+});
+
 export type createStayInput = TypeOf<typeof createStaySchema>['body'];
 export type getStayDetailInput = TypeOf<typeof getStayDetailSchema>['params'];
 export type addAccommodationInput = TypeOf<typeof addAccommodationSchema>;
 export type updateAccommodationInput = TypeOf<typeof updateAccommodationSchema>;
 export type removeAccommodationInput = TypeOf<typeof removeAccommodationSchema>['params'];
+export type deleteStayInput = TypeOf<typeof deleteStaySchema>['params'];
