@@ -32,6 +32,6 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
   }
   if (err.response?.status === 417)
     return res.status(400).json({ message: 'Try again in 120 seconds. Payment code not available' });
-
+  if (err.name === 'TypeError') return res.status(400).json({ message: err.message });
   return res.status(500).json({ message: 'Something went wrong. Please try again later' });
 };
