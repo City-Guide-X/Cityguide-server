@@ -1,3 +1,4 @@
+import { BadRequestError } from '@errors';
 import {
   NightLifeModel,
   NightLifeReservation,
@@ -58,22 +59,25 @@ export const validateReservationInput = async ({
   checkOutTime,
   noOfGuests,
 }: Partial<StayReservation>) => {
-  if (isFuture(checkInDay!, checkInTime!)) return 'The reservation date must be in the future';
+  if (isFuture(checkInDay!, checkInTime!)) throw new BadRequestError('The reservation date must be in the future');
   if (propertyType === PropertyType.STAY) {
     const stay = await StayModel.findById(property);
-    if (!stay) return 'Invalid Stay ID';
-    if (dayjs(checkOutDay).diff(checkInDay, 'd') > stay.maxDays) return 'The reservation exceeds the maximum stay';
+    if (!stay) throw new BadRequestError('Invalid Stay ID');
+    if (dayjs(checkOutDay).diff(checkInDay, 'd') > stay.maxDays)
+      throw new BadRequestError('The reservation exceeds the maximum stay');
     const room = stay.accommodation.find((room) => room.id === roomId);
-    if (!room) return 'The provided room ID is not valid';
-    if (room.available < reservationCount!) return 'The provided quantity exceeds the available rooms';
-    if (!room.children && noOfGuests!.children) return 'Children are not allowed in the selected accommodation';
+    if (!room) throw new BadRequestError('The provided room ID is not valid');
+    if (room.available < reservationCount!)
+      throw new BadRequestError('The provided quantity exceeds the available rooms');
+    if (!room.children && noOfGuests!.children)
+      throw new BadRequestError('Children are not allowed in the selected accommodation');
     if (noOfGuests!.adults + noOfGuests!.children > room.maxGuests)
-      return 'The provided number of guests exceed the room capacity';
-    return null;
+      throw new BadRequestError('The provided number of guests exceed the room capacity');
+    return true;
   }
   if (propertyType === PropertyType.RESTAURANT) {
     const restaurant = await RestaurantModel.findById(property);
-    if (!restaurant) return 'Invalid Restaurant ID';
+    if (!restaurant) throw new BadRequestError('Invalid Restaurant ID');
     const isAvailable = [
       restaurant.availability
         .map(({ day, from, to }) => isValidDate(checkInDay!, checkInTime!, day, from, to))
@@ -83,17 +87,20 @@ export const validateReservationInput = async ({
         .some(Boolean),
     ].every(Boolean);
     if (!isAvailable)
-      return 'The selected reservation date and time is not available...See reservation info in the restaurant details';
-    if (!restaurant.details.reservation) return 'This Restaurant does not accept reservations';
-    if (restaurant.details.reservation < reservationCount!) return 'Reservation max reached';
+      throw new BadRequestError(
+        'The selected reservation date and time is not available...See reservation info in the restaurant details'
+      );
+    if (!restaurant.details.reservation) throw new BadRequestError('This Restaurant does not accept reservations');
+    if (restaurant.details.reservation < reservationCount!) throw new BadRequestError('Reservation max reached');
     if (!restaurant.details.children && noOfGuests!.children)
-      return 'Children are not allowed in the selected restaurant';
-    if (restaurant.details.reservation < noOfGuests!.adults + noOfGuests!.children) return 'Reservation max reached';
-    return null;
+      throw new BadRequestError('Children are not allowed in the selected restaurant');
+    if (restaurant.details.reservation < noOfGuests!.adults + noOfGuests!.children)
+      throw new BadRequestError('Reservation max reached');
+    return true;
   }
   if (propertyType === PropertyType.NIGHTLIFE) {
     const nightLife = await NightLifeModel.findById(property);
-    if (!nightLife) return 'Invalid NightLife ID';
-    return null;
+    if (!nightLife) throw new BadRequestError('Invalid NightLife ID');
+    return true;
   }
 };

@@ -22,8 +22,7 @@ export const createReservationHandler = asyncWrapper(
     const { id } = res.locals.user;
     const { property, ...body } = req.body;
     const data = { ...body, property: property as any, user: id };
-    const notValid = await validateReservationInput(data);
-    if (notValid) throw new BadRequestError(notValid);
+    await validateReservationInput(data);
     const reservation =
       data.propertyType === PropertyType.STAY
         ? await reserveStay(data)
