@@ -256,9 +256,17 @@ export const updateMenuSchema = object({
   }),
 });
 
+export const removeMenuSchema = object({
+  params: object({
+    restaurantId: string({ required_error: 'Restaurant id is required' }),
+    menuId: string({ required_error: 'Menu item id is required' }),
+  }),
+});
+
 export type createRestaurantInput = TypeOf<typeof createRestaurantSchema>['body'];
 export type getRestaurantDetailInput = TypeOf<typeof getRestaurantDetailSchema>['params'];
 export type updateRestaurantInput = TypeOf<typeof updateRestaurantSchema>;
 export type deleteRestaurantInput = TypeOf<typeof deleteRestaurantSchema>['params'];
 export type addMenuInput = TypeOf<typeof addMenuSchema>;
 export type updateMenuInput = TypeOf<typeof updateMenuSchema>;
+export type removeMenuInput = TypeOf<typeof removeMenuSchema>['params'];

@@ -41,3 +41,10 @@ export const updateMenu = async (
   if (!restaurant.menu.find((menuItem) => menuItem.id === menuId)) throw new AuthorizationError('Menu item not found');
   return RestaurantModel.updateOne({ _id, 'menu.id': menuId }, { $set: { 'menu.$': body } });
 };
+
+export const removeMenu = async (_id: string, establishment: string, menuId: string) => {
+  const restaurant = await RestaurantModel.findById(_id);
+  if (restaurant?.establishment.toString() !== establishment) throw new AuthorizationError();
+  if (!restaurant.menu.find((menuItem) => menuItem.id === menuId)) throw new AuthorizationError('Menu item not found');
+  return RestaurantModel.updateOne({ _id }, { $pull: { menu: { id: menuId } } });
+};

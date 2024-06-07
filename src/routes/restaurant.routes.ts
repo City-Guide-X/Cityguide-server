@@ -3,6 +3,7 @@ import {
   createRestaurantHandler,
   deleteRestaurantHandler,
   getRestaurantDetailHandler,
+  removeMenuHandler,
   updateMenuHandler,
   updateRestaurantHandler,
 } from '@controllers';
@@ -12,6 +13,7 @@ import {
   createRestaurantSchema,
   deleteRestaurantSchema,
   getRestaurantDetailSchema,
+  removeMenuSchema,
   updateMenuSchema,
   updateRestaurantSchema,
 } from '@schemas';
@@ -26,5 +28,6 @@ router.patch('/:restaurantId', validateSchema(updateRestaurantSchema), updateRes
 router.delete('/:restaurantId', validateSchema(deleteRestaurantSchema), deleteRestaurantHandler);
 router.post('/:restaurantId/menu', validateSchema(addMenuSchema), addMenuHandler);
 router.put('/:restaurantId/menu/:menuId', validateSchema(updateMenuSchema), updateMenuHandler);
+router.delete('/:restaurantId/menu/:menuId', validateSchema(removeMenuSchema), removeMenuHandler);
 
 export default router;

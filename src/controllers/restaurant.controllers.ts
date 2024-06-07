@@ -5,6 +5,7 @@ import {
   createReservationInput,
   deleteRestaurantInput,
   getRestaurantDetailInput,
+  removeMenuInput,
   updateMenuInput,
   updateRestaurantInput,
 } from '@schemas';
@@ -13,6 +14,7 @@ import {
   createRestaurant,
   deleteRestaurant,
   getRestaurantById,
+  removeMenu,
   updateMenu,
   updateRestaurant,
 } from '@services';
@@ -84,3 +86,11 @@ export const updateMenuHandler = asyncWrapper(
     return res.sendStatus(204);
   }
 );
+
+export const removeMenuHandler = asyncWrapper(async (req: Request<removeMenuInput>, res: Response) => {
+  const { id } = res.locals.user;
+  const { restaurantId, menuId } = req.params;
+  const restaurant = await removeMenu(restaurantId, id, menuId);
+  if (!restaurant.modifiedCount) throw new NotFoundError('Menu item not found');
+  return res.sendStatus(204);
+});
