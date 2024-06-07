@@ -1,12 +1,13 @@
 import { NotFoundError } from '@errors';
 import { privateFields } from '@models';
 import {
+  addMenuInput,
   createReservationInput,
   deleteRestaurantInput,
   getRestaurantDetailInput,
   updateRestaurantInput,
 } from '@schemas';
-import { createRestaurant, deleteRestaurant, getRestaurantById, updateRestaurant } from '@services';
+import { addMenu, createRestaurant, deleteRestaurant, getRestaurantById, updateRestaurant } from '@services';
 import { asyncWrapper } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
@@ -49,3 +50,16 @@ export const deleteRestaurantHandler = asyncWrapper(async (req: Request<deleteRe
   if (!restaurant) throw new NotFoundError('Restaurant not found');
   return res.sendStatus(204);
 });
+
+export const addMenuHandler = asyncWrapper(
+  async (req: Request<addMenuInput['params'], {}, addMenuInput['body']>, res: Response) => {
+    const { id } = res.locals.user;
+    const {
+      body,
+      params: { restaurantId },
+    } = req;
+    const restaurant = await addMenu(restaurantId, id, body);
+    if (!restaurant.modifiedCount) throw new NotFoundError('Restaurant not found');
+    return res.sendStatus(204);
+  }
+);

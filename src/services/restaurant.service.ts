@@ -23,3 +23,9 @@ export const deleteRestaurant = async (_id: string, establishment: string) => {
   await RestaurantReviewModel.deleteMany({ property: _id });
   return deleted;
 };
+
+export const addMenu = async (_id: string, establishment: string, menu: Restaurant['menu']) => {
+  const restaurant = await RestaurantModel.findById(_id);
+  if (restaurant?.establishment.toString() !== establishment) throw new AuthorizationError();
+  return RestaurantModel.updateOne({ _id }, { $addToSet: { menu: { $each: menu } } });
+};

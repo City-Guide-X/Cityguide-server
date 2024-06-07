@@ -1,4 +1,5 @@
 import {
+  addMenuHandler,
   createRestaurantHandler,
   deleteRestaurantHandler,
   getRestaurantDetailHandler,
@@ -6,6 +7,7 @@ import {
 } from '@controllers';
 import { establishmentOnly, requireAuth, validateSchema } from '@middlewares';
 import {
+  addMenuSchema,
   createRestaurantSchema,
   deleteRestaurantSchema,
   getRestaurantDetailSchema,
@@ -20,5 +22,6 @@ router.use(requireAuth, establishmentOnly);
 router.post('/', validateSchema(createRestaurantSchema), createRestaurantHandler);
 router.patch('/:restaurantId', validateSchema(updateRestaurantSchema), updateRestaurantHandler);
 router.delete('/:restaurantId', validateSchema(deleteRestaurantSchema), deleteRestaurantHandler);
+router.post('/:restaurantId/menu', validateSchema(addMenuSchema), addMenuHandler);
 
 export default router;

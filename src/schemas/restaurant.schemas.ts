@@ -198,7 +198,33 @@ export const deleteRestaurantSchema = object({
   }),
 });
 
+export const addMenuSchema = object({
+  body: object(
+    {
+      id: string({ required_error: 'Menu id is required' }),
+      name: string({ required_error: 'Menu name is required' }).min(3, 'Menu name should be atleast 3 characters'),
+      description: string({ required_error: 'Menu description is required' }).min(
+        10,
+        'Menu description should be atleast 10 characters'
+      ),
+      imgUrl: string({ required_error: 'Menu image is required' }),
+      price: number({ invalid_type_error: 'Menu price should be a number' }).optional(),
+      category: string().optional(),
+      dietaryProvisions: string({ invalid_type_error: 'Menu dietary provisions should be an array' })
+        .array()
+        .optional(),
+    },
+    { required_error: 'Menu is required', invalid_type_error: 'Menu should be an array' }
+  )
+    .array()
+    .min(1, 'Atleast one menu is required'),
+  params: object({
+    restaurantId: string({ required_error: 'Restaurant id is required' }),
+  }),
+});
+
 export type createRestaurantInput = TypeOf<typeof createRestaurantSchema>['body'];
 export type getRestaurantDetailInput = TypeOf<typeof getRestaurantDetailSchema>['params'];
 export type updateRestaurantInput = TypeOf<typeof updateRestaurantSchema>;
 export type deleteRestaurantInput = TypeOf<typeof deleteRestaurantSchema>['params'];
+export type addMenuInput = TypeOf<typeof addMenuSchema>;
