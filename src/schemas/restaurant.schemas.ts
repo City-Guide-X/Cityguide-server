@@ -65,7 +65,7 @@ export const createRestaurantSchema = object({
         ),
         imgUrl: string({ required_error: 'Menu image is required' }),
         price: number({ invalid_type_error: 'Menu price should be a number' }).optional(),
-        category: string().optional(),
+        category: string({ invalid_type_error: 'Meny item category should be an array' }).array().optional(),
         dietaryProvisions: string({ invalid_type_error: 'Menu dietary provisions should be an array' })
           .array()
           .optional(),
@@ -209,7 +209,7 @@ export const addMenuSchema = object({
       ),
       imgUrl: string({ required_error: 'Menu image is required' }),
       price: number({ invalid_type_error: 'Menu price should be a number' }).optional(),
-      category: string().optional(),
+      category: string({ invalid_type_error: 'Meny item category should be an array' }).array().optional(),
       dietaryProvisions: string({ invalid_type_error: 'Menu dietary provisions should be an array' })
         .array()
         .optional(),

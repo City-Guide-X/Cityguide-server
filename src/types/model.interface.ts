@@ -49,7 +49,7 @@ export interface IMenu {
   description: string;
   imgUrl: string;
   price?: number;
-  category?: string;
+  category?: string[];
   dietaryRestrictions?: string[];
 }
 
