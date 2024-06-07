@@ -1,4 +1,3 @@
-import { NotFoundError } from '@errors';
 import { privateFields } from '@models';
 import {
   addMenuInput,
@@ -35,7 +34,6 @@ export const getRestaurantDetailHandler = asyncWrapper(
   async (req: Request<getRestaurantDetailInput>, res: Response) => {
     const { restaurantId } = req.params;
     const restaurant = await getRestaurantById(restaurantId);
-    if (!restaurant) throw new NotFoundError('Restaurant not found');
     return res.status(200).json({ restaurant: omit(restaurant.toJSON(), privateFields) });
   }
 );
@@ -47,8 +45,7 @@ export const updateRestaurantHandler = asyncWrapper(
       body,
       params: { restaurantId },
     } = req;
-    const restaurant = await updateRestaurant(restaurantId, id, body);
-    if (!restaurant) throw new NotFoundError('Restaurant not found');
+    await updateRestaurant(restaurantId, id, body);
     return res.sendStatus(204);
   }
 );
@@ -56,8 +53,7 @@ export const updateRestaurantHandler = asyncWrapper(
 export const deleteRestaurantHandler = asyncWrapper(async (req: Request<deleteRestaurantInput>, res: Response) => {
   const { id } = res.locals.user;
   const { restaurantId } = req.params;
-  const restaurant = await deleteRestaurant(restaurantId, id);
-  if (!restaurant.deletedCount) throw new NotFoundError('Restaurant not found');
+  await deleteRestaurant(restaurantId, id);
   return res.sendStatus(204);
 });
 
@@ -68,8 +64,7 @@ export const addMenuHandler = asyncWrapper(
       body,
       params: { restaurantId },
     } = req;
-    const restaurant = await addMenu(restaurantId, id, body);
-    if (!restaurant.modifiedCount) throw new NotFoundError('Restaurant not found');
+    await addMenu(restaurantId, id, body);
     return res.sendStatus(204);
   }
 );
@@ -81,8 +76,7 @@ export const updateMenuHandler = asyncWrapper(
       body,
       params: { restaurantId, menuId },
     } = req;
-    const restaurant = await updateMenu(restaurantId, id, menuId, body);
-    if (!restaurant.modifiedCount) throw new NotFoundError('Menu item not found');
+    await updateMenu(restaurantId, id, menuId, body);
     return res.sendStatus(204);
   }
 );
@@ -90,7 +84,6 @@ export const updateMenuHandler = asyncWrapper(
 export const removeMenuHandler = asyncWrapper(async (req: Request<removeMenuInput>, res: Response) => {
   const { id } = res.locals.user;
   const { restaurantId, menuId } = req.params;
-  const restaurant = await removeMenu(restaurantId, id, menuId);
-  if (!restaurant.modifiedCount) throw new NotFoundError('Menu item not found');
+  await removeMenu(restaurantId, id, menuId);
   return res.sendStatus(204);
 });

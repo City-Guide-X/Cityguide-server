@@ -6,14 +6,21 @@ export const createRestaurant = async (input: Partial<Restaurant>) => {
 };
 
 export const getRestaurantById = async (_id: string) => {
-  return RestaurantModel.findById(_id).populate('establishment', 'name email phoneNumber imgUrl', 'Establishment');
+  const restaurant = await RestaurantModel.findById(_id).populate(
+    'establishment',
+    'name email phoneNumber imgUrl',
+    'Establishment'
+  );
+  if (!restaurant) throw new NotFoundError('Restaurant not found');
+  return restaurant;
 };
 
 export const updateRestaurant = async (_id: string, establishment: string, body: Partial<Restaurant>) => {
   const restaurant = await RestaurantModel.findById(_id);
   if (!restaurant) throw new NotFoundError('Restaurant not found');
   if (restaurant.establishment.toString() !== establishment) throw new AuthorizationError();
-  return RestaurantModel.updateOne({ _id }, { $set: body });
+  const updated = await RestaurantModel.updateOne({ _id }, { $set: body });
+  if (!updated.modifiedCount) throw new NotFoundError('Restaurant not found');
 };
 
 export const deleteRestaurant = async (_id: string, establishment: string) => {
@@ -23,14 +30,15 @@ export const deleteRestaurant = async (_id: string, establishment: string) => {
   const deleted = await RestaurantModel.deleteOne({ _id });
   await RestaurantReservationModel.deleteMany({ property: _id });
   await RestaurantReviewModel.deleteMany({ property: _id });
-  return deleted;
+  if (!deleted.deletedCount) throw new NotFoundError('Restaurant not found');
 };
 
 export const addMenu = async (_id: string, establishment: string, menu: Restaurant['menu']) => {
   const restaurant = await RestaurantModel.findById(_id);
   if (!restaurant) throw new NotFoundError('Restaurant not found');
   if (restaurant.establishment.toString() !== establishment) throw new AuthorizationError();
-  return RestaurantModel.updateOne({ _id }, { $addToSet: { menu: { $each: menu } } });
+  const update = await RestaurantModel.updateOne({ _id }, { $addToSet: { menu: { $each: menu } } });
+  if (!update.modifiedCount) throw new NotFoundError('Restaurant not found');
 };
 
 export const updateMenu = async (
@@ -43,7 +51,8 @@ export const updateMenu = async (
   if (!restaurant) throw new NotFoundError('Restaurant not found');
   if (restaurant.establishment.toString() !== establishment) throw new AuthorizationError();
   if (!restaurant.menu.find((menuItem) => menuItem.id === menuId)) throw new AuthorizationError('Menu item not found');
-  return RestaurantModel.updateOne({ _id, 'menu.id': menuId }, { $set: { 'menu.$': body } });
+  const updated = await RestaurantModel.updateOne({ _id, 'menu.id': menuId }, { $set: { 'menu.$': body } });
+  if (!updated.modifiedCount) throw new NotFoundError('Menu item not found');
 };
 
 export const removeMenu = async (_id: string, establishment: string, menuId: string) => {
@@ -51,5 +60,6 @@ export const removeMenu = async (_id: string, establishment: string, menuId: str
   if (!restaurant) throw new NotFoundError('Restaurant not found');
   if (restaurant.establishment.toString() !== establishment) throw new AuthorizationError();
   if (!restaurant.menu.find((menuItem) => menuItem.id === menuId)) throw new AuthorizationError('Menu item not found');
-  return RestaurantModel.updateOne({ _id }, { $pull: { menu: { id: menuId } } });
+  const udpated = await RestaurantModel.updateOne({ _id }, { $pull: { menu: { id: menuId } } });
+  if (!udpated.modifiedCount) throw new NotFoundError('Menu item not found');
 };
