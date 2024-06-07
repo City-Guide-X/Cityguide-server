@@ -115,5 +115,12 @@ export const getRestaurantDetailSchema = object({
   }),
 });
 
+export const deleteRestaurantSchema = object({
+  params: object({
+    restaurantId: string({ required_error: 'Restaurant id is required' }),
+  }),
+});
+
 export type createRestaurantInput = TypeOf<typeof createRestaurantSchema>['body'];
 export type getRestaurantDetailInput = TypeOf<typeof getRestaurantDetailSchema>['params'];
+export type deleteRestaurantInput = TypeOf<typeof deleteRestaurantSchema>['params'];

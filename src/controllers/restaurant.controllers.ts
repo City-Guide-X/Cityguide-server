@@ -1,7 +1,7 @@
 import { NotFoundError } from '@errors';
 import { privateFields } from '@models';
-import { createReservationInput, getRestaurantDetailInput } from '@schemas';
-import { createRestaurant, getRestaurantById } from '@services';
+import { createReservationInput, deleteRestaurantInput, getRestaurantDetailInput } from '@schemas';
+import { createRestaurant, deleteRestaurant, getRestaurantById } from '@services';
 import { asyncWrapper } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
@@ -23,3 +23,11 @@ export const getRestaurantDetailHandler = asyncWrapper(
     return res.status(200).json({ restaurant: omit(restaurant.toJSON(), privateFields) });
   }
 );
+
+export const deleteRestaurantHandler = asyncWrapper(async (req: Request<deleteRestaurantInput>, res: Response) => {
+  const { id } = res.locals.user;
+  const { restaurantId } = req.params;
+  const restaurant = await deleteRestaurant(restaurantId, id);
+  if (!restaurant) throw new NotFoundError('Restaurant not found');
+  return res.sendStatus(204);
+});
