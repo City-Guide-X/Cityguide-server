@@ -1,4 +1,4 @@
-import { date, object, optional, string, TypeOf } from 'zod';
+import { date, object, optional, strictObject, string, TypeOf } from 'zod';
 
 export const createUserSchema = object({
   body: object({
@@ -18,7 +18,7 @@ export const loginUserSchema = object({
 });
 
 export const updateUserSchema = object({
-  body: object({
+  body: strictObject({
     firstName: optional(string().min(3, 'First name requires atleast 3 characters')),
     lastName: optional(string().min(3, 'Last name requires atleast 3 characters')),
     dateOfBirth: optional(date()),

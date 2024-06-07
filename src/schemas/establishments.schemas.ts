@@ -1,5 +1,4 @@
-import { PropertyType } from '@types';
-import { nativeEnum, number, object, optional, string, TypeOf } from 'zod';
+import { number, object, string, TypeOf } from 'zod';
 
 export const createEstablishmentSchema = object({
   body: object({
@@ -41,44 +40,27 @@ export const loginEstablishmentSchema = object({
 
 export const updateEstablishmentSchema = object({
   body: object({
-    name: optional(string().min(3, 'Establishment name requires atleast 3 characters')),
-    description: optional(string().min(3, 'Establishment description requires atleast 3 characters')),
-    address: optional(
-      object({
-        name: string({ required_error: 'Address name is required' }),
-        locationId: string({ required_error: 'Address location id is required' }),
-        city: string().optional(),
-        state: string({ required_error: 'State is required' }),
-        country: string({ required_error: 'Country is required' }),
-        geoLocation: object({
-          lat: number({
-            required_error: 'Latitude is required',
-            invalid_type_error: 'Latitude has to be a number',
-          }),
-          lng: number({
-            required_error: 'Longitude is required',
-            invalid_type_error: 'Longitude has to be a number',
-          }),
+    name: string().min(3, 'Establishment name requires atleast 3 characters').optional(),
+    description: string().min(3, 'Establishment description requires atleast 3 characters').optional(),
+    address: object({
+      name: string({ required_error: 'Address name is required' }),
+      locationId: string({ required_error: 'Address location id is required' }),
+      city: string().optional(),
+      state: string({ required_error: 'State is required' }),
+      country: string({ required_error: 'Country is required' }),
+      geoLocation: object({
+        lat: number({
+          required_error: 'Latitude is required',
+          invalid_type_error: 'Latitude has to be a number',
         }),
-        extraDetails: string().optional(),
-      })
-    ),
-    phoneNumber: optional(string().min(11, 'Invalid phone number')),
-    type: optional(nativeEnum(PropertyType)),
-    availability: optional(
-      object({
-        day: string({ required_error: 'Available day is required' }),
-        from: string({ required_error: 'Opening time is required' }).regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, {
-          message: 'The provided value is not a valid 24 hour time',
+        lng: number({
+          required_error: 'Longitude is required',
+          invalid_type_error: 'Longitude has to be a number',
         }),
-        to: string({ required_error: 'Opening time is required' }).regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, {
-          message: 'The provided value is not a valid 24 hour time',
-        }),
-      }).array()
-    ),
-    deliveryFee: optional(number({ invalid_type_error: 'Delivery fee has to be a number' })),
-    facilities: optional(string().array()),
-    price: optional(number({ invalid_type_error: 'Price has to be a number' })),
+      }),
+      extraDetails: string().optional(),
+    }).optional(),
+    phoneNumber: string().min(11, 'Invalid phone number').optional(),
   }),
 });
 
