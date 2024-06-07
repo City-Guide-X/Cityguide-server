@@ -30,7 +30,8 @@ export const udpateStay = async (_id: string, partner: string, body: Partial<Use
   const stay = (await StayModel.findById(_id)) as UserStay;
   if (!stay) throw new NotFoundError('Stay not found');
   if (stay.partner.toString() !== partner) throw new AuthorizationError();
-  return StayModel.updateOne({ _id }, { $set: body });
+  const udpated = await StayModel.updateOne({ _id }, { $set: body });
+  if (!udpated.modifiedCount) throw new NotFoundError('Stay not found');
 };
 
 export const deleteStay = async (_id: string, partner: string) => {
@@ -40,14 +41,15 @@ export const deleteStay = async (_id: string, partner: string) => {
   const deleted = await StayModel.deleteOne({ _id });
   await StayReservationModel.deleteMany({ property: _id });
   await StayReviewModel.deleteMany({ property: _id });
-  return deleted;
+  if (!deleted.deletedCount) throw new NotFoundError('Stay not found');
 };
 
 export const addAccommodation = async (_id: string, partner: string, body: UserStay['accommodation']) => {
   const stay = (await StayModel.findById(_id)) as UserStay;
   if (!stay) throw new NotFoundError('Stay not found');
   if (stay.partner.toString() !== partner) throw new AuthorizationError();
-  return StayModel.updateOne({ _id }, { $addToSet: { accommodation: { $each: body } } });
+  const updated = await StayModel.updateOne({ _id }, { $addToSet: { accommodation: { $each: body } } });
+  if (!updated.modifiedCount) throw new NotFoundError('Stay not found');
 };
 
 export const updateAccommodation = async (
@@ -60,7 +62,8 @@ export const updateAccommodation = async (
   if (!stay) throw new NotFoundError('Stay not found');
   if (stay.partner.toString() !== partner) throw new AuthorizationError();
   if (!stay.accommodation.find((room) => room.id === roomId)) throw new BadRequestError('Accommodation not found');
-  return StayModel.updateOne({ _id, 'accommodation.id': roomId }, { $set: { 'accommodation.$': body } });
+  const updated = await StayModel.updateOne({ _id, 'accommodation.id': roomId }, { $set: { 'accommodation.$': body } });
+  if (!updated.modifiedCount) throw new NotFoundError('Stay not found');
 };
 
 export const removeAccommodation = async (_id: string, partner: string, roomId: string) => {
@@ -68,7 +71,8 @@ export const removeAccommodation = async (_id: string, partner: string, roomId: 
   if (!stay) throw new NotFoundError('Stay not found');
   if (stay.partner.toString() !== partner) throw new AuthorizationError();
   if (!stay.accommodation.find((room) => room.id === roomId)) throw new BadRequestError('Accommodation not found');
-  return StayModel.updateOne({ _id }, { $pull: { accommodation: { id: roomId } } });
+  const updated = await StayModel.updateOne({ _id }, { $pull: { accommodation: { id: roomId } } });
+  if (!updated.modifiedCount) throw new NotFoundError('Stay not found');
 };
 
 export const updateAccommodationAvailability = async (_id: string, roomId: string, quantity: number) => {
