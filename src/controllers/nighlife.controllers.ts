@@ -1,4 +1,3 @@
-import { NotFoundError } from '@errors';
 import { privateFields } from '@models';
 import { createNightLifeInput, deleteNightLifeInput, getNightLifeDetailInput, updateNightLifeInput } from '@schemas';
 import { createNightLife, deleteNightLife, getNightLifeById, updateNightLife } from '@services';
@@ -18,8 +17,7 @@ export const createNightLifeHandler = asyncWrapper(
 export const getNightLifeDetailHandler = asyncWrapper(async (req: Request<getNightLifeDetailInput>, res: Response) => {
   const { nightLifeId } = req.params;
   const nightlife = await getNightLifeById(nightLifeId);
-  if (!nightlife) throw new NotFoundError('NightLife not found');
-  return res.status(200).json({ nightlife: omit(nightlife.toJSON(), privateFields) });
+  return res.status(200).json({ nightlife: omit(nightlife?.toJSON(), privateFields) });
 });
 
 export const updateNightLifeHandler = asyncWrapper(
@@ -29,8 +27,7 @@ export const updateNightLifeHandler = asyncWrapper(
       body,
       params: { nightLifeId },
     } = req;
-    const nightlife = await updateNightLife(nightLifeId, id, body);
-    if (!nightlife) throw new NotFoundError('NightLife not found');
+    await updateNightLife(nightLifeId, id, body);
     return res.sendStatus(204);
   }
 );
@@ -38,7 +35,6 @@ export const updateNightLifeHandler = asyncWrapper(
 export const deleteNightLifeHandler = asyncWrapper(async (req: Request<deleteNightLifeInput>, res: Response) => {
   const { id } = res.locals.user;
   const { nightLifeId } = req.params;
-  const nightlife = await deleteNightLife(nightLifeId, id);
-  if (!nightlife.deletedCount) throw new NotFoundError('NightLife not found');
+  await deleteNightLife(nightLifeId, id);
   return res.sendStatus(204);
 });

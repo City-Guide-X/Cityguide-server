@@ -6,14 +6,21 @@ export const createNightLife = async (input: Partial<NightLife>) => {
 };
 
 export const getNightLifeById = async (_id: string) => {
-  return NightLifeModel.findById(_id).populate('establishment', 'name email phoneNumber imgUrl', 'Establishment');
+  const nightlife = await NightLifeModel.findById(_id).populate(
+    'establishment',
+    'name email phoneNumber imgUrl',
+    'Establishment'
+  );
+  if (!nightlife) throw new NotFoundError('NightLife not found');
+  return nightlife;
 };
 
 export const updateNightLife = async (_id: string, establishment: string, body: Partial<NightLife>) => {
   const nightlife = await NightLifeModel.findById(_id);
   if (!nightlife) throw new NotFoundError('NightLife not found');
   if (nightlife.establishment.toString() !== establishment) throw new AuthorizationError();
-  return NightLifeModel.updateOne({ _id }, { $set: body });
+  const updated = await NightLifeModel.updateOne({ _id }, { $set: body });
+  if (!updated.modifiedCount) throw new NotFoundError('NightLife not found');
 };
 
 export const deleteNightLife = async (_id: string, establishment: string) => {
@@ -23,5 +30,5 @@ export const deleteNightLife = async (_id: string, establishment: string) => {
   const deleted = await NightLifeModel.deleteOne({ _id });
   await NightLifeReviewModel.deleteMany({ property: _id });
   await NightLifeReservationModel.deleteMany({ property: _id });
-  return deleted;
+  if (!deleted.deletedCount) throw new NotFoundError('NightLife not found');
 };
