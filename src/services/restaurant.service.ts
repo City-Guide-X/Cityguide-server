@@ -29,3 +29,15 @@ export const addMenu = async (_id: string, establishment: string, menu: Restaura
   if (restaurant?.establishment.toString() !== establishment) throw new AuthorizationError();
   return RestaurantModel.updateOne({ _id }, { $addToSet: { menu: { $each: menu } } });
 };
+
+export const updateMenu = async (
+  _id: string,
+  establishment: string,
+  menuId: string,
+  body: Partial<Restaurant['menu'][0]>
+) => {
+  const restaurant = await RestaurantModel.findById(_id);
+  if (restaurant?.establishment.toString() !== establishment) throw new AuthorizationError();
+  if (!restaurant.menu.find((menuItem) => menuItem.id === menuId)) throw new AuthorizationError('Menu item not found');
+  return RestaurantModel.updateOne({ _id, 'menu.id': menuId }, { $set: { 'menu.$': body } });
+};

@@ -5,9 +5,17 @@ import {
   createReservationInput,
   deleteRestaurantInput,
   getRestaurantDetailInput,
+  updateMenuInput,
   updateRestaurantInput,
 } from '@schemas';
-import { addMenu, createRestaurant, deleteRestaurant, getRestaurantById, updateRestaurant } from '@services';
+import {
+  addMenu,
+  createRestaurant,
+  deleteRestaurant,
+  getRestaurantById,
+  updateMenu,
+  updateRestaurant,
+} from '@services';
 import { asyncWrapper } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
@@ -60,6 +68,19 @@ export const addMenuHandler = asyncWrapper(
     } = req;
     const restaurant = await addMenu(restaurantId, id, body);
     if (!restaurant.modifiedCount) throw new NotFoundError('Restaurant not found');
+    return res.sendStatus(204);
+  }
+);
+
+export const updateMenuHandler = asyncWrapper(
+  async (req: Request<updateMenuInput['params'], {}, updateMenuInput['body']>, res: Response) => {
+    const { id } = res.locals.user;
+    const {
+      body,
+      params: { restaurantId, menuId },
+    } = req;
+    const restaurant = await updateMenu(restaurantId, id, menuId, body);
+    if (!restaurant.modifiedCount) throw new NotFoundError('Menu item not found');
     return res.sendStatus(204);
   }
 );
