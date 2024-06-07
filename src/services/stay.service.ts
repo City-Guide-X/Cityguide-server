@@ -1,4 +1,4 @@
-import { AuthorizationError, BadRequestError } from '@errors';
+import { AuthorizationError, BadRequestError, NotFoundError } from '@errors';
 import {
   EstablishmentStay,
   EstablishmentStayModel,
@@ -20,6 +20,7 @@ export const createEstablishmentStay = async (input: Partial<EstablishmentStay>)
 
 export const getStayById = async (_id: string) => {
   const stay = await StayModel.findById(_id);
+  if (!stay) throw new NotFoundError('Stay not found');
   if (stay?.partnerType === 'USER')
     return stay?.populate({ path: 'partner', select: 'name email phoneNumber imgUrl', model: 'User' });
   return stay?.populate({ path: 'partner', select: 'name email phoneNumber imgUrl', model: 'Establishment' });
@@ -27,13 +28,15 @@ export const getStayById = async (_id: string) => {
 
 export const udpateStay = async (_id: string, partner: string, body: Partial<UserStay>) => {
   const stay = (await StayModel.findById(_id)) as UserStay;
-  if (stay?.partner.toString() !== partner) throw new AuthorizationError();
+  if (!stay) throw new NotFoundError('Stay not found');
+  if (stay.partner.toString() !== partner) throw new AuthorizationError();
   return StayModel.updateOne({ _id }, { $set: body });
 };
 
 export const deleteStay = async (_id: string, partner: string) => {
   const stay = (await StayModel.findById(_id)) as UserStay;
-  if (stay?.partner.toString() !== partner) throw new AuthorizationError();
+  if (!stay) throw new NotFoundError('Stay not found');
+  if (stay.partner.toString() !== partner) throw new AuthorizationError();
   const deleted = await StayModel.deleteOne({ _id });
   await StayReservationModel.deleteMany({ property: _id });
   await StayReviewModel.deleteMany({ property: _id });
@@ -42,7 +45,8 @@ export const deleteStay = async (_id: string, partner: string) => {
 
 export const addAccommodation = async (_id: string, partner: string, body: UserStay['accommodation']) => {
   const stay = (await StayModel.findById(_id)) as UserStay;
-  if (stay?.partner.toString() !== partner) throw new AuthorizationError();
+  if (!stay) throw new NotFoundError('Stay not found');
+  if (stay.partner.toString() !== partner) throw new AuthorizationError();
   return StayModel.updateOne({ _id }, { $addToSet: { accommodation: { $each: body } } });
 };
 
@@ -53,14 +57,16 @@ export const updateAccommodation = async (
   body: Partial<UserStay['accommodation'][0]>
 ) => {
   const stay = (await StayModel.findById(_id)) as UserStay;
-  if (stay?.partner.toString() !== partner) throw new AuthorizationError();
+  if (!stay) throw new NotFoundError('Stay not found');
+  if (stay.partner.toString() !== partner) throw new AuthorizationError();
   if (!stay.accommodation.find((room) => room.id === roomId)) throw new BadRequestError('Accommodation not found');
   return StayModel.updateOne({ _id, 'accommodation.id': roomId }, { $set: { 'accommodation.$': body } });
 };
 
 export const removeAccommodation = async (_id: string, partner: string, roomId: string) => {
   const stay = (await StayModel.findById(_id)) as UserStay;
-  if (stay?.partner.toString() !== partner) throw new AuthorizationError();
+  if (!stay) throw new NotFoundError('Stay not found');
+  if (stay.partner.toString() !== partner) throw new AuthorizationError();
   if (!stay.accommodation.find((room) => room.id === roomId)) throw new BadRequestError('Accommodation not found');
   return StayModel.updateOne({ _id }, { $pull: { accommodation: { id: roomId } } });
 };

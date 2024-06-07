@@ -33,7 +33,6 @@ export const createStayHandler = asyncWrapper(async (req: Request<{}, {}, create
 export const getStayDetailHandler = asyncWrapper(async (req: Request<getStayDetailInput>, res: Response) => {
   const { stayId } = req.params;
   const stay = await getStayById(stayId);
-  if (!stay) throw new NotFoundError('Stay not found');
   return res.status(200).json({ stay: omit(stay.toJSON(), privateFields) });
 });
 

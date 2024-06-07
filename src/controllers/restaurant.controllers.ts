@@ -57,7 +57,7 @@ export const deleteRestaurantHandler = asyncWrapper(async (req: Request<deleteRe
   const { id } = res.locals.user;
   const { restaurantId } = req.params;
   const restaurant = await deleteRestaurant(restaurantId, id);
-  if (!restaurant) throw new NotFoundError('Restaurant not found');
+  if (!restaurant.deletedCount) throw new NotFoundError('Restaurant not found');
   return res.sendStatus(204);
 });
 

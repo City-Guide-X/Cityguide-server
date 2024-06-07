@@ -195,6 +195,13 @@ export const updateNightLifeSchema = object({
   }),
 });
 
+export const deleteNightLifeSchema = object({
+  params: object({
+    nightLifeId: string({ required_error: 'NightLife id is required' }),
+  }),
+});
+
 export type createNightLifeInput = TypeOf<typeof createNightLifeSchema>['body'];
 export type getNightLifeDetailInput = TypeOf<typeof getNightLifeDetailSchema>['params'];
 export type updateNightLifeInput = TypeOf<typeof updateNightLifeSchema>;
+export type deleteNightLifeInput = TypeOf<typeof deleteNightLifeSchema>['params'];

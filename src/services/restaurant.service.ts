@@ -1,4 +1,4 @@
-import { AuthorizationError } from '@errors';
+import { AuthorizationError, NotFoundError } from '@errors';
 import { Restaurant, RestaurantModel, RestaurantReservationModel, RestaurantReviewModel } from '@models';
 
 export const createRestaurant = async (input: Partial<Restaurant>) => {
@@ -11,13 +11,15 @@ export const getRestaurantById = async (_id: string) => {
 
 export const updateRestaurant = async (_id: string, establishment: string, body: Partial<Restaurant>) => {
   const restaurant = await RestaurantModel.findById(_id);
-  if (restaurant?.establishment.toString() !== establishment) throw new AuthorizationError();
+  if (!restaurant) throw new NotFoundError('Restaurant not found');
+  if (restaurant.establishment.toString() !== establishment) throw new AuthorizationError();
   return RestaurantModel.updateOne({ _id }, { $set: body });
 };
 
 export const deleteRestaurant = async (_id: string, establishment: string) => {
   const restaurant = await RestaurantModel.findById(_id);
-  if (restaurant?.establishment.toString() !== establishment) throw new AuthorizationError();
+  if (!restaurant) throw new NotFoundError('Restaurant not found');
+  if (restaurant.establishment.toString() !== establishment) throw new AuthorizationError();
   const deleted = await RestaurantModel.deleteOne({ _id });
   await RestaurantReservationModel.deleteMany({ property: _id });
   await RestaurantReviewModel.deleteMany({ property: _id });
@@ -26,7 +28,8 @@ export const deleteRestaurant = async (_id: string, establishment: string) => {
 
 export const addMenu = async (_id: string, establishment: string, menu: Restaurant['menu']) => {
   const restaurant = await RestaurantModel.findById(_id);
-  if (restaurant?.establishment.toString() !== establishment) throw new AuthorizationError();
+  if (!restaurant) throw new NotFoundError('Restaurant not found');
+  if (restaurant.establishment.toString() !== establishment) throw new AuthorizationError();
   return RestaurantModel.updateOne({ _id }, { $addToSet: { menu: { $each: menu } } });
 };
 
@@ -37,14 +40,16 @@ export const updateMenu = async (
   body: Partial<Restaurant['menu'][0]>
 ) => {
   const restaurant = await RestaurantModel.findById(_id);
-  if (restaurant?.establishment.toString() !== establishment) throw new AuthorizationError();
+  if (!restaurant) throw new NotFoundError('Restaurant not found');
+  if (restaurant.establishment.toString() !== establishment) throw new AuthorizationError();
   if (!restaurant.menu.find((menuItem) => menuItem.id === menuId)) throw new AuthorizationError('Menu item not found');
   return RestaurantModel.updateOne({ _id, 'menu.id': menuId }, { $set: { 'menu.$': body } });
 };
 
 export const removeMenu = async (_id: string, establishment: string, menuId: string) => {
   const restaurant = await RestaurantModel.findById(_id);
-  if (restaurant?.establishment.toString() !== establishment) throw new AuthorizationError();
+  if (!restaurant) throw new NotFoundError('Restaurant not found');
+  if (restaurant.establishment.toString() !== establishment) throw new AuthorizationError();
   if (!restaurant.menu.find((menuItem) => menuItem.id === menuId)) throw new AuthorizationError('Menu item not found');
   return RestaurantModel.updateOne({ _id }, { $pull: { menu: { id: menuId } } });
 };

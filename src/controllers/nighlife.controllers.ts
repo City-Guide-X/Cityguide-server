@@ -1,7 +1,7 @@
 import { NotFoundError } from '@errors';
 import { privateFields } from '@models';
-import { createNightLifeInput, getNightLifeDetailInput, updateNightLifeInput } from '@schemas';
-import { createNightLife, getNightLifeById, updateNightLife } from '@services';
+import { createNightLifeInput, deleteNightLifeInput, getNightLifeDetailInput, updateNightLifeInput } from '@schemas';
+import { createNightLife, deleteNightLife, getNightLifeById, updateNightLife } from '@services';
 import { asyncWrapper } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
@@ -34,3 +34,11 @@ export const updateNightLifeHandler = asyncWrapper(
     return res.sendStatus(204);
   }
 );
+
+export const deleteNightLifeHandler = asyncWrapper(async (req: Request<deleteNightLifeInput>, res: Response) => {
+  const { id } = res.locals.user;
+  const { nightLifeId } = req.params;
+  const nightlife = await deleteNightLife(nightLifeId, id);
+  if (!nightlife.deletedCount) throw new NotFoundError('NightLife not found');
+  return res.sendStatus(204);
+});
