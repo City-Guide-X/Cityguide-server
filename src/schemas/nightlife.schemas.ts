@@ -1,5 +1,5 @@
 import { DayOfWeek, NightLifeType, Parking } from '@types';
-import { nativeEnum, number, object, string, TypeOf } from 'zod';
+import { nativeEnum, number, object, strictObject, string, TypeOf } from 'zod';
 
 export const createNightLifeSchema = object({
   body: object({
@@ -110,5 +110,91 @@ export const getNightLifeDetailSchema = object({
   }),
 });
 
+export const updateNightLifeSchema = object({
+  body: strictObject({
+    name: string().min(3, 'NightLife name requires atleast 3 characters').optional(),
+    summary: string().min(10, 'Summary should be atleast 10 characters').optional(),
+    description: string().min(10, 'Description should be atleast 10 characters').optional(),
+    address: object({
+      name: string({ required_error: 'Address name is required' }),
+      locationId: string({ required_error: 'Address location id is required' }),
+      city: string().optional(),
+      state: string({ required_error: 'State is required' }),
+      country: string({ required_error: 'Country is required' }),
+      geoLocation: object({
+        lat: number({
+          required_error: 'Latitude is required',
+          invalid_type_error: 'Latitude has to be a number',
+        }),
+        lng: number({
+          required_error: 'Longitude is required',
+          invalid_type_error: 'Longitude has to be a number',
+        }),
+      }),
+      extraDetails: string().optional(),
+    }).optional(),
+    avatar: string().optional(),
+    images: string({ invalid_type_error: 'Images should be an array' }).array().optional(),
+    availability: object(
+      {
+        day: nativeEnum(DayOfWeek, {
+          required_error: 'Day is required',
+          invalid_type_error: 'Day should be a day of the week in full and capitalized',
+        }),
+        from: string({ required_error: 'From time is required' }),
+        to: string({ required_error: 'To time is required' }),
+      },
+      { invalid_type_error: 'Availability is should be an array' }
+    )
+      .array()
+      .min(1, 'Atleast one availability is required')
+      .optional(),
+    rules: object({
+      dressCode: string({ invalid_type_error: 'Dress code should be an array' }).array().optional(),
+      minAge: number({
+        required_error: 'Minimum age is required',
+        invalid_type_error: 'Minimum age should be a number',
+      }),
+      parking: nativeEnum(Parking, {
+        required_error: 'Parking is required',
+        invalid_type_error: 'Parking should be Free | Paid | No',
+      }),
+      musicGenre: string({ invalid_type_error: 'Music genre should be an array' }).array().optional(),
+    }).optional(),
+    details: object({
+      entryFee: number({ invalid_type_error: 'Entry fee should be a number' }).optional(),
+      paymentOptions: string({
+        required_error: 'Payment options are required',
+        invalid_type_error: 'Payment options should be an array',
+      })
+        .array()
+        .min(1, 'Atleast one payment option is required'),
+      amenities: string({
+        required_error: 'Atleast 1 amenity is required',
+        invalid_type_error: 'Amenities should be an array',
+      })
+        .array()
+        .min(1, 'Atleast one amenity is required'),
+    }).optional(),
+    contact: object({
+      email: string({ required_error: 'Email is required' }).email('Email should be a valid email'),
+      phone: string().min(11, 'Invalid phone number').optional(),
+      socialMedia: object(
+        {
+          name: string({ required_error: 'Social media name is required' }),
+          handle: string({ required_error: 'Social media handle is required' }),
+        },
+        { required_error: 'Social media is required', invalid_type_error: 'Social media should be an array' }
+      )
+        .array()
+        .optional(),
+    }).optional(),
+  }),
+  params: object({
+    nightLifeId: string({ required_error: 'NightLife id is required' }),
+  }),
+});
+
 export type createNightLifeInput = TypeOf<typeof createNightLifeSchema>['body'];
 export type getNightLifeDetailInput = TypeOf<typeof getNightLifeDetailSchema>['params'];
+export type updateNightLifeInput = TypeOf<typeof updateNightLifeSchema>;
