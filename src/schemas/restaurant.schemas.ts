@@ -1,5 +1,5 @@
 import { DayOfWeek, PriceRange } from '@types';
-import { boolean, nativeEnum, number, object, string, TypeOf } from 'zod';
+import { boolean, nativeEnum, number, object, strictObject, string, TypeOf } from 'zod';
 
 export const createRestaurantSchema = object({
   body: object({
@@ -115,6 +115,83 @@ export const getRestaurantDetailSchema = object({
   }),
 });
 
+export const updateRestaurantSchema = object({
+  body: strictObject({
+    name: string().min(3, 'Restaurant name requires atleast 3 characters').optional(),
+    summary: string().min(10, 'Summary should be atleast 10 characters').optional(),
+    description: string().min(10, 'Description should be atleast 10 characters').optional(),
+    address: object({
+      name: string({ required_error: 'Address name is required' }),
+      locationId: string({ required_error: 'Address location id is required' }),
+      city: string().optional(),
+      state: string({ required_error: 'State is required' }),
+      country: string({ required_error: 'Country is required' }),
+      geoLocation: object({
+        lat: number({
+          required_error: 'Latitude is required',
+          invalid_type_error: 'Latitude has to be a number',
+        }),
+        lng: number({
+          required_error: 'Longitude is required',
+          invalid_type_error: 'Longitude has to be a number',
+        }),
+      }),
+      extraDetails: string().optional(),
+    }).optional(),
+    avatar: string().optional(),
+    images: string({ invalid_type_error: 'Images should be an array' }).array().optional(),
+    availability: object(
+      {
+        day: nativeEnum(DayOfWeek, {
+          required_error: 'Day is required',
+          invalid_type_error: 'Day should be a day of the week in full and capitalized',
+        }),
+        from: string({ required_error: 'From time is required' }),
+        to: string({ required_error: 'To time is required' }),
+      },
+      { invalid_type_error: 'Availability is should be an array' }
+    )
+      .array()
+      .min(1, 'Atleast one availability is required')
+      .optional(),
+    priceRange: nativeEnum(PriceRange, {
+      invalid_type_error: 'Price range should be Budget-friendly | Mid-range | Fine-dining',
+    }).optional(),
+    serviceStyle: string({ invalid_type_error: 'Service style should be an array' }).array().optional(),
+    cuisine: string({ invalid_type_error: 'Cuisine should be an array' }).array().optional(),
+    dietaryProvisions: string({ invalid_type_error: 'Dietary provisions should be an array' }).array().optional(),
+    details: object({
+      delivery: boolean({
+        required_error: 'Delivery availability is required',
+        invalid_type_error: 'Delivery availability should be a boolean',
+      }),
+      reservation: number({ invalid_type_error: 'Max number of guests for reservation is required' }).optional(),
+      amenities: string({ invalid_type_error: 'Amenities should be an array' }).array().optional(),
+      paymentOptions: string({ invalid_type_error: 'Payment options should be an array' }).array().optional(),
+      children: boolean({
+        required_error: 'Children allowance rule is required',
+        invalid_type_error: 'Children allowance rul should be a boolean',
+      }),
+    }).optional(),
+    contact: object({
+      email: string({ required_error: 'Email is required' }).email('Email should be a valid email'),
+      phone: string().min(11, 'Invalid phone number').optional(),
+      socialMedia: object(
+        {
+          name: string({ required_error: 'Social media name is required' }),
+          handle: string({ required_error: 'Social media handle is required' }),
+        },
+        { required_error: 'Social media is required', invalid_type_error: 'Social media should be an array' }
+      )
+        .array()
+        .optional(),
+    }).optional(),
+  }),
+  params: object({
+    restaurantId: string({ required_error: 'Restaurant id is required' }),
+  }),
+});
+
 export const deleteRestaurantSchema = object({
   params: object({
     restaurantId: string({ required_error: 'Restaurant id is required' }),
@@ -123,4 +200,5 @@ export const deleteRestaurantSchema = object({
 
 export type createRestaurantInput = TypeOf<typeof createRestaurantSchema>['body'];
 export type getRestaurantDetailInput = TypeOf<typeof getRestaurantDetailSchema>['params'];
+export type updateRestaurantInput = TypeOf<typeof updateRestaurantSchema>;
 export type deleteRestaurantInput = TypeOf<typeof deleteRestaurantSchema>['params'];

@@ -25,6 +25,7 @@ router.get('/:stayId', validateSchema(getStayDetailSchema), getStayDetailHandler
 router.use(requireAuth, partnerOnly);
 router.post('/', validateSchema(createStaySchema), createStayHandler);
 router.patch('/:stayId', validateSchema(updateStaySchema), updateStayHandler);
+router.delete('/:stayId', validateSchema(deleteStaySchema), deleteStayHandler);
 router.post('/:stayId/accommodation', validateSchema(addAccommodationSchema), addAccommodationHandler);
 router.put(
   '/:stayId/accommodation/:accommodationId',
@@ -36,6 +37,5 @@ router.delete(
   validateSchema(removeAccommodationSchema),
   removeAccommodationHandler
 );
-router.delete('/:stayId', validateSchema(deleteStaySchema), deleteStayHandler);
 
 export default router;

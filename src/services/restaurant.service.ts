@@ -9,6 +9,12 @@ export const getRestaurantById = async (_id: string) => {
   return RestaurantModel.findById(_id).populate('establishment', 'name email phoneNumber imgUrl', 'Establishment');
 };
 
+export const updateRestaurant = async (_id: string, establishment: string, body: Partial<Restaurant>) => {
+  const restaurant = await RestaurantModel.findById(_id);
+  if (restaurant?.establishment.toString() !== establishment) throw new AuthorizationError();
+  return RestaurantModel.updateOne({ _id }, { $set: body });
+};
+
 export const deleteRestaurant = async (_id: string, establishment: string) => {
   const restaurant = await RestaurantModel.findById(_id);
   if (restaurant?.establishment.toString() !== establishment) throw new AuthorizationError();
