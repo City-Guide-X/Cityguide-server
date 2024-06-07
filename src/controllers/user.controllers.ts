@@ -1,6 +1,6 @@
 import { AuthenticationError, BadRequestError, ConflictError, NotFoundError } from '@errors';
 import { privateFields, User } from '@models';
-import { createUserInput, loginUserInput, updateUserInput } from '@schemas';
+import { createUserInput, loginUserInput, updateUserInput, upgradeUserToPartnerInput } from '@schemas';
 import { createUser, findUserByEmail, findUserById, setUserRefreshToken, signTokens, updateUserInfo } from '@services';
 import { asyncWrapper } from '@utils';
 import { Request, Response } from 'express';
@@ -81,3 +81,13 @@ export const updateUserHandler = asyncWrapper(async (req: Request<{}, {}, update
   if (!isUpdated.modifiedCount) throw new BadRequestError('Could not update user info');
   return res.sendStatus(204);
 });
+
+export const upgradeUserToPartnerHandler = asyncWrapper(
+  async (req: Request<{}, {}, upgradeUserToPartnerInput>, res: Response) => {
+    const { id } = res.locals.user;
+    const body = req.body;
+    const isUpdated = await updateUserInfo(id, { ...body, isPartner: true });
+    if (!isUpdated.modifiedCount) throw new BadRequestError('Could not upgrade user to partner');
+    return res.sendStatus(204);
+  }
+);
