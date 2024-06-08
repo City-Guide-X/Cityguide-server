@@ -39,7 +39,7 @@ export const createReservationHandler = asyncWrapper(
 export const getReservationsHandler = asyncWrapper(async (req: Request, res: Response) => {
   const { id, type } = res.locals.user;
   const reservations = type === 'USER' ? await getAllUserReservations(id) : await getAllEstablishmentReservations(id);
-  return res.status(200).json({ reservations });
+  return res.status(200).json({ count: reservations.length, reservations });
 });
 
 export const updateReservationHandler = asyncWrapper(

@@ -8,6 +8,7 @@ import {
   RestaurantModel,
   RestaurantReservation,
   RestaurantReservationModel,
+  Stay,
   StayModel,
   StayReservation,
   StayReservationModel,
@@ -32,12 +33,26 @@ export const createReservation = (option: Partial<Reservation>, establishment: s
   return ReservationModel.create({ ...option, establishment, user });
 };
 
-export const getAllUserReservations = (user: string) => {
-  return ReservationModel.find({ user }).sort('updatedAt');
+export const getAllUserReservations = async (id: string) => {
+  const res = (await ReservationModel.find().populate('property', 'partnerType partner', 'Stay')).filter(
+    (res: any) => res.property?.partner?.toString() === id
+  );
+  return res;
 };
 
-export const getAllEstablishmentReservations = (establishment: string) => {
-  return ReservationModel.find({ establishment }).sort('updatedAt');
+export const getAllEstablishmentReservations = async (id: string) => {
+  const res = await Promise.all([
+    ...(
+      await StayReservationModel.find().populate('property', 'partner partnerType name avatar', 'Stay')
+    ).filter((res: any) => res.property?.partner?.toString() === id),
+    ...(
+      await RestaurantReservationModel.find().populate('property', 'establishment name avatar', 'Restaurant')
+    ).filter((res: any) => res.property?.establishment?.toString() === id),
+    ...(
+      await NightLifeReservationModel.find().populate('property', 'establishment name avatar', 'NightLife')
+    ).filter((res: any) => res.property?.establishment?.toString() === id),
+  ]);
+  return res;
 };
 
 export const findReservationById = (_id: string) => {
