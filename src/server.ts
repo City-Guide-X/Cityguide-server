@@ -1,6 +1,6 @@
+require('dotenv').config();
 import { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData } from '@types';
 import { log } from '@utils';
-import 'dotenv/config';
 import { put } from 'memory-cache';
 import mongoose from 'mongoose';
 import { Server } from 'socket.io';
