@@ -2,21 +2,21 @@ import { AuthenticationError, BadRequestError, ConflictError, NotFoundError } fr
 import { privateFields, User } from '@models';
 import { createUserInput, loginUserInput, updateUserInput, upgradeUserToPartnerInput } from '@schemas';
 import { createUser, findUserByEmail, findUserById, setUserRefreshToken, signTokens, updateUserInfo } from '@services';
-import { asyncWrapper } from '@utils';
+import { asyncWrapper, sendEmail } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
 
 export const createUserHandler = asyncWrapper(async (req: Request<{}, {}, createUserInput>, res: Response) => {
   const body = req.body;
   const user = await createUser(body);
-  // await sendEmail({
-  //   to: user.email,
-  //   template: 'verificationCode',
-  //   locals: {
-  //     name: `${user.firstName} ${user.lastName}`,
-  //     verifyCode: user.otp,
-  //   },
-  // });
+  await sendEmail({
+    to: user.email,
+    template: 'verificationCode',
+    locals: {
+      name: `${user.firstName} ${user.lastName}`,
+      verifyCode: user.otp,
+    },
+  });
   const { accessToken, refreshToken } = signTokens({
     id: user._id.toString(),
     type: 'USER',

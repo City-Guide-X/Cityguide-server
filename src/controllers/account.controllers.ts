@@ -38,6 +38,7 @@ export const verifyEmailHandler = asyncWrapper(async (req: Request<verifyEmailIn
     await user.save();
     return res.sendStatus(204);
   }
+  throw new BadRequestError(message);
 });
 
 export const sendVerifyEmailHandler = asyncWrapper(async (req: Request, res: Response) => {

@@ -9,7 +9,7 @@ import {
   signTokens,
   updateEstablishmentInfo,
 } from '@services';
-import { asyncWrapper } from '@utils';
+import { asyncWrapper, sendEmail } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
 
@@ -17,14 +17,14 @@ export const createEstablishmentHandler = asyncWrapper(
   async (req: Request<{}, {}, createEstablishmentInput>, res: Response) => {
     const body = req.body;
     const establishment = await createEstablishment(body);
-    // await sendEmail({
-    //   to: establishment.email,
-    //   template: 'verificationCode',
-    //   locals: {
-    //     name: establishment.name,
-    //     verifyCode: establishment.otp,
-    //   },
-    // });
+    await sendEmail({
+      to: establishment.email,
+      template: 'verificationCode',
+      locals: {
+        name: establishment.name,
+        verifyCode: establishment.otp,
+      },
+    });
     const { accessToken, refreshToken } = signTokens({
       id: establishment._id.toString(),
       type: 'ESTABLISHMENT',
