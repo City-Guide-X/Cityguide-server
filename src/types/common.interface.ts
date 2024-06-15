@@ -2,6 +2,7 @@ import { DayOfWeek, Rating } from './enums';
 
 export interface IAddress {
   name: string;
+  fullAddress?: string;
   locationId: string;
   city?: string;
   state: string;

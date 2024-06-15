@@ -15,6 +15,7 @@ export const createRestaurantSchema = object({
     address: object(
       {
         name: string({ required_error: 'Address name is required' }),
+        fullAddress: string().optional(),
         locationId: string({ required_error: 'Address location id is required' }),
         city: string().optional(),
         state: string({ required_error: 'State is required' }),
@@ -125,6 +126,7 @@ export const updateRestaurantSchema = object({
     description: string().min(10, 'Description should be atleast 10 characters').optional(),
     address: object({
       name: string({ required_error: 'Address name is required' }),
+      fullAddress: string().optional(),
       locationId: string({ required_error: 'Address location id is required' }),
       city: string().optional(),
       state: string({ required_error: 'State is required' }),

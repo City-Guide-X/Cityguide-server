@@ -26,6 +26,7 @@ export const createStaySchema = object({
     address: object(
       {
         name: string({ required_error: 'Address name is required' }),
+        fullAddress: string().optional(),
         locationId: string({ required_error: 'Address location id is required' }),
         city: string().optional(),
         state: string({ required_error: 'State is required' }),
@@ -185,6 +186,7 @@ export const updateStaySchema = object({
     }).optional(),
     address: object({
       name: string({ required_error: 'Address name is required' }),
+      fullAddress: string().optional(),
       locationId: string({ required_error: 'Address location id is required' }),
       city: string().optional(),
       state: string({ required_error: 'State is required' }),
