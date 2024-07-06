@@ -5,6 +5,7 @@ export const createUserSchema = object({
     firstName: string({ required_error: 'First name is required' }).min(3, 'First name requires atleast 3 characters'),
     lastName: string({ required_error: 'Last name is required' }).min(3, 'Last name requires atleast 3 characters'),
     phoneNumber: string().min(11, 'Invalid phone number').optional(),
+    dateOfBirth: coerce.date({ required_error: 'Date of birth is required' }).optional(),
     email: string({ required_error: 'Email is required' }).email('Invalid email'),
     password: string({ required_error: 'Password is required' }).min(8, 'Password should be atleast 8 characters'),
   }),
