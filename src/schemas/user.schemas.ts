@@ -1,4 +1,4 @@
-import { coerce, object, strictObject, string, TypeOf } from 'zod';
+import { boolean, coerce, object, strictObject, string, TypeOf } from 'zod';
 
 export const createUserSchema = object({
   body: object({
@@ -6,6 +6,7 @@ export const createUserSchema = object({
     lastName: string({ required_error: 'Last name is required' }).min(3, 'Last name requires atleast 3 characters'),
     phoneNumber: string().min(11, 'Invalid phone number').optional(),
     dateOfBirth: coerce.date({ required_error: 'Date of birth is required' }).optional(),
+    isPartner: boolean({ invalid_type_error: 'isPartner should be a boolean' }).optional(),
     email: string({ required_error: 'Email is required' }).email('Invalid email'),
     password: string({ required_error: 'Password is required' }).min(8, 'Password should be atleast 8 characters'),
   }),
