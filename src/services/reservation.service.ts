@@ -8,7 +8,6 @@ import {
   RestaurantModel,
   RestaurantReservation,
   RestaurantReservationModel,
-  Stay,
   StayModel,
   StayReservation,
   StayReservationModel,
@@ -16,6 +15,7 @@ import {
 import { PropertyType } from '@types';
 import { isFuture, isValidDate } from '@utils';
 import dayjs from 'dayjs';
+import { Types } from 'mongoose';
 
 export const reserveStay = (input: Partial<StayReservation>) => {
   return StayReservationModel.create({ ...input });
@@ -61,6 +61,88 @@ export const findReservationById = (_id: string) => {
 
 export const updateReservation = (_id: string, option: Partial<Reservation>) => {
   return ReservationModel.updateOne({ _id }, { ...option });
+};
+
+export const reservationAnalytics = (
+  ownerId: string,
+  ownerType: 'USER' | 'ESTABLISHMENT',
+  from: Date,
+  to: Date,
+  interval: string,
+  property?: string,
+  propertyType?: PropertyType
+) => {
+  return ReservationModel.aggregate([
+    {
+      $match: {
+        updatedAt: { $gte: new Date(from), $lte: new Date(to) },
+        ...(property && { property: new Types.ObjectId(property) }),
+        ...(propertyType && { propertyType }),
+      },
+    },
+    ownerType === 'USER'
+      ? {
+          $lookup: {
+            from: 'stays',
+            localField: 'property',
+            foreignField: '_id',
+            as: 'stay',
+            pipeline: [
+              {
+                $project: {
+                  _id: 0,
+                  partner: 1,
+                },
+              },
+            ],
+          },
+        }
+      : {
+          $lookup: {
+            from: 'restaurants',
+            localField: 'property',
+            foreignField: '_id',
+            as: 'restaurant',
+            pipeline: [
+              {
+                $project: {
+                  _id: 0,
+                  establishment: 1,
+                },
+              },
+            ],
+          },
+        },
+    {
+      $match: {
+        $or: [{ 'stay.0.partner': { $ne: ownerId } }, { 'restaurant.0.establishment': { $ne: ownerId } }],
+      },
+    },
+    {
+      $group: {
+        _id: {
+          name: {
+            $cond: [
+              { $eq: [interval, 'daily'] },
+              { $dateToString: { date: '$updatedAt', format: '%b %d, %Y' } },
+              {
+                $cond: [
+                  { $eq: [interval, 'weekly'] },
+                  { $concat: ['Week ', { $toString: { $week: '$updatedAt' } }] },
+                  { $dateToString: { date: '$updatedAt', format: '%b' } },
+                ],
+              },
+            ],
+          },
+        },
+        Reservation: { $sum: { $cond: [{ $eq: ['$status', 'Cancelled'] }, 0, 1] } },
+        'Cancelled Reservation': { $sum: { $cond: [{ $eq: ['$status', 'Cancelled'] }, 1, 0] } },
+      },
+    },
+    {
+      $project: { name: '$_id.name', _id: 0, Reservation: 1, 'Cancelled Reservation': 1 },
+    },
+  ]);
 };
 
 export const validateReservationInput = async ({
