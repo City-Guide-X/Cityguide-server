@@ -1,10 +1,11 @@
 import { AuthorizationError, BadRequestError, NotFoundError } from '@errors';
 import { privateFields } from '@models';
-import { createReservationInput, updateReservationInput } from '@schemas';
+import { createReservationInput, reservationAnalyticsInput, updateReservationInput } from '@schemas';
 import {
   findReservationById,
   getAllEstablishmentReservations,
   getAllUserReservations,
+  reservationAnalytics,
   reserveNightLife,
   reserveRestaurant,
   reserveStay,
@@ -57,5 +58,14 @@ export const updateReservationHandler = asyncWrapper(
     const isUpdated = await updateReservation(itemId, { status });
     if (!isUpdated.modifiedCount) throw new BadRequestError();
     return res.sendStatus(204);
+  }
+);
+
+export const reservationAnalyticsHandler = asyncWrapper(
+  async (req: Request<{}, {}, reservationAnalyticsInput>, res: Response) => {
+    const { id, type } = res.locals.user;
+    const { property, propertyType, from, to, interval } = req.body;
+    const analytics = await reservationAnalytics(id, type, from, to, interval, property, propertyType);
+    return res.status(200).json({ analytics });
   }
 );
