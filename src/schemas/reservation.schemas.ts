@@ -54,5 +54,18 @@ export const updateReservationSchema = object({
   }),
 });
 
+export const reservationAnalyticsSchema = object({
+  body: object({
+    property: string().optional(),
+    propertyType: nativeEnum(PropertyType, {
+      invalid_type_error: 'Property type should be a Stay | Restaurant | NightLife',
+    }).optional(),
+    from: coerce.date({ required_error: 'From date is required', invalid_type_error: 'Invalid from date' }),
+    to: coerce.date({ required_error: 'To date is required', invalid_type_error: 'Invalid to date' }),
+    interval: string({ required_error: 'Interval is required' }).regex(/daily|weekly|monthly/i, 'Invalid interval'),
+  }),
+});
+
 export type createReservationInput = TypeOf<typeof createReservationSchema>['body'];
 export type updateReservationInput = TypeOf<typeof updateReservationSchema>['body'];
+export type reservationAnalyticsInput = TypeOf<typeof reservationAnalyticsSchema>['body'];
