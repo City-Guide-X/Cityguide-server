@@ -119,6 +119,16 @@ export const reservationAnalytics = (
       },
     },
     {
+      $densify: {
+        field: 'updatedAt',
+        range: {
+          step: 1,
+          unit: 'day',
+          bounds: [new Date(from), new Date(to)],
+        },
+      },
+    },
+    {
       $group: {
         _id: {
           name: {
@@ -135,9 +145,17 @@ export const reservationAnalytics = (
             ],
           },
         },
-        Reservation: { $sum: { $cond: [{ $eq: ['$status', 'Cancelled'] }, 0, 1] } },
-        'Cancelled Reservation': { $sum: { $cond: [{ $eq: ['$status', 'Cancelled'] }, 1, 0] } },
+        Reservation: {
+          $sum: { $cond: [{ $lte: ['$status', null] }, 0, { $cond: [{ $eq: ['$status', 'Cancelled'] }, 0, 1] }] },
+        },
+        'Cancelled Reservation': {
+          $sum: { $cond: [{ $lte: ['$status', null] }, 0, { $cond: [{ $eq: ['$status', 'Cancelled'] }, 1, 0] }] },
+        },
+        sortDate: { $first: '$updatedAt' },
       },
+    },
+    {
+      $sort: { sortDate: 1 },
     },
     {
       $project: { name: '$_id.name', _id: 0, Reservation: 1, 'Cancelled Reservation': 1 },
