@@ -138,17 +138,41 @@ export const reservationAnalytics = (
               {
                 $cond: [
                   { $eq: [interval, 'weekly'] },
-                  { $concat: ['Week ', { $toString: { $week: '$createdAt' } }] },
+                  {
+                    $let: {
+                      vars: {
+                        weekStart: {
+                          $subtract: [
+                            '$createdAt',
+                            { $multiply: [{ $subtract: [{ $dayOfWeek: '$createdAt' }, 1] }, 24 * 60 * 60 * 1000] },
+                          ],
+                        },
+                        weekEnd: {
+                          $add: [
+                            '$createdAt',
+                            { $multiply: [{ $subtract: [7, { $dayOfWeek: '$createdAt' }] }, 24 * 60 * 60 * 1000] },
+                          ],
+                        },
+                      },
+                      in: {
+                        $concat: [
+                          { $dateToString: { date: '$$weekStart', format: '%b %d' } },
+                          ' - ',
+                          { $dateToString: { date: '$$weekEnd', format: '%b %d' } },
+                        ],
+                      },
+                    },
+                  },
                   { $dateToString: { date: '$createdAt', format: '%b' } },
                 ],
               },
             ],
           },
         },
-        Reservation: {
+        Reservations: {
           $sum: { $cond: [{ $lte: ['$status', null] }, 0, { $cond: [{ $eq: ['$status', 'Cancelled'] }, 0, 1] }] },
         },
-        'Cancelled Reservation': {
+        'Cancelled Reservations': {
           $sum: { $cond: [{ $lte: ['$status', null] }, 0, { $cond: [{ $eq: ['$status', 'Cancelled'] }, 1, 0] }] },
         },
         sortDate: { $first: '$createdAt' },
@@ -158,7 +182,7 @@ export const reservationAnalytics = (
       $sort: { sortDate: 1 },
     },
     {
-      $project: { name: '$_id.name', _id: 0, Reservation: 1, 'Cancelled Reservation': 1 },
+      $project: { name: '$_id.name', _id: 0, Reservations: 1, 'Cancelled Reservations': 1 },
     },
   ]);
 };
