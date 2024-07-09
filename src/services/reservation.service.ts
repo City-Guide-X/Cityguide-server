@@ -75,7 +75,7 @@ export const reservationAnalytics = (
   return ReservationModel.aggregate([
     {
       $match: {
-        createdAt: { $gte: new Date(from), $lte: new Date(to) },
+        createdAt: { $gte: new Date(from), $lte: new Date(dayjs(to).add(1, 'd').toISOString()) },
         ...(property && { property: new Types.ObjectId(property) }),
         ...(propertyType && { propertyType }),
       },
@@ -124,7 +124,7 @@ export const reservationAnalytics = (
         range: {
           step: 1,
           unit: 'day',
-          bounds: [new Date(from), new Date(to)],
+          bounds: [new Date(from), new Date(dayjs(to).add(1, 'd').toISOString())],
         },
       },
     },
