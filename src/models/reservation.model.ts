@@ -1,6 +1,7 @@
 import {
   getDiscriminatorModelForClass,
   getModelForClass,
+  index,
   modelOptions,
   prop,
   Ref,
@@ -16,6 +17,7 @@ import { User } from './user.model';
   schemaOptions: { timestamps: true, discriminatorKey: 'propertyType' },
   options: { allowMixed: Severity.ALLOW },
 })
+@index({ createdAt: 1 })
 export class Reservation {
   @prop({ enum: PropertyType, required: true, type: String })
   propertyType: PropertyType;
