@@ -12,8 +12,8 @@ const router = Router();
 
 router.use(requireAuth);
 router.get('/', getReservationsHandler);
-router.get('/analytics', partnerOnly, validateSchema(reservationAnalyticsSchema), reservationAnalyticsHandler);
 router.post('/create', userOnly, validateSchema(createReservationSchema), createReservationHandler);
+router.post('/analytics', partnerOnly, validateSchema(reservationAnalyticsSchema), reservationAnalyticsHandler);
 router.patch('/update', validateSchema(updateReservationSchema), updateReservationHandler);
 
 export default router;
