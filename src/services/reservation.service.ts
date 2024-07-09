@@ -75,7 +75,7 @@ export const reservationAnalytics = (
   return ReservationModel.aggregate([
     {
       $match: {
-        updatedAt: { $gte: new Date(from), $lte: new Date(to) },
+        createdAt: { $gte: new Date(from), $lte: new Date(to) },
         ...(property && { property: new Types.ObjectId(property) }),
         ...(propertyType && { propertyType }),
       },
@@ -120,7 +120,7 @@ export const reservationAnalytics = (
     },
     {
       $densify: {
-        field: 'updatedAt',
+        field: 'createdAt',
         range: {
           step: 1,
           unit: 'day',
@@ -134,12 +134,12 @@ export const reservationAnalytics = (
           name: {
             $cond: [
               { $eq: [interval, 'daily'] },
-              { $dateToString: { date: '$updatedAt', format: '%b %d, %Y' } },
+              { $dateToString: { date: '$createdAt', format: '%b %d, %Y' } },
               {
                 $cond: [
                   { $eq: [interval, 'weekly'] },
-                  { $concat: ['Week ', { $toString: { $week: '$updatedAt' } }] },
-                  { $dateToString: { date: '$updatedAt', format: '%b' } },
+                  { $concat: ['Week ', { $toString: { $week: '$createdAt' } }] },
+                  { $dateToString: { date: '$createdAt', format: '%b' } },
                 ],
               },
             ],
@@ -151,7 +151,7 @@ export const reservationAnalytics = (
         'Cancelled Reservation': {
           $sum: { $cond: [{ $lte: ['$status', null] }, 0, { $cond: [{ $eq: ['$status', 'Cancelled'] }, 1, 0] }] },
         },
-        sortDate: { $first: '$updatedAt' },
+        sortDate: { $first: '$createdAt' },
       },
     },
     {
