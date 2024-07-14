@@ -23,7 +23,7 @@ export const createUserHandler = asyncWrapper(async (req: Request<{}, {}, create
     isPartner: user.isPartner,
   });
   await setUserRefreshToken(user._id.toString(), refreshToken!);
-  return res.status(201).json({ user: omit(user.toJSON(), privateFields), accessToken });
+  return res.status(201).json({ user: omit(user.toJSON(), privateFields), accessToken, refreshToken });
 });
 
 export const loginUserHandler = asyncWrapper(async (req: Request<{}, {}, loginUserInput>, res: Response) => {
@@ -39,32 +39,23 @@ export const loginUserHandler = asyncWrapper(async (req: Request<{}, {}, loginUs
     isPartner: user.isPartner,
   });
   await setUserRefreshToken(user._id.toString(), refreshToken!);
-  return res.status(200).json({ user: omit(user.toJSON(), privateFields), accessToken });
+  return res.status(200).json({ user: omit(user.toJSON(), privateFields), accessToken, refreshToken });
 });
 
 export const socialAuthHandler = asyncWrapper(async (req: Request, res: Response) => {
   const data = req.user as Partial<User>;
   if (!data) throw new AuthenticationError('Invalid social login data');
-  const user = await findUserByEmail(data.email!);
+  let user = await findUserByEmail(data.email!);
   if (user) {
     if (!user.isSocial) throw new ConflictError();
-    const { accessToken, refreshToken } = signTokens({
-      id: user._id.toString(),
-      type: 'USER',
-      isPartner: user.isPartner,
-    });
-    await setUserRefreshToken(user._id.toString(), refreshToken!);
-    return res.status(200).json({ user: omit(user.toJSON(), privateFields), accessToken });
-  } else {
-    const user = await createUser(data);
-    const { accessToken, refreshToken } = signTokens({
-      id: user._id.toString(),
-      type: 'USER',
-      isPartner: user.isPartner,
-    });
-    await setUserRefreshToken(user._id.toString(), refreshToken!);
-    return res.status(201).json({ user: omit(user.toJSON(), privateFields), accessToken });
-  }
+  } else user = await createUser(data);
+  const { accessToken, refreshToken } = signTokens({
+    id: user._id.toString(),
+    type: 'USER',
+    isPartner: user.isPartner,
+  });
+  await setUserRefreshToken(user._id.toString(), refreshToken!);
+  return res.status(200).json({ user: omit(user.toJSON(), privateFields), accessToken, refreshToken });
 });
 
 export const getUserProfileHandler = asyncWrapper(async (req: Request, res: Response) => {
@@ -84,10 +75,11 @@ export const updateUserHandler = asyncWrapper(async (req: Request<{}, {}, update
 
 export const upgradeUserToPartnerHandler = asyncWrapper(
   async (req: Request<{}, {}, upgradeUserToPartnerInput>, res: Response) => {
-    const { id } = res.locals.user;
+    const { id, type } = res.locals.user;
     const body = req.body;
     const isUpdated = await updateUserInfo(id, { ...body, isPartner: true });
     if (!isUpdated.modifiedCount) throw new BadRequestError('Could not upgrade user to partner');
-    return res.sendStatus(204);
+    const { accessToken } = signTokens({ id, type, isPartner: true, token: 'access' });
+    return res.status(200).json({ accessToken });
   }
 );
