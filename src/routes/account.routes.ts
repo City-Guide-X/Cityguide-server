@@ -8,15 +8,15 @@ import {
   verifyEmailHandler,
 } from '@controllers';
 import { requireAuth, validateSchema } from '@middlewares';
-import { changePasswordSchema, verifyEmailSchema } from '@schemas';
+import { changePasswordSchema, refreshAccessTokenSchema, verifyEmailSchema } from '@schemas';
 import { parser } from '@utils';
 import { Router } from 'express';
 
 const router = Router();
 
 router.delete('/logout', logoutHandler);
+router.post('/refreshaccess', validateSchema(refreshAccessTokenSchema), refreshAccessTokenHandler);
 router.use(requireAuth);
-router.get('/refreshaccess', refreshAccessTokenHandler);
 router.get('/verifyemail/:otp', validateSchema(verifyEmailSchema), verifyEmailHandler);
 router.get('/sendverificationemail', sendVerifyEmailHandler);
 router.post('/changepassword/:otp', validateSchema(changePasswordSchema), changePasswordHandler);
