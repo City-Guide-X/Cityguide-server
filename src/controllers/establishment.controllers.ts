@@ -31,7 +31,9 @@ export const createEstablishmentHandler = asyncWrapper(
       isPartner: true,
     });
     await setEstablishmentRefreshToken(establishment._id.toString(), refreshToken!);
-    return res.status(201).json({ establishment: omit(establishment.toJSON(), privateFields), accessToken });
+    return res
+      .status(201)
+      .json({ establishment: omit(establishment.toJSON(), privateFields), accessToken, refreshToken });
   }
 );
 
@@ -49,9 +51,10 @@ export const loginEstablishmentHandler = asyncWrapper(
       isPartner: true,
     });
     await setEstablishmentRefreshToken(establishment._id.toString(), refreshToken!);
-    return res.status(201).json({
+    return res.status(200).json({
       establishment: omit(establishment.toJSON(), privateFields),
       accessToken,
+      refreshToken,
     });
   }
 );
