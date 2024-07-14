@@ -1,5 +1,11 @@
 import { object, string, TypeOf } from 'zod';
 
+export const refreshAccessTokenSchema = object({
+  body: object({
+    refreshToken: string({ required_error: 'Refresh Token is required' }),
+  }),
+});
+
 export const verifyEmailSchema = object({
   params: object({
     otp: string(),
@@ -15,5 +21,6 @@ export const changePasswordSchema = object({
   }),
 });
 
+export type refreshAccessTokenInput = TypeOf<typeof refreshAccessTokenSchema>['body'];
 export type verifyEmailInput = TypeOf<typeof verifyEmailSchema>['params'];
 export type changePasswordInput = TypeOf<typeof changePasswordSchema>;
