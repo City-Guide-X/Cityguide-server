@@ -10,6 +10,7 @@ export enum StayType {
   RESORT = 'Resort',
   APARTMENT = 'Apartment',
   BnB = 'BnB',
+  OTHERS = 'Others',
 }
 
 export enum NightLifeType {
