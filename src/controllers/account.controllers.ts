@@ -1,6 +1,6 @@
 import { AuthorizationError, BadRequestError, NotFoundError } from '@errors';
 import { User } from '@models';
-import { changePasswordInput, verifyEmailInput } from '@schemas';
+import { changePasswordInput, refreshAccessTokenInput, verifyEmailInput } from '@schemas';
 import {
   deleteEstablishment,
   deleteUser,
@@ -14,16 +14,20 @@ import { IPayload } from '@types';
 import { asyncWrapper, sendEmail, verifyCode, verifyJWT } from '@utils';
 import { Request, Response } from 'express';
 
-export const refreshAccessTokenHandler = asyncWrapper(async (req: Request, res: Response) => {
-  const { id, type } = res.locals.user;
-  const user = type === 'USER' ? await findUserById(id) : await findEstablishmentById(id);
-  if (!user) throw new NotFoundError();
-  const decoded = verifyJWT<IPayload>(user?.refreshToken as string, 'refresh');
-  if (!decoded || id !== decoded.id) throw new AuthorizationError();
-  const isPartner = type === 'USER' ? (user as User).isPartner : true;
-  const { accessToken } = signTokens({ id, type, isPartner, token: 'access' });
-  return res.status(200).json({ accessToken });
-});
+export const refreshAccessTokenHandler = asyncWrapper(
+  async (req: Request<{}, {}, refreshAccessTokenInput>, res: Response) => {
+    const { refreshToken } = req.body;
+    const decoded = verifyJWT<IPayload>(refreshToken, 'refresh');
+    if (!decoded) throw new AuthorizationError();
+    const { id, type } = decoded;
+    const user = type === 'USER' ? await findUserById(id) : await findEstablishmentById(id);
+    if (!user) throw new NotFoundError();
+    if (refreshToken !== user.refreshToken) throw new AuthorizationError();
+    const isPartner = type === 'USER' ? (user as User).isPartner : true;
+    const { accessToken } = signTokens({ id, type, isPartner, token: 'access' });
+    return res.status(200).json({ accessToken });
+  }
+);
 
 export const verifyEmailHandler = asyncWrapper(async (req: Request<verifyEmailInput>, res: Response) => {
   const { otp } = req.params;
