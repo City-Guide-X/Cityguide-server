@@ -30,6 +30,7 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
         .join(', ')} already exists`,
     });
   }
+  if (err.type === 'PayloadTooLargeError') return res.status(err.statusCode).json({ message: 'File size too large' });
   if (err.response?.status === 417)
     return res.status(400).json({ message: 'Try again in 120 seconds. Payment code not available' });
   if (err.name === 'TypeError') return res.status(400).json({ message: err.message });
