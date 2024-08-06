@@ -135,8 +135,10 @@ export const updateNightLifeSchema = object({
       }),
       extraDetails: string().optional(),
     }).optional(),
-    avatar: string().optional(),
-    images: string({ invalid_type_error: 'Images should be an array' }).array().optional(),
+    avatar: string({ required_error: 'Avatar is required' }),
+    images: string({ required_error: 'Images is required', invalid_type_error: 'Images should be an array' })
+      .array()
+      .min(7, 'Atleast 7 images are required'),
     availability: object(
       {
         day: nativeEnum(DayOfWeek, {

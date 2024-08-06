@@ -28,8 +28,8 @@ export class Restaurant {
   @prop({ required: true })
   avatar: string;
 
-  @prop()
-  images?: string[];
+  @prop({ required: true })
+  images: string[];
 
   @prop({ required: true, _id: false })
   availability: ICustomAvailability[];

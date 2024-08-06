@@ -39,8 +39,8 @@ export class Stay {
   @prop({ required: true })
   avatar: string;
 
-  @prop()
-  images?: string[];
+  @prop({ required: true })
+  images: string[];
 
   @prop({ required: true })
   amenities: string[];

@@ -35,7 +35,9 @@ export const createRestaurantSchema = object({
       { required_error: 'Address is required' }
     ),
     avatar: string({ required_error: 'Avatar is required' }),
-    images: string({ invalid_type_error: 'Images should be an array' }).array().optional(),
+    images: string({ required_error: 'Images is required', invalid_type_error: 'Images should be an array' })
+      .array()
+      .min(7, 'Atleast 7 images are required'),
     availability: object(
       {
         day: nativeEnum(DayOfWeek, {
