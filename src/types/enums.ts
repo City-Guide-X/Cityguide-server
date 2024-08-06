@@ -43,7 +43,7 @@ export enum Parking {
 }
 
 export enum MaxDays {
-  DEFAULT = 30,
+  DEFAULT = 28,
   QUARTER = 45,
   HALF = 60,
   FULL = 90,

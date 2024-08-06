@@ -153,7 +153,7 @@ export const createStaySchema = object({
     )
       .array()
       .min(1, 'Atleast one accommodation is required'),
-    maxDays: nativeEnum(MaxDays, { invalid_type_error: 'maxDays should be 30 | 45 | 60 | 90' }).optional(),
+    maxDays: nativeEnum(MaxDays, { invalid_type_error: 'maxDays should be 28 | 45 | 60 | 90' }).optional(),
     language: string({
       required_error: 'Atleast one language is required',
       invalid_type_error: 'Languages should be an array',
@@ -228,7 +228,7 @@ export const updateStaySchema = object({
         invalid_type_error: 'Party rules should be a boolean',
       }),
     }).optional(),
-    maxDays: nativeEnum(MaxDays, { invalid_type_error: 'maxDays should be 30 | 45 | 60 | 90' }).optional(),
+    maxDays: nativeEnum(MaxDays, { invalid_type_error: 'maxDays should be 28 | 45 | 60 | 90' }).optional(),
     language: string({ invalid_type_error: 'Languages should be an array' })
       .array()
       .min(1, 'Atleast one language is required')
