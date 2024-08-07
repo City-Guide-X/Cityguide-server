@@ -407,6 +407,21 @@ export const deleteStaySchema = object({
   }),
 });
 
+export const getAllStaySchema = object({
+  body: object({
+    geoLocation: object({
+      lat: number({
+        required_error: 'Latitude is required',
+        invalid_type_error: 'Latitude has to be a number',
+      }),
+      lng: number({
+        required_error: 'Longitude is required',
+        invalid_type_error: 'Longitude has to be a number',
+      }),
+    }).optional(),
+  }),
+});
+
 export type createStayInput = TypeOf<typeof createStaySchema>['body'];
 export type getStayDetailInput = TypeOf<typeof getStayDetailSchema>['params'];
 export type updateStayInput = TypeOf<typeof updateStaySchema>;
@@ -414,3 +429,4 @@ export type addAccommodationInput = TypeOf<typeof addAccommodationSchema>;
 export type updateAccommodationInput = TypeOf<typeof updateAccommodationSchema>;
 export type removeAccommodationInput = TypeOf<typeof removeAccommodationSchema>['params'];
 export type deleteStayInput = TypeOf<typeof deleteStaySchema>['params'];
+export type getAllStayInput = TypeOf<typeof getAllStaySchema>['body'];

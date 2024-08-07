@@ -1,8 +1,8 @@
-import { NotFoundError } from '@errors';
 import { privateFields } from '@models';
 import {
   addAccommodationInput,
   createStayInput,
+  getAllStayInput,
   getStayDetailInput,
   removeAccommodationInput,
   updateAccommodationInput,
@@ -10,13 +10,15 @@ import {
 } from '@schemas';
 import {
   addAccommodation,
+  calculateDistance,
   createEstablishmentStay,
   createUserStay,
   deleteStay,
+  getAllStays,
   getStayById,
   removeAccommodation,
-  updateAccommodation,
   udpateStay,
+  updateAccommodation,
 } from '@services';
 import { asyncWrapper } from '@utils';
 import { Request, Response } from 'express';
@@ -28,6 +30,36 @@ export const createStayHandler = asyncWrapper(async (req: Request<{}, {}, create
   const data = { ...req.body, partner: id };
   const stay: Document = type === 'USER' ? await createUserStay(data) : await createEstablishmentStay(data);
   return res.status(201).json({ stay: omit(stay.toJSON(), privateFields) });
+});
+
+export const getAllStayHandler = asyncWrapper(async (req: Request<{}, {}, getAllStayInput>, res: Response) => {
+  const { geoLocation } = req.body;
+  const properties = await getAllStays();
+  if (geoLocation) {
+    const locations = properties.map((stay) => stay.address.geoLocation);
+    const stayDistances = await calculateDistance([geoLocation], locations);
+    if (!stayDistances)
+      return res
+        .status(200)
+        .json({ count: properties.length, properties: properties.map((stay) => omit(stay.toJSON(), privateFields)) });
+    const result = properties
+      .map((property, i) => {
+        const stay = {
+          ...omit(property.toJSON(), privateFields),
+          locationInfo: {
+            distance: stayDistances[i].distance.value,
+            distanceInWords: stayDistances[i].distance.text,
+            duration: stayDistances[i].duration.text,
+          },
+        };
+        return stay;
+      })
+      .sort((a, b) => a.locationInfo.distance - b.locationInfo.distance);
+    return res.status(200).json({ count: result.length, properties: result });
+  }
+  return res
+    .status(200)
+    .json({ count: properties.length, properties: properties.map((stay) => omit(stay.toJSON(), privateFields)) });
 });
 
 export const getStayDetailHandler = asyncWrapper(async (req: Request<getStayDetailInput>, res: Response) => {

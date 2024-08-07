@@ -2,6 +2,7 @@ import {
   addAccommodationHandler,
   createStayHandler,
   deleteStayHandler,
+  getAllStayHandler,
   getStayDetailHandler,
   removeAccommodationHandler,
   updateAccommodationHandler,
@@ -12,6 +13,7 @@ import {
   addAccommodationSchema,
   createStaySchema,
   deleteStaySchema,
+  getAllStaySchema,
   getStayDetailSchema,
   removeAccommodationSchema,
   updateAccommodationSchema,
@@ -21,6 +23,7 @@ import { Router } from 'express';
 
 const router = Router();
 
+router.get('/', validateSchema(getAllStaySchema), getAllStayHandler);
 router.get('/:stayId', validateSchema(getStayDetailSchema), getStayDetailHandler);
 router.use(requireAuth, partnerOnly);
 router.post('/', validateSchema(createStaySchema), createStayHandler);
