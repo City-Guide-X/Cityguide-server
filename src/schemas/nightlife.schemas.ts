@@ -205,7 +205,23 @@ export const deleteNightLifeSchema = object({
   }),
 });
 
+export const getAllNightlifeSchema = object({
+  body: object({
+    geoLocation: object({
+      lat: number({
+        required_error: 'Latitude is required',
+        invalid_type_error: 'Latitude has to be a number',
+      }),
+      lng: number({
+        required_error: 'Longitude is required',
+        invalid_type_error: 'Longitude has to be a number',
+      }),
+    }).optional(),
+  }),
+});
+
 export type createNightLifeInput = TypeOf<typeof createNightLifeSchema>['body'];
 export type getNightLifeDetailInput = TypeOf<typeof getNightLifeDetailSchema>['params'];
 export type updateNightLifeInput = TypeOf<typeof updateNightLifeSchema>;
 export type deleteNightLifeInput = TypeOf<typeof deleteNightLifeSchema>['params'];
+export type getAllNightlifeInput = TypeOf<typeof getAllNightlifeSchema>['body'];

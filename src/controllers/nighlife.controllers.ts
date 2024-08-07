@@ -1,6 +1,19 @@
 import { privateFields } from '@models';
-import { createNightLifeInput, deleteNightLifeInput, getNightLifeDetailInput, updateNightLifeInput } from '@schemas';
-import { createNightLife, deleteNightLife, getNightLifeById, updateNightLife } from '@services';
+import {
+  createNightLifeInput,
+  deleteNightLifeInput,
+  getAllNightlifeInput,
+  getNightLifeDetailInput,
+  updateNightLifeInput,
+} from '@schemas';
+import {
+  calculateDistance,
+  createNightLife,
+  deleteNightLife,
+  getAllNightlife,
+  getNightLifeById,
+  updateNightLife,
+} from '@services';
 import { asyncWrapper } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
@@ -11,6 +24,40 @@ export const createNightLifeHandler = asyncWrapper(
     const data = { ...req.body, establishment: id };
     const nightlife = await createNightLife(data);
     return res.status(201).json({ nightlife: omit(nightlife.toJSON(), privateFields) });
+  }
+);
+
+export const getAllNightlifeHandler = asyncWrapper(
+  async (req: Request<{}, {}, getAllNightlifeInput>, res: Response) => {
+    const { geoLocation } = req.body;
+    const properties = await getAllNightlife();
+    if (geoLocation) {
+      const locations = properties.map((nightlife) => nightlife.address.geoLocation);
+      const nightlifeDistances = await calculateDistance([geoLocation], locations);
+      if (!nightlifeDistances)
+        return res.status(200).json({
+          count: properties.length,
+          properties: properties.map((nightlife) => omit(nightlife.toJSON(), privateFields)),
+        });
+      const result = properties
+        .map((property, i) => {
+          const nightlife = {
+            ...omit(property.toJSON(), privateFields),
+            locationInfo: {
+              distance: nightlifeDistances[i].distance.value,
+              distanceInWords: nightlifeDistances[i].distance.text,
+              duration: nightlifeDistances[i].duration.text,
+            },
+          };
+          return nightlife;
+        })
+        .sort((a, b) => a.locationInfo.distance - b.locationInfo.distance);
+      return res.status(200).json({ count: result.length, properties: result });
+    }
+    return res.status(200).json({
+      count: properties.length,
+      properties: properties.map((nightlife) => omit(nightlife.toJSON(), privateFields)),
+    });
   }
 );
 

@@ -5,6 +5,8 @@ export const createNightLife = async (input: Partial<NightLife>) => {
   return NightLifeModel.create({ ...input });
 };
 
+export const getAllNightlife = () => NightLifeModel.find({});
+
 export const getNightLifeById = async (_id: string) => {
   const nightlife = await NightLifeModel.findById(_id).populate(
     'establishment',
