@@ -3,6 +3,7 @@ import {
   addMenuInput,
   createReservationInput,
   deleteRestaurantInput,
+  getAllRestautantInput,
   getRestaurantDetailInput,
   removeMenuInput,
   updateMenuInput,
@@ -10,8 +11,10 @@ import {
 } from '@schemas';
 import {
   addMenu,
+  calculateDistance,
   createRestaurant,
   deleteRestaurant,
+  getAllRestaurants,
   getRestaurantById,
   removeMenu,
   updateMenu,
@@ -27,6 +30,40 @@ export const createRestaurantHandler = asyncWrapper(
     const data = { ...req.body, establishment: id };
     const reservation = await createRestaurant(data);
     return res.status(201).json({ reservation: omit(reservation.toJSON(), privateFields) });
+  }
+);
+
+export const getAllRestaurantHandler = asyncWrapper(
+  async (req: Request<{}, {}, getAllRestautantInput>, res: Response) => {
+    const { geoLocation } = req.body;
+    const properties = await getAllRestaurants();
+    if (geoLocation) {
+      const locations = properties.map((restaurant) => restaurant.address.geoLocation);
+      const restaurantDistances = await calculateDistance([geoLocation], locations);
+      if (!restaurantDistances)
+        return res.status(200).json({
+          count: properties.length,
+          properties: properties.map((restaurant) => omit(restaurant.toJSON(), privateFields)),
+        });
+      const result = properties
+        .map((property, i) => {
+          const restaurant = {
+            ...omit(property.toJSON(), privateFields),
+            locationInfo: {
+              distance: restaurantDistances[i].distance.value,
+              distanceInWords: restaurantDistances[i].distance.text,
+              duration: restaurantDistances[i].duration.text,
+            },
+          };
+          return restaurant;
+        })
+        .sort((a, b) => a.locationInfo.distance - b.locationInfo.distance);
+      return res.status(200).json({ count: result.length, properties: result });
+    }
+    return res.status(200).json({
+      count: properties.length,
+      properties: properties.map((restaurant) => omit(restaurant.toJSON(), privateFields)),
+    });
   }
 );
 

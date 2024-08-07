@@ -2,6 +2,7 @@ import {
   addMenuHandler,
   createRestaurantHandler,
   deleteRestaurantHandler,
+  getAllRestaurantHandler,
   getRestaurantDetailHandler,
   removeMenuHandler,
   updateMenuHandler,
@@ -12,6 +13,7 @@ import {
   addMenuSchema,
   createRestaurantSchema,
   deleteRestaurantSchema,
+  getAllRestautantSchema,
   getRestaurantDetailSchema,
   removeMenuSchema,
   updateMenuSchema,
@@ -21,6 +23,7 @@ import { Router } from 'express';
 
 const router = Router();
 
+router.get('/', validateSchema(getAllRestautantSchema), getAllRestaurantHandler);
 router.get('/:restaurantId', validateSchema(getRestaurantDetailSchema), getRestaurantDetailHandler);
 router.use(requireAuth, establishmentOnly);
 router.post('/', validateSchema(createRestaurantSchema), createRestaurantHandler);

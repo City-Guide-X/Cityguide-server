@@ -267,6 +267,21 @@ export const removeMenuSchema = object({
   }),
 });
 
+export const getAllRestautantSchema = object({
+  body: object({
+    geoLocation: object({
+      lat: number({
+        required_error: 'Latitude is required',
+        invalid_type_error: 'Latitude has to be a number',
+      }),
+      lng: number({
+        required_error: 'Longitude is required',
+        invalid_type_error: 'Longitude has to be a number',
+      }),
+    }).optional(),
+  }),
+});
+
 export type createRestaurantInput = TypeOf<typeof createRestaurantSchema>['body'];
 export type getRestaurantDetailInput = TypeOf<typeof getRestaurantDetailSchema>['params'];
 export type updateRestaurantInput = TypeOf<typeof updateRestaurantSchema>;
@@ -274,3 +289,4 @@ export type deleteRestaurantInput = TypeOf<typeof deleteRestaurantSchema>['param
 export type addMenuInput = TypeOf<typeof addMenuSchema>;
 export type updateMenuInput = TypeOf<typeof updateMenuSchema>;
 export type removeMenuInput = TypeOf<typeof removeMenuSchema>['params'];
+export type getAllRestautantInput = TypeOf<typeof getAllRestautantSchema>['body'];

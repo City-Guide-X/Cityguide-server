@@ -5,6 +5,8 @@ export const createRestaurant = async (input: Partial<Restaurant>) => {
   return RestaurantModel.create({ ...input });
 };
 
+export const getAllRestaurants = () => RestaurantModel.find({});
+
 export const getRestaurantById = async (_id: string) => {
   const restaurant = await RestaurantModel.findById(_id).populate(
     'establishment',
