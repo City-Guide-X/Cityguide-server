@@ -1,4 +1,5 @@
 export * from './establishment.service';
+export * from './map.service';
 export * from './misc.service';
 export * from './nightlife.service';
 export * from './reservation.service';
