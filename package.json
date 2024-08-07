@@ -33,6 +33,7 @@
     "typescript": "^5.4.2"
   },
   "dependencies": {
+    "@googlemaps/google-maps-services-js": "^3.4.0",
     "@typegoose/typegoose": "^12.2.0",
     "axios": "^1.6.8",
     "base-64": "^1.0.0",
