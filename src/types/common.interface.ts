@@ -1,5 +1,9 @@
 import { DayOfWeek, Rating } from './enums';
 
+export interface ILatLng {
+  lat: number;
+  lng: number;
+}
 export interface IAddress {
   name: string;
   fullAddress?: string;
@@ -7,7 +11,7 @@ export interface IAddress {
   city?: string;
   state: string;
   country: string;
-  geoLocation: { lat: number; lng: number };
+  geoLocation: ILatLng;
   extraDetails?: string;
 }
 
