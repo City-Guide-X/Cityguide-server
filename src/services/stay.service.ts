@@ -2,7 +2,6 @@ import { AuthorizationError, BadRequestError, NotFoundError } from '@errors';
 import {
   EstablishmentStay,
   EstablishmentStayModel,
-  ReservationModel,
   StayModel,
   StayReservationModel,
   StayReviewModel,
@@ -13,6 +12,8 @@ import {
 export const createUserStay = async (input: Partial<UserStay>) => {
   return UserStayModel.create({ ...input });
 };
+
+export const getAllStays = () => StayModel.find({});
 
 export const createEstablishmentStay = async (input: Partial<EstablishmentStay>) => {
   return EstablishmentStayModel.create({ ...input });
