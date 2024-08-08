@@ -1,4 +1,5 @@
-import { boolean, coerce, object, strictObject, string, TypeOf } from 'zod';
+import { PropertyType } from '@types';
+import { boolean, coerce, nativeEnum, object, strictObject, string, TypeOf } from 'zod';
 
 export const createUserSchema = object({
   body: object({
@@ -36,7 +37,18 @@ export const upgradeUserToPartnerSchema = object({
   }),
 });
 
+export const addFavouritePropertySchema = object({
+  body: object({
+    propertyId: string({ required_error: 'Property id is required' }),
+    propertyType: nativeEnum(PropertyType, {
+      required_error: 'Property type is required',
+      invalid_type_error: 'Property type should be a Stay | Restaurant | NightLife',
+    }),
+  }),
+});
+
 export type createUserInput = TypeOf<typeof createUserSchema>['body'];
 export type loginUserInput = TypeOf<typeof loginUserSchema>['body'];
 export type updateUserInput = TypeOf<typeof updateUserSchema>['body'];
 export type upgradeUserToPartnerInput = TypeOf<typeof upgradeUserToPartnerSchema>['body'];
+export type addFavouritePropertyInput = TypeOf<typeof addFavouritePropertySchema>['body'];

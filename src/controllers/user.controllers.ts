@@ -1,7 +1,21 @@
 import { AuthenticationError, BadRequestError, ConflictError, NotFoundError } from '@errors';
 import { privateFields, User } from '@models';
-import { createUserInput, loginUserInput, updateUserInput, upgradeUserToPartnerInput } from '@schemas';
-import { createUser, findUserByEmail, findUserById, setUserRefreshToken, signTokens, updateUserInfo } from '@services';
+import {
+  addFavouritePropertyInput,
+  createUserInput,
+  loginUserInput,
+  updateUserInput,
+  upgradeUserToPartnerInput,
+} from '@schemas';
+import {
+  addFavouriteProperties,
+  createUser,
+  findUserByEmail,
+  findUserById,
+  setUserRefreshToken,
+  signTokens,
+  updateUserInfo,
+} from '@services';
 import { asyncWrapper, sendEmail } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
@@ -81,5 +95,15 @@ export const upgradeUserToPartnerHandler = asyncWrapper(
     if (!isUpdated.modifiedCount) throw new BadRequestError('Could not upgrade user to partner');
     const { accessToken } = signTokens({ id, type, isPartner: true, token: 'access' });
     return res.status(200).json({ accessToken });
+  }
+);
+
+export const addFavouritePropertyHandler = asyncWrapper(
+  async (req: Request<{}, {}, addFavouritePropertyInput>, res: Response) => {
+    const { id } = res.locals.user;
+    const property = req.body;
+    const isUpdated = await addFavouriteProperties(id, property);
+    if (!isUpdated.modifiedCount) throw new BadRequestError('Could not add favourite property');
+    return res.sendStatus(204);
   }
 );

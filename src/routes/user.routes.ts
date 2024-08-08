@@ -1,4 +1,5 @@
 import {
+  addFavouritePropertyHandler,
   createUserHandler,
   getUserProfileHandler,
   loginUserHandler,
@@ -7,7 +8,13 @@ import {
   upgradeUserToPartnerHandler,
 } from '@controllers';
 import { requireAuth, userOnly, validateSchema } from '@middlewares';
-import { createUserSchema, loginUserSchema, updateUserSchema, upgradeUserToPartnerSchema } from '@schemas';
+import {
+  addFavouritePropertySchema,
+  createUserSchema,
+  loginUserSchema,
+  updateUserSchema,
+  upgradeUserToPartnerSchema,
+} from '@schemas';
 import { Router } from 'express';
 import passport from 'passport';
 
@@ -22,6 +29,7 @@ router.get('/login/facebook/callback', passport.authenticate('facebook', { sessi
 router.use(requireAuth, userOnly);
 router.get('/profile', getUserProfileHandler);
 router.patch('/update', validateSchema(updateUserSchema), updateUserHandler);
+router.patch('/add-fav-property', validateSchema(addFavouritePropertySchema), addFavouritePropertyHandler);
 router.patch('/upgrade-to-partner', validateSchema(upgradeUserToPartnerSchema), upgradeUserToPartnerHandler);
 
 export default router;
