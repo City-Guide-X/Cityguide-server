@@ -3,6 +3,7 @@ import {
   createUserHandler,
   getUserProfileHandler,
   loginUserHandler,
+  removeFavouritePropertyHandler,
   socialAuthHandler,
   updateUserHandler,
   upgradeUserToPartnerHandler,
@@ -12,6 +13,7 @@ import {
   addFavouritePropertySchema,
   createUserSchema,
   loginUserSchema,
+  removeFavouritePropertySchema,
   updateUserSchema,
   upgradeUserToPartnerSchema,
 } from '@schemas';
@@ -29,7 +31,8 @@ router.get('/login/facebook/callback', passport.authenticate('facebook', { sessi
 router.use(requireAuth, userOnly);
 router.get('/profile', getUserProfileHandler);
 router.patch('/update', validateSchema(updateUserSchema), updateUserHandler);
-router.patch('/add-fav-property', validateSchema(addFavouritePropertySchema), addFavouritePropertyHandler);
+router.patch('/favproperty/add', validateSchema(addFavouritePropertySchema), addFavouritePropertyHandler);
+router.patch('/favproperty/remove', validateSchema(removeFavouritePropertySchema), removeFavouritePropertyHandler);
 router.patch('/upgrade-to-partner', validateSchema(upgradeUserToPartnerSchema), upgradeUserToPartnerHandler);
 
 export default router;

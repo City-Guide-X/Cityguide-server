@@ -47,8 +47,15 @@ export const addFavouritePropertySchema = object({
   }),
 });
 
+export const removeFavouritePropertySchema = object({
+  body: object({
+    propertyId: string({ required_error: 'Property id is required' }),
+  }),
+});
+
 export type createUserInput = TypeOf<typeof createUserSchema>['body'];
 export type loginUserInput = TypeOf<typeof loginUserSchema>['body'];
 export type updateUserInput = TypeOf<typeof updateUserSchema>['body'];
 export type upgradeUserToPartnerInput = TypeOf<typeof upgradeUserToPartnerSchema>['body'];
 export type addFavouritePropertyInput = TypeOf<typeof addFavouritePropertySchema>['body'];
+export type removeFavouritePropertyInput = TypeOf<typeof removeFavouritePropertySchema>['body'];

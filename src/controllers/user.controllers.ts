@@ -4,6 +4,8 @@ import {
   addFavouritePropertyInput,
   createUserInput,
   loginUserInput,
+  removeAccommodationInput,
+  removeFavouritePropertyInput,
   updateUserInput,
   upgradeUserToPartnerInput,
 } from '@schemas';
@@ -12,6 +14,7 @@ import {
   createUser,
   findUserByEmail,
   findUserById,
+  removeFavouriteProperty,
   setUserRefreshToken,
   signTokens,
   updateUserInfo,
@@ -104,6 +107,16 @@ export const addFavouritePropertyHandler = asyncWrapper(
     const property = req.body;
     const isUpdated = await addFavouriteProperties(id, property);
     if (!isUpdated.modifiedCount) throw new BadRequestError('Could not add favourite property');
+    return res.sendStatus(204);
+  }
+);
+
+export const removeFavouritePropertyHandler = asyncWrapper(
+  async (req: Request<{}, {}, removeFavouritePropertyInput>, res: Response) => {
+    const { id } = res.locals.user;
+    const { propertyId } = req.body;
+    const isUpdated = await removeFavouriteProperty(id, propertyId);
+    if (!isUpdated.modifiedCount) throw new BadRequestError('Could not remove favourite property');
     return res.sendStatus(204);
   }
 );

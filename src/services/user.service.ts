@@ -28,3 +28,7 @@ export const deleteUser = (_id: string) => {
 export const addFavouriteProperties = (_id: string, favouriteProperties: IFavProperties) => {
   return UserModel.updateOne({ _id }, { $addToSet: { favouriteProperties } });
 };
+
+export const removeFavouriteProperty = (_id: string, propertyId: string) => {
+  return UserModel.updateOne({ _id }, { $pull: { favouriteProperties: { propertyId } } });
+};
