@@ -2,6 +2,7 @@ import { DocumentType, getModelForClass, index, modelOptions, pre, prop, Ref, Se
 import { verifyCode } from '@utils';
 import bcrypt from 'bcrypt';
 import { Establishment } from './establishment.model';
+import { IFavProperties } from '@types';
 
 @pre<User>('save', async function () {
   if (!this.password || !this.isModified('password')) return;
@@ -50,8 +51,8 @@ export class User {
   @prop({ default: null })
   imgUrl: string | null;
 
-  @prop({ default: [], ref: () => Establishment })
-  favouriteEstablishments: Ref<Establishment>[];
+  @prop({ default: [], _id: false })
+  favouriteProperties: IFavProperties[];
 
   @prop({ default: false })
   isSocial: boolean;
