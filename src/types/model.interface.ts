@@ -5,7 +5,6 @@ export interface ISocialLink {
   name: string;
   handle: string;
 }
-
 export interface IContact {
   email: string;
   phone?: string;
@@ -67,6 +66,11 @@ export interface IFurniture {
   count: number;
 }
 
+export interface IBreakfastInfo {
+  price: number;
+  options: string[];
+}
+
 export interface IAccommodation {
   id: string;
   name: string;
@@ -77,7 +81,7 @@ export interface IAccommodation {
   bathrooms: number;
   children: boolean;
   infants: boolean;
-  breakfast: boolean;
+  breakfast?: IBreakfastInfo;
   parking: Parking;
   size?: number;
   initialAvailable: number;
