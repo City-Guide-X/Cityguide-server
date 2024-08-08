@@ -48,7 +48,7 @@ export const createStaySchema = object({
     avatar: string({ required_error: 'Avatar is required' }),
     images: string({ required_error: 'Images is required', invalid_type_error: 'Images should be an array' })
       .array()
-      .min(7, 'Atleast 7 images are required'),
+      .min(11, 'Atleast 11 images are required'),
     amenities: string({
       required_error: 'Atleast one amenity is required',
       invalid_type_error: 'Amenities should be an array',
@@ -83,13 +83,19 @@ export const createStaySchema = object({
           'Accommodation name should be atleast 3 characters'
         ),
         description: string().min(10, 'Accommodation description should be atleast 10 characters').optional(),
+        images: string({
+          required_error: 'Accommodation images are required',
+          invalid_type_error: 'Accommodation images should be an array',
+        })
+          .array()
+          .min(4, 'Atleast 4 accommodation images are required'),
         rooms: object(
           {
             name: string({ required_error: 'Room name is required' }).min(
               3,
               'Room name should be atleast 3 characters'
             ),
-            beds: object(
+            furnitures: object(
               {
                 type: string({ required_error: 'Bed type is required' }).min(
                   3,
@@ -97,10 +103,13 @@ export const createStaySchema = object({
                 ),
                 count: number({ required_error: 'Bed count is required' }),
               },
-              { invalid_type_error: 'Accommodation rooms beds should be an array' }
+              {
+                required_error: 'Room furnitures are required',
+                invalid_type_error: 'Room furnitures should be an array',
+              }
             )
               .array()
-              .min(1, 'Atleast one bed is required'),
+              .min(1, 'Atleast one furniture is required'),
           },
           {
             required_error: 'Atleast one room is required',
@@ -206,7 +215,10 @@ export const updateStaySchema = object({
       extraDetails: string().optional(),
     }).optional(),
     avatar: string().optional(),
-    images: string({ invalid_type_error: 'Images should be an array' }).array().optional(),
+    images: string({ required_error: 'Images is required', invalid_type_error: 'Images should be an array' })
+      .array()
+      .min(11, 'Atleast 11 images are required')
+      .optional(),
     amenities: string({ invalid_type_error: 'Amenities should be an array' })
       .array()
       .min(1, 'Atleast one amenity is required')
@@ -250,10 +262,16 @@ export const addAccommodationSchema = object({
         'Accommodation name should be atleast 3 characters'
       ),
       description: string().min(10, 'Accommodation description should be atleast 10 characters').optional(),
+      images: string({
+        required_error: 'Accommodation images are required',
+        invalid_type_error: 'Accommodation images should be an array',
+      })
+        .array()
+        .min(4, 'Atleast 4 accommodation images are required'),
       rooms: object(
         {
           name: string({ required_error: 'Room name is required' }).min(3, 'Room name should be atleast 3 characters'),
-          beds: object(
+          furnitures: object(
             {
               type: string({ required_error: 'Bed type is required' }).min(
                 3,
@@ -261,10 +279,10 @@ export const addAccommodationSchema = object({
               ),
               count: number({ required_error: 'Bed count is required' }),
             },
-            { invalid_type_error: 'Accommodation rooms beds should be an array' }
+            { invalid_type_error: 'Accommodation rooms furnitures should be an array' }
           )
             .array()
-            .min(1, 'Atleast one bed is required'),
+            .min(1, 'Atleast one furniture is required'),
         },
         {
           required_error: 'Atleast one room is required',
@@ -329,18 +347,19 @@ export const updateAccommodationSchema = object({
       'Accommodation name should be atleast 3 characters'
     ),
     description: string().min(10, 'Accommodation description should be atleast 10 characters').optional(),
+    images: string({ invalid_type_error: 'Accommodation images should be an array' }).array().optional(),
     rooms: object(
       {
         name: string({ required_error: 'Room name is required' }).min(3, 'Room name should be atleast 3 characters'),
-        beds: object(
+        furnitures: object(
           {
             type: string({ required_error: 'Bed type is required' }).min(3, 'Bed type should be atleast 3 characters'),
             count: number({ required_error: 'Bed count is required' }),
           },
-          { invalid_type_error: 'Accommodation rooms beds should be an array' }
+          { invalid_type_error: 'Accommodation rooms furnitures should be an array' }
         )
           .array()
-          .min(1, 'Atleast one bed is required'),
+          .min(1, 'Atleast one furniture is required'),
       },
       {
         required_error: 'Atleast one room is required',

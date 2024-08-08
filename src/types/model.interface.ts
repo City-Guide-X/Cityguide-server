@@ -62,7 +62,7 @@ export interface IRestaurantDetails {
 }
 
 // Stays
-export interface IBed {
+export interface IFurniture {
   type: string;
   count: number;
 }
@@ -71,7 +71,8 @@ export interface IAccommodation {
   id: string;
   name: string;
   description?: string;
-  rooms: { name: string; beds: IBed[] }[];
+  images: string[];
+  rooms: { name: string; furnitures: IFurniture[] }[];
   maxGuests: number;
   bathrooms: number;
   children: boolean;
