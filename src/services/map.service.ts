@@ -29,7 +29,7 @@ export const nearbyLocations = async (location: ILatLng) => {
   );
   if (!distances) return;
   const result = locations.map((location, i) => ({
-    name: location.name,
+    name: location.name!,
     distance: distances[i].distance.text,
   }));
   return result;

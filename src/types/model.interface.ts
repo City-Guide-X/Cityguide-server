@@ -106,7 +106,7 @@ export interface IStayRules {
 export interface IExtraInfo {
   host?: { name: string; info: string };
   property?: string;
-  neighbourhood?: {
+  neighborhood?: {
     info?: string;
     locations?: { name: string; distance: string }[];
   };
