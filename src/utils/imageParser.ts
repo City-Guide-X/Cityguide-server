@@ -12,7 +12,7 @@ const storage = new CloudinaryStorage({
   params: {
     folder: 'cityguide',
     transformation: [{ width: 500, height: 500, crop: 'limit' }],
-    allowed_formats: ['jpg', 'png'],
+    allowed_formats: ['jpg', 'png', 'webp', 'jpeg', 'svg', 'gif'],
     unique_filename: true,
   },
 });
