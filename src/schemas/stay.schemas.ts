@@ -21,7 +21,9 @@ export const createStaySchema = object({
         ),
       }).optional(),
       property: string().min(10, 'Property description should be atleast 10 characters').optional(),
-      neighborhood: string().min(10, 'Neighborhood description should be atleast 10 characters').optional(),
+      neighborhood: object({
+        info: string().min(10, 'Neighborhood description should be atleast 10 characters').optional(),
+      }).optional(),
     }).optional(),
     address: object(
       {
@@ -204,7 +206,9 @@ export const updateStaySchema = object({
         ),
       }).optional(),
       property: string().min(10, 'Property description should be atleast 10 characters').optional(),
-      neighborhood: string().min(10, 'Neighborhood description should be atleast 10 characters').optional(),
+      neighborhood: object({
+        info: string().min(10, 'Neighborhood description should be atleast 10 characters').optional(),
+      }).optional(),
     }).optional(),
     address: object({
       name: string({ required_error: 'Address name is required' }),

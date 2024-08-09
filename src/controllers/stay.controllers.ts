@@ -16,18 +16,26 @@ import {
   deleteStay,
   getAllStays,
   getStayById,
+  nearbyLocations,
   removeAccommodation,
   udpateStay,
   updateAccommodation,
 } from '@services';
-import { asyncWrapper } from '@utils';
+import { asyncWrapper, summarizeProperty } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
 import { Document } from 'mongoose';
 
 export const createStayHandler = asyncWrapper(async (req: Request<{}, {}, createStayInput>, res: Response) => {
   const { id, type } = res.locals.user;
-  const data = { ...req.body, partner: id };
+  const body = { ...req.body, partner: id };
+  const locations = await nearbyLocations(body.address.geoLocation);
+  let data = {
+    ...body,
+    extraInfo: { ...body.extraInfo, neighborhood: { ...body.extraInfo?.neighborhood, locations } },
+  };
+  const summary = (await summarizeProperty(data)) as string;
+  if (summary) data = { ...data, summary };
   const stay: Document = type === 'USER' ? await createUserStay(data) : await createEstablishmentStay(data);
   return res.status(201).json({ stay: omit(stay.toJSON(), privateFields) });
 });

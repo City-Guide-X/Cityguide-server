@@ -16,6 +16,11 @@ export interface IGuests {
   children: number;
 }
 
+export interface ICancellation {
+  daysFromReservation: number;
+  percentRefundable: number;
+}
+
 // NightLife
 export interface IEvent {
   id: string;
@@ -101,5 +106,8 @@ export interface IStayRules {
 export interface IExtraInfo {
   host?: { name: string; info: string };
   property?: string;
-  neighbourhood?: string;
+  neighbourhood?: {
+    info?: string;
+    locations?: { name: string; distance: string }[];
+  };
 }
