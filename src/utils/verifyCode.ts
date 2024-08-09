@@ -1,5 +1,6 @@
 const verifyCode = (): number => {
-  const code = Math.random().toString().slice(-6);
+  let code = '';
+  for (let i = 0; i < 6; i++) code += Math.floor(Math.random() * 10);
   return parseInt(code);
 };
 
