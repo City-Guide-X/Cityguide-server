@@ -1,4 +1,5 @@
 import {
+  changeCancellationPolicyHandler,
   changePasswordHandler,
   deleteAccountHandler,
   logoutHandler,
@@ -7,8 +8,13 @@ import {
   uploadImageHandler,
   verifyEmailHandler,
 } from '@controllers';
-import { requireAuth, validateSchema } from '@middlewares';
-import { changePasswordSchema, refreshAccessTokenSchema, verifyEmailSchema } from '@schemas';
+import { partnerOnly, requireAuth, validateSchema } from '@middlewares';
+import {
+  changeCancellationPolicySchema,
+  changePasswordSchema,
+  refreshAccessTokenSchema,
+  verifyEmailSchema,
+} from '@schemas';
 import { parser } from '@utils';
 import { Router } from 'express';
 
@@ -22,5 +28,11 @@ router.get('/sendverificationemail', sendVerifyEmailHandler);
 router.post('/changepassword/:otp', validateSchema(changePasswordSchema), changePasswordHandler);
 router.post('/upload', parser.array('images', 10), uploadImageHandler);
 router.delete('/delete', deleteAccountHandler);
+router.patch(
+  '/cancellationpolicy',
+  partnerOnly,
+  validateSchema(changeCancellationPolicySchema),
+  changeCancellationPolicyHandler
+);
 
 export default router;

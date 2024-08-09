@@ -1,5 +1,5 @@
 import { DocumentType, getModelForClass, index, modelOptions, pre, prop, Severity } from '@typegoose/typegoose';
-import { IAddress } from '@types';
+import { IAddress, ICancellation } from '@types';
 import { verifyCode } from '@utils';
 import bcrypt from 'bcrypt';
 
@@ -52,6 +52,9 @@ export class Establishment {
 
   @prop({ default: null })
   imgUrl: string | null;
+
+  @prop({ default: null })
+  cancellationPolicy: ICancellation;
 
   async validatePassword(this: DocumentType<Establishment>, password: string) {
     try {

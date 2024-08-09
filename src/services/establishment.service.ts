@@ -1,4 +1,5 @@
 import { Establishment, EstablishmentModel } from '@models';
+import { ICancellation } from '@types';
 import { Types } from 'mongoose';
 
 export const createEstablishment = (input: Partial<Establishment>) => {
@@ -47,6 +48,10 @@ export const updateEstablishmentRating = async (_id: string) => {
     },
   ]);
   return EstablishmentModel.updateOne({ _id }, { rating: avgRating[0].avgRating.toFixed(1) });
+};
+
+export const changeEstablishmentCancellationPolicy = (_id: string, cancellationPolicy: ICancellation) => {
+  return EstablishmentModel.updateOne({ _id }, { cancellationPolicy });
 };
 
 export const deleteEstablishment = (_id: string) => {

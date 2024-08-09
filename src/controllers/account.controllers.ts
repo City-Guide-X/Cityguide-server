@@ -1,7 +1,14 @@
 import { AuthorizationError, BadRequestError, NotFoundError } from '@errors';
 import { User } from '@models';
-import { changePasswordInput, refreshAccessTokenInput, verifyEmailInput } from '@schemas';
 import {
+  changeCancellationPolicyInput,
+  changePasswordInput,
+  refreshAccessTokenInput,
+  verifyEmailInput,
+} from '@schemas';
+import {
+  changeEstablishmentCancellationPolicy,
+  changeUserCancellationPolicy,
   deleteEstablishment,
   deleteUser,
   findEstablishmentById,
@@ -67,6 +74,19 @@ export const sendVerifyEmailHandler = asyncWrapper(async (req: Request, res: Res
   });
   return res.sendStatus(204);
 });
+
+export const changeCancellationPolicyHandler = asyncWrapper(
+  async (req: Request<{}, {}, changeCancellationPolicyInput>, res: Response) => {
+    const { id, type } = res.locals.user;
+    const cancellation = req.body;
+    const isUpdated =
+      type === 'USER'
+        ? await changeUserCancellationPolicy(id, cancellation)
+        : await changeEstablishmentCancellationPolicy(id, cancellation);
+    if (!isUpdated.modifiedCount) throw new BadRequestError('Could not change cancellation policy');
+    return res.sendStatus(204);
+  }
+);
 
 export const uploadImageHandler = asyncWrapper(async (req: Request, res: Response) => {
   const imgUrls = req.files as Express.Multer.File[];

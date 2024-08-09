@@ -1,5 +1,5 @@
 import { User, UserModel } from '@models';
-import { IFavProperties, PropertyType } from '@types';
+import { ICancellation, IFavProperties, PropertyType } from '@types';
 
 export const createUser = (input: Partial<User>) => {
   return UserModel.create({ ...input });
@@ -31,4 +31,8 @@ export const addFavouriteProperties = (_id: string, favouriteProperties: IFavPro
 
 export const removeFavouriteProperty = (_id: string, propertyId: string) => {
   return UserModel.updateOne({ _id }, { $pull: { favouriteProperties: { propertyId } } });
+};
+
+export const changeUserCancellationPolicy = (_id: string, cancellationPolicy: ICancellation) => {
+  return UserModel.updateOne({ _id }, { cancellationPolicy });
 };

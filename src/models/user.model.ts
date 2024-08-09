@@ -1,8 +1,7 @@
-import { DocumentType, getModelForClass, index, modelOptions, pre, prop, Ref, Severity } from '@typegoose/typegoose';
+import { DocumentType, getModelForClass, index, modelOptions, pre, prop, Severity } from '@typegoose/typegoose';
+import { ICancellation, IFavProperties } from '@types';
 import { verifyCode } from '@utils';
 import bcrypt from 'bcrypt';
-import { Establishment } from './establishment.model';
-import { IFavProperties } from '@types';
 
 @pre<User>('save', async function () {
   if (!this.password || !this.isModified('password')) return;
@@ -59,6 +58,9 @@ export class User {
 
   @prop({ default: false })
   isPartner: boolean;
+
+  @prop({ default: null })
+  cancellationPolicy: ICancellation;
 
   async validatePassword(this: DocumentType<User>, password: string) {
     try {
