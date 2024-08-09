@@ -10,11 +10,18 @@ export const summarizeProperty = async (property: Partial<Stay>) => {
   stay.accommodation.forEach((a: any) => {
     delete a.images;
   });
-  const res = await openai.chat.completions.create({
-    messages: [
-      { role: 'user', content: `Summarize the following property object in an essay format: ${JSON.stringify(stay)}` },
-    ],
-    model: 'gpt-4o-mini',
-  });
-  return res.choices[0].message.content;
+  try {
+    const res = await openai.chat.completions.create({
+      messages: [
+        {
+          role: 'user',
+          content: `Summarize the following property object in an essay format: ${JSON.stringify(stay)}`,
+        },
+      ],
+      model: 'gpt-4o-mini',
+    });
+    return res.choices[0].message.content || '';
+  } catch (err) {
+    return '';
+  }
 };
