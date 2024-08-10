@@ -74,8 +74,6 @@ export const getAllStayHandler = asyncWrapper(async (req: Request<{}, {}, getAll
 
 export const getPartnerStaysHandler = asyncWrapper(async (req: Request, res: Response) => {
   const { id, type } = res.locals.user;
-  log.info(id);
-  log.info(type);
   if (type === 'USER') {
     const properties = await getUserStays(id);
     return res
