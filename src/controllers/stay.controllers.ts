@@ -15,13 +15,15 @@ import {
   createUserStay,
   deleteStay,
   getAllStays,
+  getEstablishmentStays,
   getStayById,
+  getUserStays,
   nearbyLocations,
   removeAccommodation,
   udpateStay,
   updateAccommodation,
 } from '@services';
-import { asyncWrapper, summarizeProperty } from '@utils';
+import { asyncWrapper, log, summarizeProperty } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
 import { Document } from 'mongoose';
@@ -68,6 +70,23 @@ export const getAllStayHandler = asyncWrapper(async (req: Request<{}, {}, getAll
   return res
     .status(200)
     .json({ count: properties.length, properties: properties.map((stay) => omit(stay.toJSON(), privateFields)) });
+});
+
+export const getPartnerStaysHandler = asyncWrapper(async (req: Request, res: Response) => {
+  const { id, type } = res.locals.user;
+  log.info(id);
+  log.info(type);
+  if (type === 'USER') {
+    const properties = await getUserStays(id);
+    return res
+      .status(200)
+      .json({ count: properties.length, properties: properties.map((stay) => omit(stay.toJSON(), privateFields)) });
+  } else {
+    const properties = await getEstablishmentStays(id);
+    return res
+      .status(200)
+      .json({ count: properties.length, properties: properties.map((stay) => omit(stay.toJSON(), privateFields)) });
+  }
 });
 
 export const getStayDetailHandler = asyncWrapper(async (req: Request<getStayDetailInput>, res: Response) => {

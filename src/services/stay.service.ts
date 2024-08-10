@@ -14,6 +14,8 @@ export const createUserStay = async (input: Partial<UserStay>) => {
 };
 
 export const getAllStays = () => StayModel.find({});
+export const getUserStays = (partner: string) => UserStayModel.find({ partner });
+export const getEstablishmentStays = (partner: string) => EstablishmentStayModel.find({ partner });
 
 export const createEstablishmentStay = async (input: Partial<EstablishmentStay>) => {
   return EstablishmentStayModel.create({ ...input });

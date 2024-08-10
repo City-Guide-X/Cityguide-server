@@ -3,6 +3,7 @@ import {
   createStayHandler,
   deleteStayHandler,
   getAllStayHandler,
+  getPartnerStaysHandler,
   getStayDetailHandler,
   removeAccommodationHandler,
   updateAccommodationHandler,
@@ -24,6 +25,7 @@ import { Router } from 'express';
 const router = Router();
 
 router.get('/', validateSchema(getAllStaySchema), getAllStayHandler);
+router.get('/admin', requireAuth, partnerOnly, getPartnerStaysHandler);
 router.get('/:stayId', validateSchema(getStayDetailSchema), getStayDetailHandler);
 router.use(requireAuth, partnerOnly);
 router.post('/', validateSchema(createStaySchema), createStayHandler);
