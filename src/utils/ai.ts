@@ -15,7 +15,9 @@ export const summarizeProperty = async (property: Partial<Stay>) => {
       messages: [
         {
           role: 'user',
-          content: `Summarize the following property object in an essay format: ${JSON.stringify(stay)}`,
+          content: `Summarize the following property object in an essay format in at most 3 concise paragraphs: ${JSON.stringify(
+            stay
+          )}`,
         },
       ],
       model: 'gpt-4o-mini',
