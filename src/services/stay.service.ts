@@ -34,9 +34,13 @@ export const getTrendingStays = async () => {
         from: 'reservations',
         localField: '_id',
         foreignField: 'property',
-        as: 'stays',
+        as: 'reservations',
       },
     },
+    { $addFields: { reservationCount: { $size: '$reservations' } } },
+    { $sort: { reservationCount: -1 } },
+    { $limit: 6 },
+    { $project: { reservations: 0, reservationCount: 0 } },
   ]);
 };
 

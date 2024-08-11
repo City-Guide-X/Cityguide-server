@@ -73,12 +73,12 @@ export const getAllStayHandler = asyncWrapper(async (req: Request<{}, {}, getSta
     .json({ count: properties.length, properties: properties.map((stay) => omit(stay.toJSON(), privateFields)) });
 });
 
-export const getTrendingStaysHandler = asyncWrapper(
-  async (req: Request<{}, {}, getStayByLocationInput>, res: Response) => {
-    const properties = await getTrendingStays();
-    return res.status(200).json({ properties });
-  }
-);
+export const getTrendingStaysHandler = asyncWrapper(async (req: Request, res: Response) => {
+  const properties = await getTrendingStays();
+  return res
+    .status(200)
+    .json({ count: properties.length, properties: properties.map((stay) => omit(stay, privateFields)) });
+});
 
 export const getPartnerStaysHandler = asyncWrapper(async (req: Request, res: Response) => {
   const { id, type } = res.locals.user;
