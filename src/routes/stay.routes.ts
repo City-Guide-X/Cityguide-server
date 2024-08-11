@@ -5,6 +5,7 @@ import {
   getAllStayHandler,
   getPartnerStaysHandler,
   getStayDetailHandler,
+  getTrendingStaysHandler,
   removeAccommodationHandler,
   updateAccommodationHandler,
   updateStayHandler,
@@ -25,6 +26,7 @@ import { Router } from 'express';
 const router = Router();
 
 router.post('/', validateSchema(getStayByLocationSchema), getAllStayHandler);
+router.post('/trending', validateSchema(getStayByLocationSchema), getTrendingStaysHandler);
 router.get('/admin', requireAuth, partnerOnly, getPartnerStaysHandler);
 router.get('/:stayId', validateSchema(getStayDetailSchema), getStayDetailHandler);
 router.use(requireAuth, partnerOnly);

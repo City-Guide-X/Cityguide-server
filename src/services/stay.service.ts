@@ -14,12 +14,10 @@ export const createUserStay = async (input: Partial<UserStay>) => {
 };
 
 export const getAllStays = () => StayModel.find({});
-export const getUserStays = (partner: string) => UserStayModel.find({ partner });
-export const getEstablishmentStays = (partner: string) => EstablishmentStayModel.find({ partner });
 
-export const createEstablishmentStay = async (input: Partial<EstablishmentStay>) => {
-  return EstablishmentStayModel.create({ ...input });
-};
+export const getUserStays = (partner: string) => UserStayModel.find({ partner }).sort('-createdAt');
+
+export const getEstablishmentStays = (partner: string) => EstablishmentStayModel.find({ partner }).sort('-createdAt');
 
 export const getStayById = async (_id: string) => {
   const stay = await StayModel.findById(_id);
@@ -27,6 +25,23 @@ export const getStayById = async (_id: string) => {
   if (stay?.partnerType === 'USER')
     return stay?.populate({ path: 'partner', select: 'name email phoneNumber imgUrl', model: 'User' });
   return stay?.populate({ path: 'partner', select: 'name email phoneNumber imgUrl', model: 'Establishment' });
+};
+
+export const getTrendingStays = async () => {
+  return StayModel.aggregate([
+    {
+      $lookup: {
+        from: 'reservations',
+        localField: '_id',
+        foreignField: 'property',
+        as: 'stays',
+      },
+    },
+  ]);
+};
+
+export const createEstablishmentStay = async (input: Partial<EstablishmentStay>) => {
+  return EstablishmentStayModel.create({ ...input });
 };
 
 export const udpateStay = async (_id: string, partner: string, body: Partial<UserStay>) => {
