@@ -14,7 +14,7 @@ import {
   addAccommodationSchema,
   createStaySchema,
   deleteStaySchema,
-  getAllStaySchema,
+  getStayByLocationSchema,
   getStayDetailSchema,
   removeAccommodationSchema,
   updateAccommodationSchema,
@@ -24,7 +24,7 @@ import { Router } from 'express';
 
 const router = Router();
 
-router.post('/', validateSchema(getAllStaySchema), getAllStayHandler);
+router.post('/', validateSchema(getStayByLocationSchema), getAllStayHandler);
 router.get('/admin', requireAuth, partnerOnly, getPartnerStaysHandler);
 router.get('/:stayId', validateSchema(getStayDetailSchema), getStayDetailHandler);
 router.use(requireAuth, partnerOnly);

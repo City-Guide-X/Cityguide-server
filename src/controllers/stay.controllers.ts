@@ -2,7 +2,7 @@ import { privateFields } from '@models';
 import {
   addAccommodationInput,
   createStayInput,
-  getAllStayInput,
+  getStayByLocationInput,
   getStayDetailInput,
   removeAccommodationInput,
   updateAccommodationInput,
@@ -17,6 +17,7 @@ import {
   getAllStays,
   getEstablishmentStays,
   getStayById,
+  getTrendingStays,
   getUserStays,
   nearbyLocations,
   removeAccommodation,
@@ -42,7 +43,7 @@ export const createStayHandler = asyncWrapper(async (req: Request<{}, {}, create
   return res.status(201).json({ stay: omit(stay.toJSON(), privateFields) });
 });
 
-export const getAllStayHandler = asyncWrapper(async (req: Request<{}, {}, getAllStayInput>, res: Response) => {
+export const getAllStayHandler = asyncWrapper(async (req: Request<{}, {}, getStayByLocationInput>, res: Response) => {
   const { geoLocation } = req.body;
   const properties = await getAllStays();
   if (geoLocation) {
@@ -71,6 +72,13 @@ export const getAllStayHandler = asyncWrapper(async (req: Request<{}, {}, getAll
     .status(200)
     .json({ count: properties.length, properties: properties.map((stay) => omit(stay.toJSON(), privateFields)) });
 });
+
+export const getTrendingStaysHandler = asyncWrapper(
+  async (req: Request<{}, {}, getStayByLocationInput>, res: Response) => {
+    const properties = await getTrendingStays();
+    return res.status(200).json({ properties });
+  }
+);
 
 export const getPartnerStaysHandler = asyncWrapper(async (req: Request, res: Response) => {
   const { id, type } = res.locals.user;

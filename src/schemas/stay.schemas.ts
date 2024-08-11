@@ -472,7 +472,7 @@ export const deleteStaySchema = object({
   }),
 });
 
-export const getAllStaySchema = object({
+export const getStayByLocationSchema = object({
   body: object({
     geoLocation: object({
       lat: number({
@@ -494,4 +494,4 @@ export type addAccommodationInput = TypeOf<typeof addAccommodationSchema>;
 export type updateAccommodationInput = TypeOf<typeof updateAccommodationSchema>;
 export type removeAccommodationInput = TypeOf<typeof removeAccommodationSchema>['params'];
 export type deleteStayInput = TypeOf<typeof deleteStaySchema>['params'];
-export type getAllStayInput = TypeOf<typeof getAllStaySchema>['body'];
+export type getStayByLocationInput = TypeOf<typeof getStayByLocationSchema>['body'];
