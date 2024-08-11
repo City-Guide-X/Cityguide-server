@@ -24,11 +24,11 @@ import { Router } from 'express';
 
 const router = Router();
 
-router.get('/', validateSchema(getAllStaySchema), getAllStayHandler);
+router.post('/', validateSchema(getAllStaySchema), getAllStayHandler);
 router.get('/admin', requireAuth, partnerOnly, getPartnerStaysHandler);
 router.get('/:stayId', validateSchema(getStayDetailSchema), getStayDetailHandler);
 router.use(requireAuth, partnerOnly);
-router.post('/', validateSchema(createStaySchema), createStayHandler);
+router.post('/create', validateSchema(createStaySchema), createStayHandler);
 router.patch('/:stayId', validateSchema(updateStaySchema), updateStayHandler);
 router.delete('/:stayId', validateSchema(deleteStaySchema), deleteStayHandler);
 router.post('/:stayId/accommodation', validateSchema(addAccommodationSchema), addAccommodationHandler);
