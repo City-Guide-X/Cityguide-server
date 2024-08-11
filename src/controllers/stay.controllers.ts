@@ -23,7 +23,7 @@ import {
   udpateStay,
   updateAccommodation,
 } from '@services';
-import { asyncWrapper, log, summarizeProperty } from '@utils';
+import { asyncWrapper, summarizeProperty } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
 import { Document } from 'mongoose';
