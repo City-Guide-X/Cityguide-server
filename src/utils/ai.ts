@@ -4,7 +4,7 @@ import OpenAI from 'openai';
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export const summarizeProperty = async (property: Partial<Stay>) => {
-  const stay: any = { ...property };
+  const stay: any = JSON.parse(JSON.stringify(property));
   delete stay.avatar;
   delete stay.images;
   stay.accommodation.forEach((a: any) => {
