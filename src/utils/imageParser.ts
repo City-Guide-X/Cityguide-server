@@ -11,7 +11,6 @@ const storage = new CloudinaryStorage({
   cloudinary,
   params: {
     folder: 'cityguide',
-    transformation: [{ width: 500, height: 500, crop: 'limit' }],
     allowed_formats: ['jpg', 'png', 'webp', 'jpeg', 'svg', 'gif'],
     unique_filename: true,
   },

@@ -26,7 +26,7 @@ router.use(requireAuth);
 router.get('/verifyemail/:otp', validateSchema(verifyEmailSchema), verifyEmailHandler);
 router.get('/sendverificationemail', sendVerifyEmailHandler);
 router.post('/changepassword/:otp', validateSchema(changePasswordSchema), changePasswordHandler);
-router.post('/upload', parser.array('images', 50), uploadImageHandler);
+router.post('/upload', parser.array('images', 5), uploadImageHandler);
 router.delete('/delete', deleteAccountHandler);
 router.patch(
   '/cancellationpolicy',
