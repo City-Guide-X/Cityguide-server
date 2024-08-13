@@ -4,7 +4,6 @@ import {
   addFavouritePropertyInput,
   createUserInput,
   loginUserInput,
-  removeAccommodationInput,
   removeFavouritePropertyInput,
   updateUserInput,
   upgradeUserToPartnerInput,
