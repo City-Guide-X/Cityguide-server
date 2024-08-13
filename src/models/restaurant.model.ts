@@ -8,7 +8,7 @@ import { Establishment } from './establishment.model';
 })
 export class Restaurant {
   @prop({ ref: () => 'Establishment', required: true })
-  establishment!: Ref<Establishment>;
+  partner!: Ref<Establishment>;
 
   @prop({ required: true })
   name: string;
