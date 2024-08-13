@@ -1,3 +1,4 @@
+import { BadRequestError, NotFoundError } from '@errors';
 import { privateFields } from '@models';
 import {
   addAccommodationInput,
@@ -11,28 +12,24 @@ import {
 import {
   addAccommodation,
   calculateDistance,
-  createEstablishmentStay,
-  createUserStay,
+  createStay,
   deleteStay,
   getAllStays,
-  getEstablishmentStays,
+  getPartnerStays,
   getStayById,
   getTrendingStays,
-  getUserStays,
   nearbyLocations,
   removeAccommodation,
-  udpateStay,
   updateAccommodation,
+  updateStay,
 } from '@services';
-import { EntityType } from '@types';
 import { asyncWrapper, summarizeProperty } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
-import { Document } from 'mongoose';
 
 export const createStayHandler = asyncWrapper(async (req: Request<{}, {}, createStayInput>, res: Response) => {
   const { id, type } = res.locals.user;
-  const body = { ...req.body, partner: id };
+  const body = { ...req.body, partner: id, partnerType: type };
   const locations = await nearbyLocations(body.address.geoLocation);
   let data = {
     ...body,
@@ -40,7 +37,7 @@ export const createStayHandler = asyncWrapper(async (req: Request<{}, {}, create
   };
   const summary = (await summarizeProperty(data)) as string;
   if (summary) data = { ...data, summary };
-  const stay: Document = type === EntityType.USER ? await createUserStay(data) : await createEstablishmentStay(data);
+  const stay = await createStay(data);
   return res.status(201).json({ stay: omit(stay.toJSON(), privateFields) });
 });
 
@@ -82,23 +79,17 @@ export const getTrendingStaysHandler = asyncWrapper(async (req: Request, res: Re
 });
 
 export const getPartnerStaysHandler = asyncWrapper(async (req: Request, res: Response) => {
-  const { id, type } = res.locals.user;
-  if (type === EntityType.USER) {
-    const properties = await getUserStays(id);
-    return res
-      .status(200)
-      .json({ count: properties.length, properties: properties.map((stay) => omit(stay.toJSON(), privateFields)) });
-  } else {
-    const properties = await getEstablishmentStays(id);
-    return res
-      .status(200)
-      .json({ count: properties.length, properties: properties.map((stay) => omit(stay.toJSON(), privateFields)) });
-  }
+  const { id } = res.locals.user;
+  const properties = await getPartnerStays(id);
+  return res
+    .status(200)
+    .json({ count: properties.length, properties: properties.map((stay) => omit(stay.toJSON(), privateFields)) });
 });
 
 export const getStayDetailHandler = asyncWrapper(async (req: Request<getStayDetailInput>, res: Response) => {
   const { stayId } = req.params;
   const stay = await getStayById(stayId);
+  if (!stay) throw new NotFoundError('Stay not found');
   return res.status(200).json({ stay: omit(stay.toJSON(), privateFields) });
 });
 
@@ -109,7 +100,9 @@ export const updateStayHandler = asyncWrapper(
       body,
       params: { stayId },
     } = req;
-    await udpateStay(stayId, id, body);
+    const { matchedCount, modifiedCount } = await updateStay(stayId, id, body);
+    if (!matchedCount) throw new NotFoundError('Stay not found');
+    if (!modifiedCount) throw new BadRequestError();
     return res.sendStatus(204);
   }
 );
@@ -128,7 +121,9 @@ export const addAccommodationHandler = asyncWrapper(
       body,
       params: { stayId },
     } = req;
-    await addAccommodation(stayId, id, body);
+    const { modifiedCount, matchedCount } = await addAccommodation(stayId, id, body);
+    if (!matchedCount) throw new NotFoundError('Stay not found');
+    if (!modifiedCount) throw new BadRequestError();
     return res.sendStatus(204);
   }
 );
