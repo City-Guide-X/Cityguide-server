@@ -74,11 +74,11 @@ export const updateAccommodation = async (
   );
   if (!matchedCount) {
     const stay = await StayModel.findById(_id);
-    if (stay?.partner.toString() !== partner) throw new AuthorizationError('Not authorized to update this stay');
+    if (stay?.partner.toString() !== partner) throw new AuthorizationError();
     if (!stay.accommodation.find((a) => a.id === roomId)) throw new BadRequestError('Accommodation not found');
-    throw new BadRequestError('Update failed');
+    throw new NotFoundError('Stay not found');
   }
-  if (!modifiedCount) throw new BadRequestError();
+  if (!modifiedCount) throw new NotFoundError('Stay not found');
 };
 
 export const removeAccommodation = async (_id: string, partner: string, roomId: string) => {
@@ -88,7 +88,7 @@ export const removeAccommodation = async (_id: string, partner: string, roomId: 
   );
   if (!matchedCount) {
     const stay = await StayModel.findById(_id);
-    if (stay?.partner.toString() !== partner) throw new AuthorizationError('Not authorized to update this stay');
+    if (stay?.partner.toString() !== partner) throw new AuthorizationError();
     if (!stay.accommodation.find((a) => a.id === roomId)) throw new BadRequestError('Accommodation not found');
     throw new BadRequestError('Update failed');
   }
