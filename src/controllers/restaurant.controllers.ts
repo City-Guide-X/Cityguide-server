@@ -1,3 +1,4 @@
+import { BadRequestError, NotFoundError } from '@errors';
 import { privateFields } from '@models';
 import {
   addMenuInput,
@@ -27,7 +28,7 @@ import { omit } from 'lodash';
 export const createRestaurantHandler = asyncWrapper(
   async (req: Request<{}, {}, createReservationInput>, res: Response) => {
     const { id } = res.locals.user;
-    const data = { ...req.body, establishment: id };
+    const data = { ...req.body, partner: id };
     const reservation = await createRestaurant(data);
     return res.status(201).json({ reservation: omit(reservation.toJSON(), privateFields) });
   }
@@ -71,6 +72,7 @@ export const getRestaurantDetailHandler = asyncWrapper(
   async (req: Request<getRestaurantDetailInput>, res: Response) => {
     const { restaurantId } = req.params;
     const restaurant = await getRestaurantById(restaurantId);
+    if (!restaurant) throw new NotFoundError('Restaurant not found');
     return res.status(200).json({ restaurant: omit(restaurant.toJSON(), privateFields) });
   }
 );
@@ -82,7 +84,9 @@ export const updateRestaurantHandler = asyncWrapper(
       body,
       params: { restaurantId },
     } = req;
-    await updateRestaurant(restaurantId, id, body);
+    const { matchedCount, modifiedCount } = await updateRestaurant(restaurantId, id, body);
+    if (!matchedCount) throw new NotFoundError('Restaurant not found');
+    if (!modifiedCount) throw new BadRequestError();
     return res.sendStatus(204);
   }
 );
@@ -101,7 +105,9 @@ export const addMenuHandler = asyncWrapper(
       body,
       params: { restaurantId },
     } = req;
-    await addMenu(restaurantId, id, body);
+    const { matchedCount, modifiedCount } = await addMenu(restaurantId, id, body);
+    if (!matchedCount) throw new NotFoundError('Restaurant not found');
+    if (!modifiedCount) throw new BadRequestError('Menu item not added');
     return res.sendStatus(204);
   }
 );
