@@ -16,7 +16,7 @@ import { Establishment } from './establishment.model';
 })
 export class NightLife {
   @prop({ ref: () => 'Establishment', required: true })
-  establishment!: Ref<Establishment>;
+  partner!: Ref<Establishment>;
 
   @prop({ enum: NightLifeType, required: true, type: String })
   type: NightLifeType;
