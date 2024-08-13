@@ -11,8 +11,9 @@ export const getAllNightlife = () => {
 
 export const getNightLifeById = (_id: string) => {
   return NightLifeModel.findById(_id).populate({
-    path: 'establishment',
+    path: 'partner',
     select: 'name email phoneNumber imgUrl',
+    model: 'Establishment',
   });
 };
 

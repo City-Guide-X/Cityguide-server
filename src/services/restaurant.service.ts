@@ -9,7 +9,11 @@ export const createRestaurant = (input: Partial<Restaurant>) => {
 export const getAllRestaurants = () => RestaurantModel.find({});
 
 export const getRestaurantById = (_id: string) => {
-  return RestaurantModel.findById(_id).populate('establishment', 'name email phoneNumber imgUrl');
+  return RestaurantModel.findById(_id).populate({
+    path: 'partner',
+    select: 'name email phoneNumber imgUrl',
+    model: 'Establishment',
+  });
 };
 
 export const updateRestaurant = (_id: string, partner: string, body: Partial<Restaurant>) => {
