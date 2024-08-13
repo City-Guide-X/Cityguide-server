@@ -13,7 +13,7 @@ import {
   updateReservation,
   validateReservationInput,
 } from '@services';
-import { PropertyType, Status } from '@types';
+import { IReservation, PropertyType, Status } from '@types';
 import { asyncWrapper } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
@@ -21,18 +21,16 @@ import { omit } from 'lodash';
 export const createReservationHandler = asyncWrapper(
   async (req: Request<{}, {}, createReservationInput>, res: Response) => {
     const { id } = res.locals.user;
-    const { property, ...body } = req.body;
-    const data = { ...body, property: property as any, user: id };
+    const { ownerType, ...body } = req.body;
+    let data: IReservation = { ...body, user: id };
     await validateReservationInput(data);
-    const reservation =
-      data.propertyType === PropertyType.STAY
-        ? await reserveStay(data)
-        : data.propertyType === PropertyType.RESTAURANT
-        ? await reserveRestaurant(data)
-        : await reserveNightLife(data);
+    let reservation;
+    if (data.propertyType === PropertyType.STAY) reservation = await reserveStay(data, ownerType);
+    else if (data.propertyType === PropertyType.RESTAURANT) reservation = await reserveRestaurant(data);
+    else reservation = await reserveNightLife(data);
     res.status(201).json({ reservation: omit(reservation, privateFields) });
     if (data.propertyType === PropertyType.STAY)
-      return await updateAccommodationAvailability(property, data.roomId!, -data.reservationCount);
+      return await updateAccommodationAvailability(body.property, data.roomId!, -data.reservationCount);
     return;
   }
 );
