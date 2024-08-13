@@ -12,6 +12,7 @@ import { NightLife } from './nightlife.model';
 import { Restaurant } from './restaurant.model';
 import { Stay } from './stay.model';
 import { User } from './user.model';
+import { Establishment } from './establishment.model';
 
 @modelOptions({
   schemaOptions: { timestamps: true, discriminatorKey: 'propertyType' },
@@ -24,6 +25,18 @@ export class Reservation {
 
   @prop({ ref: () => 'User', required: true })
   user!: Ref<User>;
+
+  @prop({ default: false })
+  isAgent: boolean;
+
+  @prop()
+  guestFullName: string;
+
+  @prop({ lowercase: true })
+  guestEmail: string;
+
+  @prop({ _id: false })
+  requests: string[];
 
   @prop({ enum: Status, default: Status.PENDING, type: String })
   status: Status;
@@ -56,21 +69,46 @@ export class Reservation {
   public updatedAt: Date;
 }
 
-export class StayReservation extends Reservation {
+export class UserStayReservation extends Reservation {
   @prop({ ref: () => Stay, required: true })
   property!: Ref<Stay>;
+
+  @prop({ ref: () => User, required: true })
+  owner!: Ref<User>;
+}
+export class EstablishmentStayReservation extends Reservation {
+  @prop({ ref: () => Stay, required: true })
+  property!: Ref<Stay>;
+
+  @prop({ ref: () => Establishment, required: true })
+  owner!: Ref<Establishment>;
 }
 export class RestaurantReservation extends Reservation {
   @prop({ ref: () => Restaurant, required: true })
   property!: Ref<Restaurant>;
+
+  @prop({ ref: () => Establishment, required: true })
+  owner!: Ref<Establishment>;
 }
 export class NightLifeReservation extends Reservation {
   @prop({ ref: () => NightLife, required: true })
   property!: Ref<NightLife>;
+
+  @prop({ ref: () => Establishment, required: true })
+  owner!: Ref<Establishment>;
 }
 
 export const ReservationModel = getModelForClass(Reservation);
-export const StayReservationModel = getDiscriminatorModelForClass(ReservationModel, StayReservation, PropertyType.STAY);
+export const UserStayReservationModel = getDiscriminatorModelForClass(
+  ReservationModel,
+  UserStayReservation,
+  PropertyType.STAY
+);
+export const EstablishmentStayReservationModel = getDiscriminatorModelForClass(
+  ReservationModel,
+  EstablishmentStayReservation,
+  PropertyType.STAY
+);
 export const RestaurantReservationModel = getDiscriminatorModelForClass(
   ReservationModel,
   RestaurantReservation,
