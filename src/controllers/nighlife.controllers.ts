@@ -1,3 +1,4 @@
+import { BadRequestError, NotFoundError } from '@errors';
 import { privateFields } from '@models';
 import {
   createNightLifeInput,
@@ -21,7 +22,7 @@ import { omit } from 'lodash';
 export const createNightLifeHandler = asyncWrapper(
   async (req: Request<{}, {}, createNightLifeInput>, res: Response) => {
     const { id } = res.locals.user;
-    const data = { ...req.body, establishment: id };
+    const data = { ...req.body, partner: id };
     const nightlife = await createNightLife(data);
     return res.status(201).json({ nightlife: omit(nightlife.toJSON(), privateFields) });
   }
@@ -64,7 +65,8 @@ export const getAllNightlifeHandler = asyncWrapper(
 export const getNightLifeDetailHandler = asyncWrapper(async (req: Request<getNightLifeDetailInput>, res: Response) => {
   const { nightLifeId } = req.params;
   const nightlife = await getNightLifeById(nightLifeId);
-  return res.status(200).json({ nightlife: omit(nightlife?.toJSON(), privateFields) });
+  if (!nightlife) throw new NotFoundError('Night Life not found');
+  return res.status(200).json({ nightlife: omit(nightlife.toJSON(), privateFields) });
 });
 
 export const updateNightLifeHandler = asyncWrapper(
@@ -74,7 +76,9 @@ export const updateNightLifeHandler = asyncWrapper(
       body,
       params: { nightLifeId },
     } = req;
-    await updateNightLife(nightLifeId, id, body);
+    const { matchedCount, modifiedCount } = await updateNightLife(nightLifeId, id, body);
+    if (!matchedCount) throw new NotFoundError('Night Life not found');
+    if (!modifiedCount) throw new BadRequestError();
     return res.sendStatus(204);
   }
 );
