@@ -1,54 +1,20 @@
 import { BadRequestError } from '@errors';
-import {
-  EstablishmentStayReservationModel,
-  NightLifeModel,
-  NightLifeReservation,
-  NightLifeReservationModel,
-  Reservation,
-  ReservationModel,
-  RestaurantModel,
-  RestaurantReservation,
-  RestaurantReservationModel,
-  StayModel,
-  UserStayReservation,
-  UserStayReservationModel,
-} from '@models';
-import { EntityType, PropertyType } from '@types';
+import { NightLifeModel, Reservation, ReservationModel, RestaurantModel, StayModel } from '@models';
+import { PropertyType } from '@types';
 import { isFuture, isValidDate } from '@utils';
 import dayjs from 'dayjs';
 import { Types } from 'mongoose';
 
-export const reserveStay = (input: Partial<UserStayReservation>, type: string) => {
-  return type === EntityType.USER
-    ? UserStayReservationModel.create({ ...input })
-    : EstablishmentStayReservationModel.create({ ...input });
-};
-
-export const reserveRestaurant = (input: Partial<RestaurantReservation>) => {
-  return RestaurantReservationModel.create({ ...input });
-};
-
-export const reserveNightLife = (input: Partial<NightLifeReservation>) => {
-  return NightLifeReservationModel.create({ ...input });
-};
-
-export const createReservation = (option: Partial<Reservation>, establishment: string, user: string) => {
-  return ReservationModel.create({ ...option, establishment, user });
+export const createReservation = (option: Partial<Reservation>) => {
+  return ReservationModel.create({ ...option });
 };
 
 export const getUserReservations = (user: string) => {
   return ReservationModel.find({ user });
 };
 
-export const getPartnerReservations = (id: string) => {
-  const owner = new Types.ObjectId(id);
-  return UserStayReservationModel.find({
-    $or: [
-      { owner, propertyType: PropertyType.STAY },
-      { owner, propertyType: PropertyType.RESTAURANT },
-      { owner, propertyType: PropertyType.NIGHTLIFE },
-    ],
-  }).populate({
+export const getPartnerReservations = (partner: string) => {
+  return ReservationModel.find({ partner }).populate({
     path: 'user',
     select: 'firstName lastName email phoneNumber imgUrl',
     model: 'User',
@@ -59,13 +25,13 @@ export const findReservationById = (_id: string) => {
   return ReservationModel.findOne({ _id });
 };
 
-export const updateReservation = (_id: string, option: Partial<Reservation>) => {
-  return ReservationModel.updateOne({ _id }, { ...option });
+export const updateReservation = (_id: string, isAdmin: boolean, id: string, option: Partial<Reservation>) => {
+  const searchQuery = { _id, ...(isAdmin ? { partner: id } : { user: id }) };
+  return ReservationModel.updateOne(searchQuery, { ...option });
 };
 
 export const reservationAnalytics = (
-  ownerId: string,
-  ownerType: EntityType,
+  partner: string,
   from: Date,
   to: Date,
   interval: string,
@@ -76,46 +42,9 @@ export const reservationAnalytics = (
     {
       $match: {
         createdAt: { $gte: new Date(from), $lte: new Date(dayjs(to).add(1, 'd').toISOString()) },
+        partner: new Types.ObjectId(partner),
         ...(property && { property: new Types.ObjectId(property) }),
         ...(propertyType && { propertyType }),
-      },
-    },
-    ownerType === EntityType.USER
-      ? {
-          $lookup: {
-            from: 'stays',
-            localField: 'property',
-            foreignField: '_id',
-            as: 'stay',
-            pipeline: [
-              {
-                $project: {
-                  _id: 0,
-                  partner: 1,
-                },
-              },
-            ],
-          },
-        }
-      : {
-          $lookup: {
-            from: 'restaurants',
-            localField: 'property',
-            foreignField: '_id',
-            as: 'restaurant',
-            pipeline: [
-              {
-                $project: {
-                  _id: 0,
-                  establishment: 1,
-                },
-              },
-            ],
-          },
-        },
-    {
-      $match: {
-        $or: [{ 'stay.0.partner': { $ne: ownerId } }, { 'restaurant.0.establishment': { $ne: ownerId } }],
       },
     },
     {
@@ -197,7 +126,7 @@ export const validateReservationInput = async ({
   checkOutDay,
   checkOutTime,
   noOfGuests,
-}: Partial<UserStayReservation>) => {
+}: Partial<Reservation>) => {
   if (isFuture(checkInDay!, checkInTime!)) throw new BadRequestError('The reservation date must be in the future');
   if (propertyType === PropertyType.STAY) {
     const stay = await StayModel.findById(property);

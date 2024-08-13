@@ -1,18 +1,10 @@
-import {
-  getDiscriminatorModelForClass,
-  getModelForClass,
-  index,
-  modelOptions,
-  prop,
-  Ref,
-  Severity,
-} from '@typegoose/typegoose';
-import { IGuests, PropertyType, Status } from '@types';
+import { getModelForClass, index, modelOptions, prop, Ref, Severity } from '@typegoose/typegoose';
+import { EntityType, IGuests, PropertyType, Status } from '@types';
+import { Establishment } from './establishment.model';
 import { NightLife } from './nightlife.model';
 import { Restaurant } from './restaurant.model';
 import { Stay } from './stay.model';
 import { User } from './user.model';
-import { Establishment } from './establishment.model';
 
 @modelOptions({
   schemaOptions: { timestamps: true, discriminatorKey: 'propertyType' },
@@ -20,11 +12,20 @@ import { Establishment } from './establishment.model';
 })
 @index({ createdAt: 1 })
 export class Reservation {
+  @prop({ required: true, refPath: 'propertyType' })
+  property!: Ref<Stay | Restaurant | NightLife>;
+
   @prop({ enum: PropertyType, required: true, type: String })
   propertyType: PropertyType;
 
   @prop({ ref: () => 'User', required: true })
   user!: Ref<User>;
+
+  @prop({ required: true, refPath: 'ownerType' })
+  partner!: Ref<User | Establishment>;
+
+  @prop({ enum: EntityType, required: true, type: String })
+  partnerType!: EntityType;
 
   @prop({ default: false })
   isAgent: boolean;
@@ -69,53 +70,4 @@ export class Reservation {
   public updatedAt: Date;
 }
 
-export class UserStayReservation extends Reservation {
-  @prop({ ref: () => Stay, required: true })
-  property!: Ref<Stay>;
-
-  @prop({ ref: () => User, required: true })
-  owner!: Ref<User>;
-}
-export class EstablishmentStayReservation extends Reservation {
-  @prop({ ref: () => Stay, required: true })
-  property!: Ref<Stay>;
-
-  @prop({ ref: () => Establishment, required: true })
-  owner!: Ref<Establishment>;
-}
-export class RestaurantReservation extends Reservation {
-  @prop({ ref: () => Restaurant, required: true })
-  property!: Ref<Restaurant>;
-
-  @prop({ ref: () => Establishment, required: true })
-  owner!: Ref<Establishment>;
-}
-export class NightLifeReservation extends Reservation {
-  @prop({ ref: () => NightLife, required: true })
-  property!: Ref<NightLife>;
-
-  @prop({ ref: () => Establishment, required: true })
-  owner!: Ref<Establishment>;
-}
-
 export const ReservationModel = getModelForClass(Reservation);
-export const UserStayReservationModel = getDiscriminatorModelForClass(
-  ReservationModel,
-  UserStayReservation,
-  PropertyType.STAY
-);
-export const EstablishmentStayReservationModel = getDiscriminatorModelForClass(
-  ReservationModel,
-  EstablishmentStayReservation,
-  PropertyType.STAY
-);
-export const RestaurantReservationModel = getDiscriminatorModelForClass(
-  ReservationModel,
-  RestaurantReservation,
-  PropertyType.RESTAURANT
-);
-export const NightLifeReservationModel = getDiscriminatorModelForClass(
-  ReservationModel,
-  NightLifeReservation,
-  PropertyType.NIGHTLIFE
-);

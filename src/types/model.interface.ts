@@ -134,6 +134,6 @@ export interface IReservation {
   noOfGuests: IGuests;
   price?: number;
   property: any;
-  owner: any;
-  ownerType: EntityType;
+  partner: any;
+  partnerType: EntityType;
 }

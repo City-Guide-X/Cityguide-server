@@ -1,19 +1,21 @@
-import { AuthorizationError, BadRequestError, NotFoundError } from '@errors';
+import { BadRequestError, NotFoundError } from '@errors';
 import { privateFields } from '@models';
-import { createReservationInput, reservationAnalyticsInput, updateReservationInput } from '@schemas';
 import {
-  findReservationById,
+  cancelReservationInput,
+  createReservationInput,
+  reservationAnalyticsInput,
+  updateReservationInput,
+} from '@schemas';
+import {
+  createReservation,
   getPartnerReservations,
   getUserReservations,
   reservationAnalytics,
-  reserveNightLife,
-  reserveRestaurant,
-  reserveStay,
   updateAccommodationAvailability,
   updateReservation,
   validateReservationInput,
 } from '@services';
-import { EntityType, IReservation, PropertyType, Status } from '@types';
+import { IReservation, PropertyType, Status } from '@types';
 import { asyncWrapper } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
@@ -24,10 +26,7 @@ export const createReservationHandler = asyncWrapper(
     const body = req.body;
     let data: IReservation = { ...body, user: id };
     await validateReservationInput(data);
-    let reservation;
-    if (data.propertyType === PropertyType.STAY) reservation = await reserveStay(data, body.ownerType);
-    else if (data.propertyType === PropertyType.RESTAURANT) reservation = await reserveRestaurant(data);
-    else reservation = await reserveNightLife(data);
+    const reservation = await createReservation(data);
     res.status(201).json({ reservation: omit(reservation, privateFields) });
     if (data.propertyType === PropertyType.STAY)
       return await updateAccommodationAvailability(body.property, data.roomId!, -data.reservationCount);
@@ -51,29 +50,33 @@ export const getPartnerReservationsHandler = asyncWrapper(async (req: Request, r
     .json({ count: reservations.length, reservations: reservations.map((r) => omit(r.toJSON(), privateFields)) });
 });
 
+export const cancelReservationHandler = asyncWrapper(async (req: Request<cancelReservationInput>, res: Response) => {
+  const { id } = res.locals.user;
+  const { reservationId } = req.params;
+  const { matchedCount, modifiedCount } = await updateReservation(reservationId, false, id, {
+    status: Status.CANCELLED,
+  });
+  if (!matchedCount) throw new NotFoundError('Reservation not found');
+  if (!modifiedCount) throw new BadRequestError('Reservation not cancelled');
+  return res.sendStatus(204);
+});
+
 export const updateReservationHandler = asyncWrapper(
   async (req: Request<{}, {}, updateReservationInput>, res: Response) => {
-    const { id, type } = res.locals.user;
+    const { id } = res.locals.user;
     const { id: itemId, status } = req.body;
-    if (type === EntityType.USER && status !== Status.CANCELLED) throw new AuthorizationError();
-    const reservation = await findReservationById(itemId).populate('establishment', 'name', 'Establishment');
-    if (!reservation) throw new NotFoundError();
-    if (
-      (type === EntityType.ESTABLISHMENT && reservation.user.toString() !== id) ||
-      (type === EntityType.USER && reservation.user.toString !== id)
-    )
-      throw new AuthorizationError();
-    const isUpdated = await updateReservation(itemId, { status });
-    if (!isUpdated.modifiedCount) throw new BadRequestError();
+    const { matchedCount, modifiedCount } = await updateReservation(itemId, true, id, { status });
+    if (!matchedCount) throw new NotFoundError('Reservation not found');
+    if (!modifiedCount) throw new BadRequestError();
     return res.sendStatus(204);
   }
 );
 
 export const reservationAnalyticsHandler = asyncWrapper(
   async (req: Request<{}, {}, reservationAnalyticsInput>, res: Response) => {
-    const { id, type } = res.locals.user;
+    const { id } = res.locals.user;
     const { property, propertyType, from, to, interval } = req.body;
-    const analytics = await reservationAnalytics(id, type, from, to, interval, property, propertyType);
+    const analytics = await reservationAnalytics(id, from, to, interval, property, propertyType);
     return res.status(200).json({ analytics });
   }
 );

@@ -16,9 +16,9 @@ export const createReviewSchema = object({
   }),
 });
 
-export const getReviewSchema = object({
-  body: object({
-    establishment: optional(string({ required_error: 'Establishment id is required' })),
+export const getPropertyReviewSchema = object({
+  params: object({
+    propertyId: string({ required_error: 'Establishment id is required' }),
   }),
 });
 
@@ -29,5 +29,5 @@ export const deleteReviewSchema = object({
 });
 
 export type createReviewInput = TypeOf<typeof createReviewSchema>['body'];
-export type getReviewInput = TypeOf<typeof getReviewSchema>['body'];
+export type getPropertyReviewInput = TypeOf<typeof getPropertyReviewSchema>['params'];
 export type deleteReviewInput = TypeOf<typeof deleteReviewSchema>['params'];

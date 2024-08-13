@@ -1,8 +1,7 @@
 import { BadRequestError } from '@errors';
 import { privateFields } from '@models';
-import { createReviewInput, deleteReviewInput } from '@schemas';
-import { deleteReview, isPropertyType, reviewNightLife, reviewRestaurant, reviewStay } from '@services';
-import { PropertyType } from '@types';
+import { createReviewInput, deleteReviewInput, getPropertyReviewInput } from '@schemas';
+import { createReview, deleteReview, getReviews, isPropertyType } from '@services';
 import { asyncWrapper } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
@@ -13,13 +12,14 @@ export const createReviewHandler = asyncWrapper(async (req: Request<{}, {}, crea
   const data = { ...body, property: property as any, user: id };
   const isValid = await isPropertyType(property, data.propertyType);
   if (!isValid) throw new BadRequestError(`Invalid ${data.propertyType} ID`);
-  const review =
-    data.propertyType === PropertyType.STAY
-      ? await reviewStay(data)
-      : data.propertyType === PropertyType.RESTAURANT
-      ? await reviewRestaurant(data)
-      : await reviewNightLife(data);
-  return res.status(201).json({ review: omit(review, privateFields) });
+  const review = await createReview(data);
+  return res.status(201).json({ review: omit(review.toJSON(), privateFields) });
+});
+
+export const getPropertyReviewsHandler = asyncWrapper(async (req: Request<getPropertyReviewInput>, res: Response) => {
+  const { propertyId } = req.params;
+  const reviews = await getReviews(propertyId);
+  return res.status(200).json({ reviews: reviews.map((review) => omit(review.toJSON(), privateFields)) });
 });
 
 export const deleteReviewHandler = asyncWrapper(async (req: Request<deleteReviewInput>, res: Response) => {

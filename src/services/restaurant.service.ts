@@ -1,5 +1,5 @@
 import { AuthorizationError, NotFoundError } from '@errors';
-import { Restaurant, RestaurantModel, RestaurantReservationModel, RestaurantReviewModel } from '@models';
+import { ReservationModel, Restaurant, RestaurantModel, ReviewModel } from '@models';
 
 export const createRestaurant = async (input: Partial<Restaurant>) => {
   return RestaurantModel.create({ ...input });
@@ -30,8 +30,8 @@ export const deleteRestaurant = async (_id: string, establishment: string) => {
   if (!restaurant) throw new NotFoundError('Restaurant not found');
   if (restaurant.establishment.toString() !== establishment) throw new AuthorizationError();
   const deleted = await RestaurantModel.deleteOne({ _id });
-  await RestaurantReservationModel.deleteMany({ property: _id });
-  await RestaurantReviewModel.deleteMany({ property: _id });
+  await ReservationModel.deleteMany({ property: _id });
+  await ReviewModel.deleteMany({ property: _id });
   if (!deleted.deletedCount) throw new NotFoundError('Restaurant not found');
 };
 

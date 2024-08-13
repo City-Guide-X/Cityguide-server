@@ -4,10 +4,10 @@ import { boolean, coerce, nativeEnum, number, object, string, TypeOf, ZodIssueCo
 export const createReservationSchema = object({
   body: object({
     property: string({ required_error: 'Property ID is required' }),
-    owner: string({ required_error: 'Owner ID is required ' }),
-    ownerType: nativeEnum(EntityType, {
-      required_error: 'Owner Type is required',
-      invalid_type_error: 'Owner type should be User | Establishment',
+    partner: string({ required_error: 'Partner ID is required ' }),
+    partnerType: nativeEnum(EntityType, {
+      required_error: 'Partner Type is required',
+      invalid_type_error: 'Partner type should be User | Establishment',
     }),
     propertyType: nativeEnum(PropertyType, {
       required_error: 'Property type is required',
@@ -72,6 +72,12 @@ export const updateReservationSchema = object({
   }),
 });
 
+export const cancelReservationSchema = object({
+  params: object({
+    reservationId: string({ required_error: 'Reservation ID is required' }),
+  }),
+});
+
 export const reservationAnalyticsSchema = object({
   body: object({
     property: string().optional(),
@@ -87,3 +93,4 @@ export const reservationAnalyticsSchema = object({
 export type createReservationInput = TypeOf<typeof createReservationSchema>['body'];
 export type updateReservationInput = TypeOf<typeof updateReservationSchema>['body'];
 export type reservationAnalyticsInput = TypeOf<typeof reservationAnalyticsSchema>['body'];
+export type cancelReservationInput = TypeOf<typeof cancelReservationSchema>['params'];

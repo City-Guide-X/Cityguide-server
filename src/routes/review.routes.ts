@@ -1,12 +1,12 @@
-import { createReviewHandler, deleteReviewHandler } from '@controllers';
+import { createReviewHandler, deleteReviewHandler, getPropertyReviewsHandler } from '@controllers';
 import { requireAuth, userOnly, validateSchema } from '@middlewares';
-import { createReviewSchema, deleteReviewSchema } from '@schemas';
+import { createReviewSchema, deleteReviewSchema, getPropertyReviewSchema } from '@schemas';
 import { Router } from 'express';
 
 const router = Router();
-
-router.use(requireAuth);
 router.use(userOnly);
+router.get('/:propertyId', validateSchema(getPropertyReviewSchema), getPropertyReviewsHandler);
+router.use(requireAuth);
 router.post('/', validateSchema(createReviewSchema), createReviewHandler);
 router.delete('/:reviewId', validateSchema(deleteReviewSchema), deleteReviewHandler);
 
