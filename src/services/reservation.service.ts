@@ -1,5 +1,6 @@
 import { BadRequestError } from '@errors';
 import {
+  EstablishmentStayReservationModel,
   NightLifeModel,
   NightLifeReservation,
   NightLifeReservationModel,
@@ -9,16 +10,18 @@ import {
   RestaurantReservation,
   RestaurantReservationModel,
   StayModel,
-  StayReservation,
-  StayReservationModel,
+  UserStayReservation,
+  UserStayReservationModel,
 } from '@models';
 import { PropertyType } from '@types';
 import { isFuture, isValidDate } from '@utils';
 import dayjs from 'dayjs';
 import { Types } from 'mongoose';
 
-export const reserveStay = (input: Partial<StayReservation>) => {
-  return StayReservationModel.create({ ...input });
+export const reserveStay = (input: Partial<UserStayReservation>, type: string) => {
+  return type === 'USER'
+    ? UserStayReservationModel.create({ ...input })
+    : EstablishmentStayReservationModel.create({ ...input });
 };
 
 export const reserveRestaurant = (input: Partial<RestaurantReservation>) => {
@@ -43,7 +46,7 @@ export const getAllUserReservations = async (id: string) => {
 export const getAllEstablishmentReservations = async (id: string) => {
   const res = await Promise.all([
     ...(
-      await StayReservationModel.find().populate('property', 'partner partnerType name avatar', 'Stay')
+      await UserStayReservationModel.find().populate('property', 'partner partnerType name avatar', 'Stay')
     ).filter((res: any) => res.property?.partner?.toString() === id),
     ...(
       await RestaurantReservationModel.find().populate('property', 'establishment name avatar', 'Restaurant')
@@ -197,7 +200,7 @@ export const validateReservationInput = async ({
   checkOutDay,
   checkOutTime,
   noOfGuests,
-}: Partial<StayReservation>) => {
+}: Partial<UserStayReservation>) => {
   if (isFuture(checkInDay!, checkInTime!)) throw new BadRequestError('The reservation date must be in the future');
   if (propertyType === PropertyType.STAY) {
     const stay = await StayModel.findById(property);

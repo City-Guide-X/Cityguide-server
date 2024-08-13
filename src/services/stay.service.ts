@@ -2,9 +2,9 @@ import { AuthorizationError, BadRequestError, NotFoundError } from '@errors';
 import {
   EstablishmentStay,
   EstablishmentStayModel,
+  ReservationModel,
+  ReviewModel,
   StayModel,
-  StayReservationModel,
-  StayReviewModel,
   UserStay,
   UserStayModel,
 } from '@models';
@@ -23,7 +23,7 @@ export const getStayById = async (_id: string) => {
   const stay = await StayModel.findById(_id);
   if (!stay) throw new NotFoundError('Stay not found');
   if (stay?.partnerType === 'USER')
-    return stay?.populate({ path: 'partner', select: 'name email phoneNumber imgUrl', model: 'User' });
+    return stay?.populate({ path: 'partner', select: 'firstName lastName email phoneNumber imgUrl', model: 'User' });
   return stay?.populate({ path: 'partner', select: 'name email phoneNumber imgUrl', model: 'Establishment' });
 };
 
@@ -61,8 +61,8 @@ export const deleteStay = async (_id: string, partner: string) => {
   if (!stay) throw new NotFoundError('Stay not found');
   if (stay.partner.toString() !== partner) throw new AuthorizationError();
   const deleted = await StayModel.deleteOne({ _id });
-  await StayReservationModel.deleteMany({ property: _id });
-  await StayReviewModel.deleteMany({ property: _id });
+  await ReservationModel.deleteMany({ property: _id });
+  await ReviewModel.deleteMany({ property: _id });
   if (!deleted.deletedCount) throw new NotFoundError('Stay not found');
 };
 
