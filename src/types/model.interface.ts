@@ -1,4 +1,4 @@
-import { Parking } from './enums';
+import { Parking, PropertyType, Status } from './enums';
 
 // General
 export interface ISocialLink {
@@ -110,4 +110,29 @@ export interface IExtraInfo {
     info?: string;
     locations?: { name: string; distance: string }[];
   };
+}
+
+// Reservations
+export interface IReservation {
+  propertyType: PropertyType;
+  user?: any;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phoneNumber?: string;
+  isAgent?: boolean;
+  guestFullName?: string;
+  guestEmail?: string;
+  requests?: string[];
+  status?: Status;
+  checkInDay: Date;
+  checkInTime: string;
+  checkOutDay: Date;
+  checkOutTime: string;
+  roomId?: string;
+  reservationCount: number;
+  noOfGuests: IGuests;
+  price?: number;
+  property: any;
+  owner: any;
 }
