@@ -3,8 +3,8 @@ import { privateFields } from '@models';
 import { createReservationInput, reservationAnalyticsInput, updateReservationInput } from '@schemas';
 import {
   findReservationById,
-  getAllEstablishmentReservations,
-  getAllUserReservations,
+  getPartnerReservations,
+  getUserReservations,
   reservationAnalytics,
   reserveNightLife,
   reserveRestaurant,
@@ -13,7 +13,7 @@ import {
   updateReservation,
   validateReservationInput,
 } from '@services';
-import { IReservation, PropertyType, Status } from '@types';
+import { EntityType, IReservation, PropertyType, Status } from '@types';
 import { asyncWrapper } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
@@ -21,11 +21,11 @@ import { omit } from 'lodash';
 export const createReservationHandler = asyncWrapper(
   async (req: Request<{}, {}, createReservationInput>, res: Response) => {
     const { id } = res.locals.user;
-    const { ownerType, ...body } = req.body;
+    const body = req.body;
     let data: IReservation = { ...body, user: id };
     await validateReservationInput(data);
     let reservation;
-    if (data.propertyType === PropertyType.STAY) reservation = await reserveStay(data, ownerType);
+    if (data.propertyType === PropertyType.STAY) reservation = await reserveStay(data, body.ownerType);
     else if (data.propertyType === PropertyType.RESTAURANT) reservation = await reserveRestaurant(data);
     else reservation = await reserveNightLife(data);
     res.status(201).json({ reservation: omit(reservation, privateFields) });
@@ -35,22 +35,32 @@ export const createReservationHandler = asyncWrapper(
   }
 );
 
-export const getReservationsHandler = asyncWrapper(async (req: Request, res: Response) => {
-  const { id, type } = res.locals.user;
-  const reservations = type === 'USER' ? await getAllUserReservations(id) : await getAllEstablishmentReservations(id);
-  return res.status(200).json({ count: reservations.length, reservations });
+export const getUserReservationsHandler = asyncWrapper(async (req: Request, res: Response) => {
+  const { id } = res.locals.user;
+  const reservations = await getUserReservations(id);
+  return res
+    .status(200)
+    .json({ count: reservations.length, reservations: reservations.map((r) => omit(r.toJSON(), privateFields)) });
+});
+
+export const getPartnerReservationsHandler = asyncWrapper(async (req: Request, res: Response) => {
+  const { id } = res.locals.user;
+  const reservations = await getPartnerReservations(id);
+  return res
+    .status(200)
+    .json({ count: reservations.length, reservations: reservations.map((r) => omit(r.toJSON(), privateFields)) });
 });
 
 export const updateReservationHandler = asyncWrapper(
   async (req: Request<{}, {}, updateReservationInput>, res: Response) => {
     const { id, type } = res.locals.user;
     const { id: itemId, status } = req.body;
-    if (type === 'USER' && status !== Status.CANCELLED) throw new AuthorizationError();
+    if (type === EntityType.USER && status !== Status.CANCELLED) throw new AuthorizationError();
     const reservation = await findReservationById(itemId).populate('establishment', 'name', 'Establishment');
     if (!reservation) throw new NotFoundError();
     if (
-      (type === 'ESTABLISHMENT' && reservation.user.toString() !== id) ||
-      (type === 'USER' && reservation.user.toString !== id)
+      (type === EntityType.ESTABLISHMENT && reservation.user.toString() !== id) ||
+      (type === EntityType.USER && reservation.user.toString !== id)
     )
       throw new AuthorizationError();
     const isUpdated = await updateReservation(itemId, { status });
