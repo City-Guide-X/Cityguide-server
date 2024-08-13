@@ -1,12 +1,5 @@
-import {
-  getDiscriminatorModelForClass,
-  getModelForClass,
-  modelOptions,
-  prop,
-  Ref,
-  Severity,
-} from '@typegoose/typegoose';
-import { IAccommodation, IAddress, IExtraInfo, IStayRules, MaxDays, Rating, StayType } from '@types';
+import { getModelForClass, modelOptions, prop, Ref, Severity } from '@typegoose/typegoose';
+import { EntityType, IAccommodation, IAddress, IExtraInfo, IStayRules, MaxDays, Rating, StayType } from '@types';
 import { Establishment } from './establishment.model';
 import { User } from './user.model';
 
@@ -15,8 +8,11 @@ import { User } from './user.model';
   options: { allowMixed: Severity.ALLOW },
 })
 export class Stay {
-  @prop({ required: true })
-  partnerType: string;
+  @prop({ required: true, refPath: 'partnerType' })
+  partner!: Ref<User | Establishment>;
+
+  @prop({ enum: EntityType, required: true, type: String })
+  partnerType: EntityType;
 
   @prop({ enum: StayType, required: true, type: String })
   type!: StayType;
@@ -64,16 +60,4 @@ export class Stay {
   public updatedAt: Date;
 }
 
-export class UserStay extends Stay {
-  @prop({ ref: () => User, required: true })
-  partner!: Ref<User>;
-}
-
-export class EstablishmentStay extends Stay {
-  @prop({ ref: () => Establishment, required: true })
-  partner!: Ref<Establishment>;
-}
-
 export const StayModel = getModelForClass(Stay);
-export const UserStayModel = getDiscriminatorModelForClass(StayModel, UserStay, 'USER');
-export const EstablishmentStayModel = getDiscriminatorModelForClass(StayModel, EstablishmentStay, 'ESTABLISHMENT');
