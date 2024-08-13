@@ -2,17 +2,17 @@ import { AuthorizationError, BadRequestError, NotFoundError } from '@errors';
 import { ReservationModel, Restaurant, RestaurantModel, ReviewModel } from '@models';
 import { IMenu } from '@types';
 
-export const createRestaurant = async (input: Partial<Restaurant>) => {
+export const createRestaurant = (input: Partial<Restaurant>) => {
   return RestaurantModel.create({ ...input });
 };
 
 export const getAllRestaurants = () => RestaurantModel.find({});
 
-export const getRestaurantById = async (_id: string) => {
+export const getRestaurantById = (_id: string) => {
   return RestaurantModel.findById(_id).populate('establishment', 'name email phoneNumber imgUrl');
 };
 
-export const updateRestaurant = async (_id: string, partner: string, body: Partial<Restaurant>) => {
+export const updateRestaurant = (_id: string, partner: string, body: Partial<Restaurant>) => {
   return RestaurantModel.updateOne({ _id, partner }, { $set: body });
 };
 
@@ -22,7 +22,7 @@ export const deleteRestaurant = async (_id: string, partner: string) => {
   await Promise.all([ReservationModel.deleteMany({ property: _id }), ReviewModel.deleteMany({ property: _id })]);
 };
 
-export const addMenu = async (_id: string, partner: string, menu: IMenu[]) => {
+export const addMenu = (_id: string, partner: string, menu: IMenu[]) => {
   return RestaurantModel.updateOne({ _id, partner }, { $addToSet: { menu: { $each: menu } } });
 };
 

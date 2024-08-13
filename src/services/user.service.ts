@@ -1,5 +1,5 @@
 import { User, UserModel } from '@models';
-import { ICancellation, IFavProperties, PropertyType } from '@types';
+import { ICancellation, IFavProperties } from '@types';
 
 export const createUser = (input: Partial<User>) => {
   return UserModel.create({ ...input });

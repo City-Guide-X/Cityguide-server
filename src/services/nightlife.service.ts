@@ -1,7 +1,7 @@
 import { NotFoundError } from '@errors';
 import { NightLife, NightLifeModel, ReservationModel, ReviewModel } from '@models';
 
-export const createNightLife = async (input: Partial<NightLife>) => {
+export const createNightLife = (input: Partial<NightLife>) => {
   return NightLifeModel.create({ ...input });
 };
 

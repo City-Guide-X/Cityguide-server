@@ -1,18 +1,8 @@
 import { AuthorizationError, BadRequestError, NotFoundError } from '@errors';
-import {
-  EstablishmentModel,
-  // EstablishmentStay,
-  // EstablishmentStayModel,
-  ReservationModel,
-  ReviewModel,
-  Stay,
-  StayModel,
-  // UserStay,
-  // UserStayModel,
-} from '@models';
-import { EntityType, IAccommodation } from '@types';
+import { ReservationModel, ReviewModel, Stay, StayModel } from '@models';
+import { IAccommodation } from '@types';
 
-export const createStay = async (input: Partial<Stay>) => {
+export const createStay = (input: Partial<Stay>) => {
   return StayModel.create({ ...input });
 };
 
@@ -24,14 +14,14 @@ export const getPartnerStays = (partner: string) => {
   return StayModel.find({ partner }).sort('-created');
 };
 
-export const getStayById = async (_id: string) => {
+export const getStayById = (_id: string) => {
   return StayModel.findById(_id).populate({
     path: 'partner',
     select: 'firstName lastName name email phoneNumber imgUrl',
   });
 };
 
-export const getTrendingStays = async () => {
+export const getTrendingStays = () => {
   return StayModel.aggregate([
     {
       $lookup: {
@@ -95,6 +85,6 @@ export const removeAccommodation = async (_id: string, partner: string, roomId: 
   if (!modifiedCount) throw new BadRequestError();
 };
 
-export const updateAccommodationAvailability = async (_id: string, roomId: string, quantity: number) => {
+export const updateAccommodationAvailability = (_id: string, roomId: string, quantity: number) => {
   return StayModel.updateOne({ _id, 'accommodation.id': roomId }, { $inc: { 'accommodation.$.available': quantity } });
 };
