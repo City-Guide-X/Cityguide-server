@@ -13,13 +13,13 @@ import {
   UserStayReservation,
   UserStayReservationModel,
 } from '@models';
-import { PropertyType } from '@types';
+import { EntityType, PropertyType } from '@types';
 import { isFuture, isValidDate } from '@utils';
 import dayjs from 'dayjs';
 import { Types } from 'mongoose';
 
 export const reserveStay = (input: Partial<UserStayReservation>, type: string) => {
-  return type === 'USER'
+  return type === EntityType.USER
     ? UserStayReservationModel.create({ ...input })
     : EstablishmentStayReservationModel.create({ ...input });
 };
@@ -36,26 +36,23 @@ export const createReservation = (option: Partial<Reservation>, establishment: s
   return ReservationModel.create({ ...option, establishment, user });
 };
 
-export const getAllUserReservations = async (id: string) => {
-  const res = (await ReservationModel.find().populate('property', 'partnerType partner', 'Stay')).filter(
-    (res: any) => res.property?.partner?.toString() === id
-  );
-  return res;
+export const getUserReservations = (user: string) => {
+  return ReservationModel.find({ user });
 };
 
-export const getAllEstablishmentReservations = async (id: string) => {
-  const res = await Promise.all([
-    ...(
-      await UserStayReservationModel.find().populate('property', 'partner partnerType name avatar', 'Stay')
-    ).filter((res: any) => res.property?.partner?.toString() === id),
-    ...(
-      await RestaurantReservationModel.find().populate('property', 'establishment name avatar', 'Restaurant')
-    ).filter((res: any) => res.property?.establishment?.toString() === id),
-    ...(
-      await NightLifeReservationModel.find().populate('property', 'establishment name avatar', 'NightLife')
-    ).filter((res: any) => res.property?.establishment?.toString() === id),
-  ]);
-  return res;
+export const getPartnerReservations = (id: string) => {
+  const owner = new Types.ObjectId(id);
+  return UserStayReservationModel.find({
+    $or: [
+      { owner, propertyType: PropertyType.STAY },
+      { owner, propertyType: PropertyType.RESTAURANT },
+      { owner, propertyType: PropertyType.NIGHTLIFE },
+    ],
+  }).populate({
+    path: 'user',
+    select: 'firstName lastName email phoneNumber imgUrl',
+    model: 'User',
+  });
 };
 
 export const findReservationById = (_id: string) => {
@@ -68,7 +65,7 @@ export const updateReservation = (_id: string, option: Partial<Reservation>) => 
 
 export const reservationAnalytics = (
   ownerId: string,
-  ownerType: 'USER' | 'ESTABLISHMENT',
+  ownerType: EntityType,
   from: Date,
   to: Date,
   interval: string,
@@ -83,7 +80,7 @@ export const reservationAnalytics = (
         ...(propertyType && { propertyType }),
       },
     },
-    ownerType === 'USER'
+    ownerType === EntityType.USER
       ? {
           $lookup: {
             from: 'stays',
