@@ -1,9 +1,14 @@
 import { PropertyType, Status } from '@types';
-import { coerce, nativeEnum, number, object, string, TypeOf } from 'zod';
+import { boolean, coerce, nativeEnum, number, object, string, TypeOf, ZodIssueCode } from 'zod';
 
 export const createReservationSchema = object({
   body: object({
-    property: string({ required_error: 'Property id is required' }),
+    property: string({ required_error: 'Property ID is required' }),
+    owner: string({ required_error: 'Owner ID is required ' }),
+    ownerType: string({ required_error: 'Owner type is required' }).regex(
+      /USER|ESTABLISHMENT/i,
+      'Owner type should be 1 of USER and ESTABLISHMENT'
+    ),
     propertyType: nativeEnum(PropertyType, {
       required_error: 'Property type is required',
       invalid_type_error: 'Property type should be a Stay | Restaurant | NightLife',
@@ -37,14 +42,27 @@ export const createReservationSchema = object({
       { required_error: 'Number of guests is required' }
     ),
     price: number({ invalid_type_error: 'Price is a number' }).optional(),
-  }).refine(
-    (data) =>
-      data.propertyType !== PropertyType.STAY || (data.propertyType === PropertyType.STAY && data.roomId && data.price),
-    {
-      message: 'Room ID and Price are required for Stay reservations',
-      path: ['roomId', 'price'],
+    guestFullName: string().optional(),
+    guestEmail: string().email('Invalid email').optional(),
+    requests: string().array().min(1, 'Atleast 1 request').optional(),
+    isAgent: boolean({
+      invalid_type_error: 'isAgent should be true if reservation is for someone else and false otherwise',
+    }).optional(),
+  }).superRefine((data, ctx) => {
+    if (data.propertyType === PropertyType.STAY && (!data.roomId || !data.price)) {
+      ctx.addIssue({
+        code: ZodIssueCode.custom,
+        message: 'Room ID and Price are required for Stay reservations',
+        path: ['roomId', 'price'],
+      });
     }
-  ),
+    if (data.isAgent && (!data.guestEmail || !data.guestFullName))
+      ctx.addIssue({
+        code: ZodIssueCode.custom,
+        message: 'Please fill the guest full name and email',
+        path: ['isAgent', 'guestFullName', 'guestEmail'],
+      });
+  }),
 });
 
 export const updateReservationSchema = object({
