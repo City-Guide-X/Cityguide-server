@@ -1,4 +1,4 @@
-import { Parking, PropertyType, Status } from './enums';
+import { EntityType, Parking, PropertyType, Status } from './enums';
 
 // General
 export interface ISocialLink {
@@ -135,4 +135,5 @@ export interface IReservation {
   price?: number;
   property: any;
   owner: any;
+  ownerType: EntityType;
 }

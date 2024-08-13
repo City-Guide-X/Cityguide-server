@@ -8,6 +8,7 @@ import {
   UserStay,
   UserStayModel,
 } from '@models';
+import { EntityType } from '@types';
 
 export const createUserStay = async (input: Partial<UserStay>) => {
   return UserStayModel.create({ ...input });
@@ -22,7 +23,7 @@ export const getEstablishmentStays = (partner: string) => EstablishmentStayModel
 export const getStayById = async (_id: string) => {
   const stay = await StayModel.findById(_id);
   if (!stay) throw new NotFoundError('Stay not found');
-  if (stay?.partnerType === 'USER')
+  if (stay?.partnerType === EntityType.USER)
     return stay?.populate({ path: 'partner', select: 'firstName lastName email phoneNumber imgUrl', model: 'User' });
   return stay?.populate({ path: 'partner', select: 'name email phoneNumber imgUrl', model: 'Establishment' });
 };

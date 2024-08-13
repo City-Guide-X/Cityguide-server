@@ -17,7 +17,7 @@ import {
   setUserRefreshToken,
   signTokens,
 } from '@services';
-import { IPayload } from '@types';
+import { EntityType, IPayload } from '@types';
 import { asyncWrapper, sendEmail, verifyCode, verifyJWT } from '@utils';
 import { Request, Response } from 'express';
 
@@ -27,10 +27,10 @@ export const refreshAccessTokenHandler = asyncWrapper(
     const decoded = verifyJWT<IPayload>(refreshToken, 'refresh');
     if (!decoded) throw new AuthorizationError();
     const { id, type } = decoded;
-    const user = type === 'USER' ? await findUserById(id) : await findEstablishmentById(id);
+    const user = type === EntityType.USER ? await findUserById(id) : await findEstablishmentById(id);
     if (!user) throw new NotFoundError();
     if (refreshToken !== user.refreshToken) throw new AuthorizationError();
-    const isPartner = type === 'USER' ? (user as User).isPartner : true;
+    const isPartner = type === EntityType.USER ? (user as User).isPartner : true;
     const { accessToken } = signTokens({ id, type, isPartner, token: 'access' });
     return res.status(200).json({ accessToken });
   }
@@ -40,7 +40,7 @@ export const verifyEmailHandler = asyncWrapper(async (req: Request<verifyEmailIn
   const { otp } = req.params;
   const { id, type } = res.locals.user;
   const message = 'Verification failed';
-  const user = type === 'USER' ? await findUserById(id) : await findEstablishmentById(id);
+  const user = type === EntityType.USER ? await findUserById(id) : await findEstablishmentById(id);
   if (!user) throw new NotFoundError(message);
   if (user.emailIsVerified) return res.sendStatus(204);
   if (user.otp === +otp) {
@@ -55,7 +55,7 @@ export const verifyEmailHandler = asyncWrapper(async (req: Request<verifyEmailIn
 export const sendVerifyEmailHandler = asyncWrapper(async (req: Request, res: Response) => {
   const { id, type } = res.locals.user;
   let user, name, otp;
-  if (type === 'USER') {
+  if (type === EntityType.USER) {
     user = await findUserById(id);
     name = `${user?.firstName} ${user?.lastName}`;
   } else {
@@ -80,7 +80,7 @@ export const changeCancellationPolicyHandler = asyncWrapper(
     const { id, type } = res.locals.user;
     const cancellation = req.body;
     const isUpdated =
-      type === 'USER'
+      type === EntityType.USER
         ? await changeUserCancellationPolicy(id, cancellation)
         : await changeEstablishmentCancellationPolicy(id, cancellation);
     if (!isUpdated.modifiedCount) throw new BadRequestError('Could not change cancellation policy');
@@ -101,7 +101,7 @@ export const changePasswordHandler = asyncWrapper(
       params: { otp },
     } = req;
     const { id, type } = res.locals.user;
-    const user = type === 'USER' ? await findUserById(id) : await findEstablishmentById(id);
+    const user = type === EntityType.USER ? await findUserById(id) : await findEstablishmentById(id);
     if (!user || !user.otp || user.otp !== +otp) throw new BadRequestError('Invalid OTP code');
     if (!user.emailIsVerified) user.emailIsVerified = true;
     user.otp = null;
@@ -113,18 +113,18 @@ export const changePasswordHandler = asyncWrapper(
 
 export const logoutHandler = asyncWrapper(async (req: Request, res: Response) => {
   const { id, type } = res.locals.user;
-  const user = type === 'USER' ? await findUserById(id) : await findEstablishmentById(id);
+  const user = type === EntityType.USER ? await findUserById(id) : await findEstablishmentById(id);
   if (!user) return res.sendStatus(204);
-  if (type === 'USER') await setUserRefreshToken(id, null);
+  if (type === EntityType.USER) await setUserRefreshToken(id, null);
   else await setEstablishmentRefreshToken(id, null);
   return res.sendStatus(204);
 });
 
 export const deleteAccountHandler = asyncWrapper(async (req: Request, res: Response) => {
   const { id, type } = res.locals.user;
-  const user = type === 'USER' ? await findUserById(id) : await findEstablishmentById(id);
+  const user = type === EntityType.USER ? await findUserById(id) : await findEstablishmentById(id);
   if (!user) return res.sendStatus(204);
-  if (type === 'USER') await deleteUser(id);
+  if (type === EntityType.USER) await deleteUser(id);
   else await deleteEstablishment(id);
   return res.sendStatus(204);
 });

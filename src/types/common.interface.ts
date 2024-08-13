@@ -1,4 +1,4 @@
-import { DayOfWeek, PropertyType, Rating } from './enums';
+import { DayOfWeek, EntityType, PropertyType, Rating } from './enums';
 
 export interface ILatLng {
   lat: number;
@@ -28,7 +28,7 @@ export interface IAvailability {
 
 export interface IPayload {
   id: string;
-  type: 'USER' | 'ESTABLISHMENT';
+  type: EntityType;
   isPartner: boolean;
 }
 

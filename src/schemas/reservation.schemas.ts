@@ -1,14 +1,14 @@
-import { PropertyType, Status } from '@types';
+import { EntityType, PropertyType, Status } from '@types';
 import { boolean, coerce, nativeEnum, number, object, string, TypeOf, ZodIssueCode } from 'zod';
 
 export const createReservationSchema = object({
   body: object({
     property: string({ required_error: 'Property ID is required' }),
     owner: string({ required_error: 'Owner ID is required ' }),
-    ownerType: string({ required_error: 'Owner type is required' }).regex(
-      /USER|ESTABLISHMENT/i,
-      'Owner type should be 1 of USER and ESTABLISHMENT'
-    ),
+    ownerType: nativeEnum(EntityType, {
+      required_error: 'Owner Type is required',
+      invalid_type_error: 'Owner type should be User | Establishment',
+    }),
     propertyType: nativeEnum(PropertyType, {
       required_error: 'Property type is required',
       invalid_type_error: 'Property type should be a Stay | Restaurant | NightLife',

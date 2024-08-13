@@ -1,4 +1,5 @@
 import { AuthorizationError } from '@errors';
+import { EntityType } from '@types';
 import { NextFunction, Request, Response } from 'express';
 
 export const requireAuth = (req: Request, res: Response, next: NextFunction) => {
@@ -8,13 +9,13 @@ export const requireAuth = (req: Request, res: Response, next: NextFunction) => 
 
 export const userOnly = (req: Request, res: Response, next: NextFunction) => {
   const { type } = res.locals.user;
-  if (type !== 'USER') throw new AuthorizationError('Only users can perform this operation');
+  if (type !== EntityType.USER) throw new AuthorizationError('Only users can perform this operation');
   return next();
 };
 
 export const establishmentOnly = (req: Request, res: Response, next: NextFunction) => {
   const { type } = res.locals.user;
-  if (type !== 'ESTABLISHMENT') throw new AuthorizationError('Only establishments can perform this operation');
+  if (type !== EntityType.ESTABLISHMENT) throw new AuthorizationError('Only establishments can perform this operation');
   return next();
 };
 

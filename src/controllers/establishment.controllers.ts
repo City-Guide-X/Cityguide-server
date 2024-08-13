@@ -9,6 +9,7 @@ import {
   signTokens,
   updateEstablishmentInfo,
 } from '@services';
+import { EntityType } from '@types';
 import { asyncWrapper, sendEmail } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
@@ -27,7 +28,7 @@ export const createEstablishmentHandler = asyncWrapper(
     });
     const { accessToken, refreshToken } = signTokens({
       id: establishment._id.toString(),
-      type: 'ESTABLISHMENT',
+      type: EntityType.ESTABLISHMENT,
       isPartner: true,
     });
     await setEstablishmentRefreshToken(establishment._id.toString(), refreshToken!);
@@ -47,7 +48,7 @@ export const loginEstablishmentHandler = asyncWrapper(
     if (!isEstablishment) throw new AuthenticationError(message);
     const { accessToken, refreshToken } = signTokens({
       id: establishment._id.toString(),
-      type: 'ESTABLISHMENT',
+      type: EntityType.ESTABLISHMENT,
       isPartner: true,
     });
     await setEstablishmentRefreshToken(establishment._id.toString(), refreshToken!);

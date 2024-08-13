@@ -24,6 +24,7 @@ import {
   udpateStay,
   updateAccommodation,
 } from '@services';
+import { EntityType } from '@types';
 import { asyncWrapper, summarizeProperty } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
@@ -39,7 +40,7 @@ export const createStayHandler = asyncWrapper(async (req: Request<{}, {}, create
   };
   const summary = (await summarizeProperty(data)) as string;
   if (summary) data = { ...data, summary };
-  const stay: Document = type === 'USER' ? await createUserStay(data) : await createEstablishmentStay(data);
+  const stay: Document = type === EntityType.USER ? await createUserStay(data) : await createEstablishmentStay(data);
   return res.status(201).json({ stay: omit(stay.toJSON(), privateFields) });
 });
 
@@ -82,7 +83,7 @@ export const getTrendingStaysHandler = asyncWrapper(async (req: Request, res: Re
 
 export const getPartnerStaysHandler = asyncWrapper(async (req: Request, res: Response) => {
   const { id, type } = res.locals.user;
-  if (type === 'USER') {
+  if (type === EntityType.USER) {
     const properties = await getUserStays(id);
     return res
       .status(200)

@@ -19,6 +19,7 @@ import {
   signTokens,
   updateUserInfo,
 } from '@services';
+import { EntityType } from '@types';
 import { asyncWrapper, sendEmail } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
@@ -36,7 +37,7 @@ export const createUserHandler = asyncWrapper(async (req: Request<{}, {}, create
   });
   const { accessToken, refreshToken } = signTokens({
     id: user._id.toString(),
-    type: 'USER',
+    type: EntityType.USER,
     isPartner: user.isPartner,
   });
   await setUserRefreshToken(user._id.toString(), refreshToken!);
@@ -52,7 +53,7 @@ export const loginUserHandler = asyncWrapper(async (req: Request<{}, {}, loginUs
   if (!isUser) throw new AuthenticationError(message);
   const { accessToken, refreshToken } = signTokens({
     id: user._id.toString(),
-    type: 'USER',
+    type: EntityType.USER,
     isPartner: user.isPartner,
   });
   await setUserRefreshToken(user._id.toString(), refreshToken!);
@@ -68,7 +69,7 @@ export const socialAuthHandler = asyncWrapper(async (req: Request, res: Response
   } else user = await createUser(data);
   const { accessToken, refreshToken } = signTokens({
     id: user._id.toString(),
-    type: 'USER',
+    type: EntityType.USER,
     isPartner: user.isPartner,
   });
   await setUserRefreshToken(user._id.toString(), refreshToken!);
