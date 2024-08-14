@@ -123,7 +123,7 @@ export interface IReservation {
   guestFullName?: string;
   guestEmail?: string;
   requests?: string[];
-  status: Status;
+  status?: Status;
   checkInDay: Date;
   checkInTime: string;
   checkOutDay: Date;
