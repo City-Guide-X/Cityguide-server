@@ -114,17 +114,16 @@ export interface IExtraInfo {
 
 // Reservations
 export interface IReservation {
+  property: any;
   propertyType: PropertyType;
-  user?: any;
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  phoneNumber?: string;
+  user: any;
+  partner: any;
+  partnerType: EntityType;
   isAgent?: boolean;
   guestFullName?: string;
   guestEmail?: string;
   requests?: string[];
-  status?: Status;
+  status: Status;
   checkInDay: Date;
   checkInTime: string;
   checkOutDay: Date;
@@ -133,7 +132,4 @@ export interface IReservation {
   reservationCount: number;
   noOfGuests: IGuests;
   price?: number;
-  property: any;
-  partner: any;
-  partnerType: EntityType;
 }
