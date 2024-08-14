@@ -23,7 +23,31 @@ export const createReservationSchema = object({
       /^\d{2}:\d{2}$/,
       'Check-out time should be in HH:MM 23-hour format'
     ),
-    roomId: string().optional(),
+    accommodations: object({
+      accommodationId: string({ required_error: 'Accommodation ID is required' }),
+      reservationCount: number({
+        required_error: 'Quantity of accommodation reserved is required',
+        invalid_type_error: 'Quantity of accommodation reserved should be a number',
+      })
+        .positive('Quantity of accommodation reserved should be atleast 1')
+        .int(),
+      noOfGuests: object(
+        {
+          adults: number({
+            required_error: 'Number of adults for each reserved accommodation is required',
+            invalid_type_error: 'Number of adults for each reserved accommodation is a number',
+          }),
+          children: number({
+            required_error: 'Number of children for each reserved accommodation is required',
+            invalid_type_error: 'Number of children for each reserved accommodation is a number',
+          }),
+        },
+        { required_error: 'Number of guests for each reserved accommodation is required' }
+      ),
+    })
+      .array()
+      .min(1, 'Atleast 1 accommodation should be reserved')
+      .optional(),
     reservationCount: number({
       required_error: 'Reservation count is required',
       invalid_type_error: 'Reservation count is a number',
@@ -49,11 +73,11 @@ export const createReservationSchema = object({
       invalid_type_error: 'isAgent should be true if reservation is for someone else and false otherwise',
     }).optional(),
   }).superRefine((data, ctx) => {
-    if (data.propertyType === PropertyType.STAY && (!data.roomId || !data.price)) {
+    if (data.propertyType === PropertyType.STAY && (!data.accommodations?.length || !data.price)) {
       ctx.addIssue({
         code: ZodIssueCode.custom,
-        message: 'Room ID and Price are required for Stay reservations',
-        path: ['roomId', 'price'],
+        message: 'Price is required for Stay reservations and atleast 1 accommodation should be reserved',
+        path: ['accommodations', 'price'],
       });
     }
     if (data.isAgent && (!data.guestEmail || !data.guestFullName))

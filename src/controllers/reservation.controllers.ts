@@ -29,7 +29,7 @@ export const createReservationHandler = asyncWrapper(
     const reservation = await createReservation(data);
     res.status(201).json({ reservation: omit(reservation, privateFields) });
     if (data.propertyType === PropertyType.STAY)
-      return await updateAccommodationAvailability(body.property, data.roomId!, -data.reservationCount);
+      return await updateAccommodationAvailability(body.property, data.accommodations!);
     return;
   }
 );

@@ -113,6 +113,11 @@ export interface IExtraInfo {
 }
 
 // Reservations
+export interface IReservationAccommodation {
+  accommodationId: string;
+  reservationCount: number;
+  noOfGuests: IGuests;
+}
 export interface IReservation {
   property: any;
   propertyType: PropertyType;
@@ -128,7 +133,7 @@ export interface IReservation {
   checkInTime: string;
   checkOutDay: Date;
   checkOutTime: string;
-  roomId?: string;
+  accommodations?: IReservationAccommodation[];
   reservationCount: number;
   noOfGuests: IGuests;
   price?: number;

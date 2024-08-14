@@ -1,5 +1,5 @@
 import { getModelForClass, index, modelOptions, prop, Ref, Severity } from '@typegoose/typegoose';
-import { EntityType, IGuests, PropertyType, Status } from '@types';
+import { EntityType, IGuests, IReservationAccommodation, PropertyType, Status } from '@types';
 import { Establishment } from './establishment.model';
 import { NightLife } from './nightlife.model';
 import { Restaurant } from './restaurant.model';
@@ -54,8 +54,8 @@ export class Reservation {
   @prop({ required: true })
   checkOutTime!: string;
 
-  @prop()
-  roomId: string;
+  @prop({ default: [], _id: false })
+  accommodations: IReservationAccommodation[];
 
   @prop({ required: true })
   reservationCount: number;

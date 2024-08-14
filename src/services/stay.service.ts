@@ -1,6 +1,6 @@
 import { AuthorizationError, BadRequestError, NotFoundError } from '@errors';
 import { ReservationModel, ReviewModel, Stay, StayModel } from '@models';
-import { IAccommodation } from '@types';
+import { IAccommodation, IReservationAccommodation } from '@types';
 
 export const createStay = (input: Partial<Stay>) => {
   return StayModel.create({ ...input });
@@ -85,6 +85,12 @@ export const removeAccommodation = async (_id: string, partner: string, roomId: 
   if (!modifiedCount) throw new BadRequestError();
 };
 
-export const updateAccommodationAvailability = (_id: string, roomId: string, quantity: number) => {
-  return StayModel.updateOne({ _id, 'accommodation.id': roomId }, { $inc: { 'accommodation.$.available': quantity } });
+export const updateAccommodationAvailability = (_id: string, accommodations: IReservationAccommodation[]) => {
+  const bulkOps = accommodations.map(({ accommodationId, reservationCount }) => ({
+    updateOne: {
+      filter: { _id, 'accommodation.id': accommodationId },
+      update: { $inc: { 'accommodation.$.available': -reservationCount } },
+    },
+  }));
+  return StayModel.bulkWrite(bulkOps);
 };

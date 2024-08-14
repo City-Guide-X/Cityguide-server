@@ -120,7 +120,7 @@ export const validateReservationInput = async ({
   propertyType,
   property,
   reservationCount,
-  roomId,
+  accommodations,
   checkInDay,
   checkInTime,
   checkOutDay,
@@ -133,14 +133,16 @@ export const validateReservationInput = async ({
     if (!stay) throw new BadRequestError('Invalid Stay ID');
     if (dayjs(checkOutDay).diff(checkInDay, 'd') > stay.maxDays)
       throw new BadRequestError('The reservation exceeds the maximum stay');
-    const room = stay.accommodation.find((room) => room.id === roomId);
-    if (!room) throw new BadRequestError('The provided room ID is not valid');
-    if (room.available < reservationCount!)
-      throw new BadRequestError('The provided quantity exceeds the available rooms');
-    if (!room.children && noOfGuests!.children)
-      throw new BadRequestError('Children are not allowed in the selected accommodation');
-    if (noOfGuests!.adults + noOfGuests!.children > room.maxGuests)
-      throw new BadRequestError('The provided number of guests exceed the room capacity');
+    accommodations?.forEach(({ accommodationId, reservationCount, noOfGuests }) => {
+      const accommodation = stay.accommodation.find((a) => a.id === accommodationId);
+      if (!accommodation) throw new BadRequestError(`The provided accommodation ID ${accommodationId} is not valid`);
+      if (accommodation.available < reservationCount!)
+        throw new BadRequestError(`Not enough for reservation of accommodation ${accommodationId}`);
+      if (!accommodation.children && noOfGuests!.children)
+        throw new BadRequestError(`Children are not allowed in the accommodation ${accommodationId}`);
+      if (noOfGuests!.adults + noOfGuests!.children > accommodation.maxGuests)
+        throw new BadRequestError(`The provided number of guests exceeds accommodation ${accommodationId} capacity`);
+    });
     return true;
   }
   if (propertyType === PropertyType.RESTAURANT) {
