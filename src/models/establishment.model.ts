@@ -54,7 +54,7 @@ export class Establishment {
   imgUrl: string | null;
 
   @prop({ default: null })
-  cancellationPolicy: ICancellation;
+  cancellationPolicy: ICancellation | null;
 
   async validatePassword(this: DocumentType<Establishment>, password: string) {
     try {

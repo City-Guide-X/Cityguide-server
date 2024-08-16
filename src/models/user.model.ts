@@ -60,7 +60,7 @@ export class User {
   isPartner: boolean;
 
   @prop({ default: null })
-  cancellationPolicy: ICancellation;
+  cancellationPolicy: ICancellation | null;
 
   async validatePassword(this: DocumentType<User>, password: string) {
     try {
