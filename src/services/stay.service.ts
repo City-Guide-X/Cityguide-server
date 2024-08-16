@@ -17,7 +17,7 @@ export const getPartnerStays = (partner: string) => {
 export const getStayById = (_id: string) => {
   return StayModel.findById(_id).populate({
     path: 'partner',
-    select: 'firstName lastName name email phoneNumber imgUrl',
+    select: 'firstName lastName name email phoneNumber imgUrl cancellationPolicy',
   });
 };
 
