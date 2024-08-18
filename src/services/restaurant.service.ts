@@ -6,7 +6,13 @@ export const createRestaurant = (input: Partial<Restaurant>) => {
   return RestaurantModel.create({ ...input });
 };
 
-export const getAllRestaurants = () => RestaurantModel.find({});
+export const getAllRestaurants = () => {
+  return RestaurantModel.find({});
+};
+
+export const getPartnerRestaurants = (partner: string) => {
+  return RestaurantModel.find({ partner }).sort('-creadted');
+};
 
 export const getRestaurantById = (_id: string) => {
   return RestaurantModel.findById(_id).populate({

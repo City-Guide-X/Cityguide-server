@@ -16,6 +16,7 @@ import {
   createRestaurant,
   deleteRestaurant,
   getAllRestaurants,
+  getPartnerRestaurants,
   getRestaurantById,
   removeMenu,
   updateMenu,
@@ -67,6 +68,14 @@ export const getAllRestaurantHandler = asyncWrapper(
     });
   }
 );
+
+export const getPartnerRestaurantsHandler = asyncWrapper(async (req: Request, res: Response) => {
+  const { id } = res.locals.user;
+  const properties = await getPartnerRestaurants(id);
+  return res
+    .status(200)
+    .json({ count: properties.length, properties: properties.map((r) => omit(r.toJSON(), privateFields)) });
+});
 
 export const getRestaurantDetailHandler = asyncWrapper(
   async (req: Request<getRestaurantDetailInput>, res: Response) => {

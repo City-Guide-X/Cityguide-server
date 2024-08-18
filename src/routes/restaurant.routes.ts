@@ -3,12 +3,13 @@ import {
   createRestaurantHandler,
   deleteRestaurantHandler,
   getAllRestaurantHandler,
+  getPartnerRestaurantsHandler,
   getRestaurantDetailHandler,
   removeMenuHandler,
   updateMenuHandler,
   updateRestaurantHandler,
 } from '@controllers';
-import { establishmentOnly, requireAuth, validateSchema } from '@middlewares';
+import { establishmentOnly, partnerOnly, requireAuth, validateSchema } from '@middlewares';
 import {
   addMenuSchema,
   createRestaurantSchema,
@@ -24,6 +25,7 @@ import { Router } from 'express';
 const router = Router();
 
 router.get('/', validateSchema(getAllRestautantSchema), getAllRestaurantHandler);
+router.get('/admin', requireAuth, partnerOnly, getPartnerRestaurantsHandler);
 router.get('/:restaurantId', validateSchema(getRestaurantDetailSchema), getRestaurantDetailHandler);
 router.use(requireAuth, establishmentOnly);
 router.post('/', validateSchema(createRestaurantSchema), createRestaurantHandler);
