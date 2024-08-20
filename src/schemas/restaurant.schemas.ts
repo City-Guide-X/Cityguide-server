@@ -37,7 +37,7 @@ export const createRestaurantSchema = object({
     avatar: string({ required_error: 'Avatar is required' }),
     images: string({ required_error: 'Images is required', invalid_type_error: 'Images should be an array' })
       .array()
-      .min(7, 'Atleast 7 images are required'),
+      .min(11, 'Atleast 11 images are required'),
     availability: object(
       {
         day: nativeEnum(DayOfWeek, {
@@ -86,12 +86,12 @@ export const createRestaurantSchema = object({
           required_error: 'Delivery availability is required',
           invalid_type_error: 'Delivery availability should be a boolean',
         }),
-        reservation: number({ invalid_type_error: 'Max number of guests for reservation is required' }).optional(),
+        reservation: number({ invalid_type_error: 'Max number of guests for reservation should be number' }).optional(),
         amenities: string({ invalid_type_error: 'Amenities should be an array' }).array().optional(),
         paymentOptions: string({ invalid_type_error: 'Payment options should be an array' }).array().optional(),
         children: boolean({
           required_error: 'Children allowance rule is required',
-          invalid_type_error: 'Children allowance rul should be a boolean',
+          invalid_type_error: 'Children allowance rule should be a boolean',
         }),
       },
       { required_error: 'Restaurant details is required' }
