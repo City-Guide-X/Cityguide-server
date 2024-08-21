@@ -1,5 +1,5 @@
 import { DayOfWeek, NightLifeType, Parking } from '@types';
-import { nativeEnum, number, object, strictObject, string, TypeOf } from 'zod';
+import { coerce, nativeEnum, number, object, strictObject, string, TypeOf } from 'zod';
 
 export const createNightLifeSchema = object({
   body: object({
@@ -15,7 +15,6 @@ export const createNightLifeSchema = object({
       10,
       'Summary should be atleast 10 characters'
     ),
-    description: string().min(10, 'Description should be atleast 10 characters').optional(),
     address: object(
       {
         name: string({ required_error: 'Address name is required' }),
@@ -39,7 +38,9 @@ export const createNightLifeSchema = object({
       { required_error: 'Address is required' }
     ),
     avatar: string({ required_error: 'Avatar is required' }),
-    images: string({ invalid_type_error: 'Images should be an array' }).array().optional(),
+    images: string({ required_error: 'Images is required', invalid_type_error: 'Images should be an array' })
+      .array()
+      .min(11, 'Atleast 11 images are required'),
     availability: object(
       {
         day: nativeEnum(DayOfWeek, {
@@ -89,7 +90,7 @@ export const createNightLifeSchema = object({
     contact: object(
       {
         email: string({ required_error: 'Email is required' }).email('Email should be a valid email'),
-        phone: string().min(11, 'Invalid phone number').optional(),
+        phone: string({ required_error: 'Phone number is required' }).min(11, 'Invalid phone number'),
         socialMedia: object(
           {
             name: string({ required_error: 'Social media name is required' }),
@@ -115,7 +116,6 @@ export const updateNightLifeSchema = object({
   body: strictObject({
     name: string().min(3, 'NightLife name requires atleast 3 characters').optional(),
     summary: string().min(10, 'Summary should be atleast 10 characters').optional(),
-    description: string().min(10, 'Description should be atleast 10 characters').optional(),
     address: object({
       name: string({ required_error: 'Address name is required' }),
       fullAddress: string().optional(),
@@ -182,7 +182,7 @@ export const updateNightLifeSchema = object({
     }).optional(),
     contact: object({
       email: string({ required_error: 'Email is required' }).email('Email should be a valid email'),
-      phone: string().min(11, 'Invalid phone number').optional(),
+      phone: string({ required_error: 'Phone number is required' }).min(11, 'Invalid phone number'),
       socialMedia: object(
         {
           name: string({ required_error: 'Social media name is required' }),
@@ -206,17 +206,9 @@ export const deleteNightLifeSchema = object({
 });
 
 export const getAllNightlifeSchema = object({
-  body: object({
-    geoLocation: object({
-      lat: number({
-        required_error: 'Latitude is required',
-        invalid_type_error: 'Latitude has to be a number',
-      }),
-      lng: number({
-        required_error: 'Longitude is required',
-        invalid_type_error: 'Longitude has to be a number',
-      }),
-    }).optional(),
+  query: object({
+    lat: coerce.number({ invalid_type_error: 'Latitude has to be a number' }).optional(),
+    lng: coerce.number({ invalid_type_error: 'Longitude has to be a number' }).optional(),
   }),
 });
 
@@ -224,4 +216,4 @@ export type createNightLifeInput = TypeOf<typeof createNightLifeSchema>['body'];
 export type getNightLifeDetailInput = TypeOf<typeof getNightLifeDetailSchema>['params'];
 export type updateNightLifeInput = TypeOf<typeof updateNightLifeSchema>;
 export type deleteNightLifeInput = TypeOf<typeof deleteNightLifeSchema>['params'];
-export type getAllNightlifeInput = TypeOf<typeof getAllNightlifeSchema>['body'];
+export type getAllNightlifeInput = TypeOf<typeof getAllNightlifeSchema>['query'];
