@@ -22,6 +22,7 @@ import {
   updateMenu,
   updateRestaurant,
 } from '@services';
+import { ILatLng } from '@types';
 import { asyncWrapper } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
@@ -36,12 +37,12 @@ export const createRestaurantHandler = asyncWrapper(
 );
 
 export const getAllRestaurantHandler = asyncWrapper(
-  async (req: Request<{}, {}, getAllRestautantInput>, res: Response) => {
-    const { geoLocation } = req.body;
+  async (req: Request<{}, {}, {}, getAllRestautantInput>, res: Response) => {
+    const geoLocation = req.query;
     const properties = await getAllRestaurants();
-    if (geoLocation) {
+    if (geoLocation.lat && geoLocation.lng) {
       const locations = properties.map((restaurant) => restaurant.address.geoLocation);
-      const restaurantDistances = await calculateDistance([geoLocation], locations);
+      const restaurantDistances = await calculateDistance([geoLocation as ILatLng], locations);
       if (!restaurantDistances)
         return res.status(200).json({
           count: properties.length,
@@ -52,9 +53,9 @@ export const getAllRestaurantHandler = asyncWrapper(
           const restaurant = {
             ...omit(property.toJSON(), privateFields),
             locationInfo: {
-              distance: restaurantDistances[i].distance.value,
-              distanceInWords: restaurantDistances[i].distance.text,
-              duration: restaurantDistances[i].duration.text,
+              distance: restaurantDistances[i].distance?.value || 999999999,
+              distanceInWords: restaurantDistances[i].distance?.text || '',
+              duration: restaurantDistances[i].duration?.text || '',
             },
           };
           return restaurant;

@@ -58,9 +58,9 @@ export const getAllStayHandler = asyncWrapper(
           const stay = {
             ...omit(property.toJSON(), privateFields),
             locationInfo: {
-              distance: stayDistances[i].distance.value,
-              distanceInWords: stayDistances[i].distance.text,
-              duration: stayDistances[i].duration.text,
+              distance: stayDistances[i].distance?.value || 999999999,
+              distanceInWords: stayDistances[i].distance?.text || '',
+              duration: stayDistances[i].duration?.text || '',
             },
           };
           return stay;
