@@ -23,6 +23,7 @@ import {
   updateAccommodation,
   updateStay,
 } from '@services';
+import { ILatLng } from '@types';
 import { asyncWrapper, summarizeProperty } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
@@ -41,35 +42,37 @@ export const createStayHandler = asyncWrapper(async (req: Request<{}, {}, create
   return res.status(201).json({ stay: omit(stay.toJSON(), privateFields) });
 });
 
-export const getAllStayHandler = asyncWrapper(async (req: Request<{}, {}, getStayByLocationInput>, res: Response) => {
-  const { geoLocation } = req.body;
-  const properties = await getAllStays();
-  if (geoLocation) {
-    const locations = properties.map((stay) => stay.address.geoLocation);
-    const stayDistances = await calculateDistance([geoLocation], locations);
-    if (!stayDistances)
-      return res
-        .status(200)
-        .json({ count: properties.length, properties: properties.map((stay) => omit(stay.toJSON(), privateFields)) });
-    const result = properties
-      .map((property, i) => {
-        const stay = {
-          ...omit(property.toJSON(), privateFields),
-          locationInfo: {
-            distance: stayDistances[i].distance.value,
-            distanceInWords: stayDistances[i].distance.text,
-            duration: stayDistances[i].duration.text,
-          },
-        };
-        return stay;
-      })
-      .sort((a, b) => a.locationInfo.distance - b.locationInfo.distance);
-    return res.status(200).json({ count: result.length, properties: result });
+export const getAllStayHandler = asyncWrapper(
+  async (req: Request<{}, {}, {}, getStayByLocationInput>, res: Response) => {
+    const geoLocation = req.query;
+    const properties = await getAllStays();
+    if (geoLocation.lat && geoLocation.lng) {
+      const locations = properties.map((stay) => stay.address.geoLocation);
+      const stayDistances = await calculateDistance([geoLocation as ILatLng], locations);
+      if (!stayDistances)
+        return res
+          .status(200)
+          .json({ count: properties.length, properties: properties.map((stay) => omit(stay.toJSON(), privateFields)) });
+      const result = properties
+        .map((property, i) => {
+          const stay = {
+            ...omit(property.toJSON(), privateFields),
+            locationInfo: {
+              distance: stayDistances[i].distance.value,
+              distanceInWords: stayDistances[i].distance.text,
+              duration: stayDistances[i].duration.text,
+            },
+          };
+          return stay;
+        })
+        .sort((a, b) => a.locationInfo.distance - b.locationInfo.distance);
+      return res.status(200).json({ count: result.length, properties: result });
+    }
+    return res
+      .status(200)
+      .json({ count: properties.length, properties: properties.map((stay) => omit(stay.toJSON(), privateFields)) });
   }
-  return res
-    .status(200)
-    .json({ count: properties.length, properties: properties.map((stay) => omit(stay.toJSON(), privateFields)) });
-});
+);
 
 export const getTrendingStaysHandler = asyncWrapper(async (req: Request, res: Response) => {
   const properties = await getTrendingStays();

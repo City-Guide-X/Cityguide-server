@@ -1,5 +1,5 @@
 import { MaxDays, Parking, Rating, StayType } from '@types';
-import { boolean, nativeEnum, number, object, strictObject, string, TypeOf } from 'zod';
+import { boolean, coerce, nativeEnum, number, object, strictObject, string, TypeOf } from 'zod';
 
 export const createStaySchema = object({
   body: object({
@@ -473,17 +473,9 @@ export const deleteStaySchema = object({
 });
 
 export const getStayByLocationSchema = object({
-  body: object({
-    geoLocation: object({
-      lat: number({
-        required_error: 'Latitude is required',
-        invalid_type_error: 'Latitude has to be a number',
-      }),
-      lng: number({
-        required_error: 'Longitude is required',
-        invalid_type_error: 'Longitude has to be a number',
-      }),
-    }).optional(),
+  query: object({
+    lat: coerce.number({ invalid_type_error: 'Latitude has to be a number' }).optional(),
+    lng: coerce.number({ invalid_type_error: 'Longitude has to be a number' }).optional(),
   }),
 });
 
@@ -494,4 +486,4 @@ export type addAccommodationInput = TypeOf<typeof addAccommodationSchema>;
 export type updateAccommodationInput = TypeOf<typeof updateAccommodationSchema>;
 export type removeAccommodationInput = TypeOf<typeof removeAccommodationSchema>['params'];
 export type deleteStayInput = TypeOf<typeof deleteStaySchema>['params'];
-export type getStayByLocationInput = TypeOf<typeof getStayByLocationSchema>['body'];
+export type getStayByLocationInput = TypeOf<typeof getStayByLocationSchema>['query'];
