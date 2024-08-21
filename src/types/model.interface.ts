@@ -60,7 +60,7 @@ export interface IMenu {
 export interface IRestaurantDetails {
   delivery: boolean;
   reservation?: number;
-  amenities?: string[];
+  amenities: string[];
   paymentOptions: string[];
   children: boolean;
 }
