@@ -88,7 +88,12 @@ export const createRestaurantSchema = object({
         }),
         reservation: number({ invalid_type_error: 'Max number of guests for reservation should be number' }).optional(),
         amenities: string({ invalid_type_error: 'Amenities should be an array' }).array().optional(),
-        paymentOptions: string({ invalid_type_error: 'Payment options should be an array' }).array().optional(),
+        paymentOptions: string({
+          required_error: 'Payment options is required',
+          invalid_type_error: 'Payment options should be an array',
+        })
+          .array()
+          .min(1, 'Atleast 1 payment option is required'),
         children: boolean({
           required_error: 'Children allowance rule is required',
           invalid_type_error: 'Children allowance rule should be a boolean',
@@ -99,7 +104,7 @@ export const createRestaurantSchema = object({
     contact: object(
       {
         email: string({ required_error: 'Email is required' }).email('Email should be a valid email'),
-        phone: string().min(11, 'Invalid phone number').optional(),
+        phone: string({ required_error: 'Phone number is required' }).min(11, 'Invalid phone number'),
         socialMedia: object(
           {
             name: string({ required_error: 'Social media name is required' }),
@@ -174,7 +179,12 @@ export const updateRestaurantSchema = object({
       }),
       reservation: number({ invalid_type_error: 'Max number of guests for reservation is required' }).optional(),
       amenities: string({ invalid_type_error: 'Amenities should be an array' }).array().optional(),
-      paymentOptions: string({ invalid_type_error: 'Payment options should be an array' }).array().optional(),
+      paymentOptions: string({
+        required_error: 'Payment options is required',
+        invalid_type_error: 'Payment options should be an array',
+      })
+        .array()
+        .min(1, 'Atleast 1 payment option is required'),
       children: boolean({
         required_error: 'Children allowance rule is required',
         invalid_type_error: 'Children allowance rul should be a boolean',
@@ -182,7 +192,7 @@ export const updateRestaurantSchema = object({
     }).optional(),
     contact: object({
       email: string({ required_error: 'Email is required' }).email('Email should be a valid email'),
-      phone: string().min(11, 'Invalid phone number').optional(),
+      phone: string({ required_error: 'Phone number is required' }).min(11, 'Invalid phone number'),
       socialMedia: object(
         {
           name: string({ required_error: 'Social media name is required' }),
