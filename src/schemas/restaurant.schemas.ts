@@ -1,5 +1,5 @@
 import { DayOfWeek, PriceRange } from '@types';
-import { boolean, nativeEnum, number, object, strictObject, string, TypeOf } from 'zod';
+import { boolean, coerce, nativeEnum, number, object, strictObject, string, TypeOf } from 'zod';
 
 export const createRestaurantSchema = object({
   body: object({
@@ -278,17 +278,9 @@ export const removeMenuSchema = object({
 });
 
 export const getAllRestautantSchema = object({
-  body: object({
-    geoLocation: object({
-      lat: number({
-        required_error: 'Latitude is required',
-        invalid_type_error: 'Latitude has to be a number',
-      }),
-      lng: number({
-        required_error: 'Longitude is required',
-        invalid_type_error: 'Longitude has to be a number',
-      }),
-    }).optional(),
+  query: object({
+    lat: coerce.number({ invalid_type_error: 'Latitude has to be a number' }).optional(),
+    lng: coerce.number({ invalid_type_error: 'Longitude has to be a number' }).optional(),
   }),
 });
 
@@ -299,4 +291,4 @@ export type deleteRestaurantInput = TypeOf<typeof deleteRestaurantSchema>['param
 export type addMenuInput = TypeOf<typeof addMenuSchema>;
 export type updateMenuInput = TypeOf<typeof updateMenuSchema>;
 export type removeMenuInput = TypeOf<typeof removeMenuSchema>['params'];
-export type getAllRestautantInput = TypeOf<typeof getAllRestautantSchema>['body'];
+export type getAllRestautantInput = TypeOf<typeof getAllRestautantSchema>['query'];
