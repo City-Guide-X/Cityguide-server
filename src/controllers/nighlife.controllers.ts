@@ -15,6 +15,7 @@ import {
   getNightLifeById,
   updateNightLife,
 } from '@services';
+import { ILatLng } from '@types';
 import { asyncWrapper } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
@@ -29,12 +30,12 @@ export const createNightLifeHandler = asyncWrapper(
 );
 
 export const getAllNightlifeHandler = asyncWrapper(
-  async (req: Request<{}, {}, getAllNightlifeInput>, res: Response) => {
-    const { geoLocation } = req.body;
+  async (req: Request<{}, {}, {}, getAllNightlifeInput>, res: Response) => {
+    const geoLocation = req.query;
     const properties = await getAllNightlife();
-    if (geoLocation) {
+    if (geoLocation.lat && geoLocation.lng) {
       const locations = properties.map((nightlife) => nightlife.address.geoLocation);
-      const nightlifeDistances = await calculateDistance([geoLocation], locations);
+      const nightlifeDistances = await calculateDistance([geoLocation as ILatLng], locations);
       if (!nightlifeDistances)
         return res.status(200).json({
           count: properties.length,
@@ -45,9 +46,9 @@ export const getAllNightlifeHandler = asyncWrapper(
           const nightlife = {
             ...omit(property.toJSON(), privateFields),
             locationInfo: {
-              distance: nightlifeDistances[i].distance.value,
-              distanceInWords: nightlifeDistances[i].distance.text,
-              duration: nightlifeDistances[i].duration.text,
+              distance: nightlifeDistances[i].distance?.value || 999999999,
+              distanceInWords: nightlifeDistances[i].distance?.text || '',
+              duration: nightlifeDistances[i].duration?.text || '',
             },
           };
           return nightlife;
