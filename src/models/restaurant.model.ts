@@ -1,5 +1,5 @@
 import { getModelForClass, modelOptions, prop, Ref, Severity } from '@typegoose/typegoose';
-import { IAddress, IContact, ICustomAvailability, IMenu, IRestaurantDetails, PriceRange, Rating } from '@types';
+import { IAddress, IContact, ICustomAvailability, IMenu, IRestaurantDetails, PriceRange } from '@types';
 import { Establishment } from './establishment.model';
 
 @modelOptions({
@@ -16,14 +16,11 @@ export class Restaurant {
   @prop({ required: true })
   summary: string;
 
-  @prop()
-  description: string;
-
   @prop({ required: true, _id: false })
   address: IAddress;
 
   @prop({ default: 0.0 })
-  rating: Rating;
+  rating: number;
 
   @prop({ required: true })
   avatar: string;

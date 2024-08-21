@@ -1,13 +1,5 @@
 import { getModelForClass, modelOptions, prop, Ref, Severity } from '@typegoose/typegoose';
-import {
-  IAddress,
-  IContact,
-  ICustomAvailability,
-  INightLifeDetails,
-  INightLifeRules,
-  NightLifeType,
-  Rating,
-} from '@types';
+import { IAddress, IContact, ICustomAvailability, INightLifeDetails, INightLifeRules, NightLifeType } from '@types';
 import { Establishment } from './establishment.model';
 
 @modelOptions({
@@ -27,14 +19,11 @@ export class NightLife {
   @prop({ required: true })
   summary: string;
 
-  @prop()
-  description: string;
-
   @prop({ required: true, _id: false })
   address: IAddress;
 
   @prop({ default: 0.0 })
-  rating: Rating;
+  rating: number;
 
   @prop({ required: true })
   avatar: string;
