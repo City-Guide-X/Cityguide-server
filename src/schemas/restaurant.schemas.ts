@@ -11,7 +11,6 @@ export const createRestaurantSchema = object({
       10,
       'Summary should be atleast 10 characters'
     ),
-    description: string().min(10, 'Description should be atleast 10 characters').optional(),
     address: object(
       {
         name: string({ required_error: 'Address name is required' }),
@@ -87,7 +86,12 @@ export const createRestaurantSchema = object({
           invalid_type_error: 'Delivery availability should be a boolean',
         }),
         reservation: number({ invalid_type_error: 'Max number of guests for reservation should be number' }).optional(),
-        amenities: string({ invalid_type_error: 'Amenities should be an array' }).array().optional(),
+        amenities: string({
+          required_error: 'Atleast 1 amenity is required',
+          invalid_type_error: 'Amenities should be an array',
+        })
+          .array()
+          .min(1, 'Atleast one amenity is required'),
         paymentOptions: string({
           required_error: 'Payment options is required',
           invalid_type_error: 'Payment options should be an array',
@@ -130,7 +134,6 @@ export const updateRestaurantSchema = object({
   body: strictObject({
     name: string().min(3, 'Restaurant name requires atleast 3 characters').optional(),
     summary: string().min(10, 'Summary should be atleast 10 characters').optional(),
-    description: string().min(10, 'Description should be atleast 10 characters').optional(),
     address: object({
       name: string({ required_error: 'Address name is required' }),
       fullAddress: string().optional(),
@@ -178,7 +181,12 @@ export const updateRestaurantSchema = object({
         invalid_type_error: 'Delivery availability should be a boolean',
       }),
       reservation: number({ invalid_type_error: 'Max number of guests for reservation is required' }).optional(),
-      amenities: string({ invalid_type_error: 'Amenities should be an array' }).array().optional(),
+      amenities: string({
+        required_error: 'Atleast 1 amenity is required',
+        invalid_type_error: 'Amenities should be an array',
+      })
+        .array()
+        .min(1, 'Atleast one amenity is required'),
       paymentOptions: string({
         required_error: 'Payment options is required',
         invalid_type_error: 'Payment options should be an array',
