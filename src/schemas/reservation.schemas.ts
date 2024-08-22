@@ -23,31 +23,34 @@ export const createReservationSchema = object({
       /^\d{2}:\d{2}$/,
       'Check-out time should be in HH:MM 23-hour format'
     ),
-    accommodations: object({
-      accommodationId: string({ required_error: 'Accommodation ID is required' }),
-      reservationCount: number({
-        required_error: 'Quantity of accommodation reserved is required',
-        invalid_type_error: 'Quantity of accommodation reserved should be a number',
-      })
-        .positive('Quantity of accommodation reserved should be atleast 1')
-        .int(),
-      noOfGuests: object(
-        {
-          adults: number({
-            required_error: 'Number of adults for each reserved accommodation is required',
-            invalid_type_error: 'Number of adults for each reserved accommodation is a number',
-          }),
-          children: number({
-            required_error: 'Number of children for each reserved accommodation is required',
-            invalid_type_error: 'Number of children for each reserved accommodation is a number',
-          }),
-        },
-        {
-          required_error: 'Number of guests for each reserved accommodation is required',
-          invalid_type_error: 'Number of guests for each reserved accommodation should be an object',
-        }
-      ),
-    })
+    accommodations: object(
+      {
+        accommodationId: string({ required_error: 'Accommodation ID is required' }),
+        reservationCount: number({
+          required_error: 'Quantity of accommodation reserved is required',
+          invalid_type_error: 'Quantity of accommodation reserved should be a number',
+        })
+          .positive('Quantity of accommodation reserved should be atleast 1')
+          .int(),
+        noOfGuests: object(
+          {
+            adults: number({
+              required_error: 'Number of adults for each reserved accommodation is required',
+              invalid_type_error: 'Number of adults for each reserved accommodation is a number',
+            }),
+            children: number({
+              required_error: 'Number of children for each reserved accommodation is required',
+              invalid_type_error: 'Number of children for each reserved accommodation is a number',
+            }),
+          },
+          {
+            required_error: 'Number of guests for each reserved accommodation is required',
+            invalid_type_error: 'Number of guests for each reserved accommodation should be an object',
+          }
+        ),
+      },
+      { invalid_type_error: 'Accommodations should be an array of objects' }
+    )
       .array()
       .min(1, 'Atleast 1 accommodation should be reserved')
       .optional(),
@@ -69,8 +72,8 @@ export const createReservationSchema = object({
       { required_error: 'Number of guests is required', invalid_type_error: 'Number of guests should be an object' }
     ),
     price: number({ invalid_type_error: 'Price is a number' }).optional(),
-    guestFullName: string().optional(),
-    guestEmail: string().email('Invalid email').optional(),
+    guestFullName: string().min(3, 'Guest full name should be atleast 3 characters long').optional(),
+    guestEmail: string().email('Invalid guest email').optional(),
     requests: string().array().min(1, 'Atleast 1 request').optional(),
     isAgent: boolean({
       invalid_type_error: 'isAgent should be true if reservation is for someone else and false otherwise',
