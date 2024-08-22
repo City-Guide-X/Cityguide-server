@@ -42,7 +42,10 @@ export const createReservationSchema = object({
             invalid_type_error: 'Number of children for each reserved accommodation is a number',
           }),
         },
-        { required_error: 'Number of guests for each reserved accommodation is required' }
+        {
+          required_error: 'Number of guests for each reserved accommodation is required',
+          invalid_type_error: 'Number of guests for each reserved accommodation should be an object',
+        }
       ),
     })
       .array()
@@ -63,7 +66,7 @@ export const createReservationSchema = object({
           invalid_type_error: 'Number of children is a number',
         }),
       },
-      { required_error: 'Number of guests is required' }
+      { required_error: 'Number of guests is required', invalid_type_error: 'Number of guests should be an object' }
     ),
     price: number({ invalid_type_error: 'Price is a number' }).optional(),
     guestFullName: string().optional(),
