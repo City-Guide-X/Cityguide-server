@@ -1,5 +1,15 @@
 import { getModelForClass, modelOptions, prop, Ref, Severity } from '@typegoose/typegoose';
-import { EntityType, IAccommodation, IAddress, IExtraInfo, IStayRules, MaxDays, Rating, StayType } from '@types';
+import {
+  EntityType,
+  IAccommodation,
+  IAddress,
+  IExtraInfo,
+  IOptionalService,
+  IStayRules,
+  MaxDays,
+  Rating,
+  StayType,
+} from '@types';
 import { Establishment } from './establishment.model';
 import { User } from './user.model';
 
@@ -55,6 +65,9 @@ export class Stay {
 
   @prop({ required: true })
   language: string[];
+
+  @prop({ default: [] })
+  optionalServices: IOptionalService[];
 
   public createdAt: Date;
   public updatedAt: Date;

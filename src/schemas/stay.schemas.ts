@@ -184,6 +184,19 @@ export const createStaySchema = object({
     })
       .array()
       .min(1, 'Atleast one language is required'),
+    optionalServices: object({
+      title: string({ required_error: 'Optional service title is required' }).min(
+        3,
+        'Optional service title should be atleast 3 characters long'
+      ),
+      description: string({ required_error: 'Optional service description is required' }).min(
+        10,
+        'Optional service description should be atleast 10 characters long'
+      ),
+    })
+      .array()
+      .min(1, 'Atleast 1 optional service should be added if any')
+      .optional(),
   }),
 });
 
@@ -261,6 +274,19 @@ export const updateStaySchema = object({
     language: string({ invalid_type_error: 'Languages should be an array' })
       .array()
       .min(1, 'Atleast one language is required')
+      .optional(),
+    optionalServices: object({
+      title: string({ required_error: 'Optional service title is required' }).min(
+        3,
+        'Optional service title should be atleast 3 characters long'
+      ),
+      description: string({ required_error: 'Optional service description is required' }).min(
+        10,
+        'Optional service description should be atleast 10 characters long'
+      ),
+    })
+      .array()
+      .min(1, 'Atleast 1 optional service should be added if any')
       .optional(),
   }),
   params: object({

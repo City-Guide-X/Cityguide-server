@@ -112,6 +112,11 @@ export interface IExtraInfo {
   };
 }
 
+export interface IOptionalService {
+  title: string;
+  description: string;
+}
+
 // Reservations
 export interface IReservationAccommodation {
   accommodationId: string;
