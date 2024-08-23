@@ -3,6 +3,7 @@ import { privateFields } from '@models';
 import {
   addMenuInput,
   createReservationInput,
+  createRestaurantInput,
   deleteRestaurantInput,
   getAllRestautantInput,
   getRestaurantDetailInput,
@@ -23,14 +24,16 @@ import {
   updateRestaurant,
 } from '@services';
 import { ILatLng } from '@types';
-import { asyncWrapper } from '@utils';
+import { asyncWrapper, summarizeRestaurant } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
 
 export const createRestaurantHandler = asyncWrapper(
-  async (req: Request<{}, {}, createReservationInput>, res: Response) => {
+  async (req: Request<{}, {}, createRestaurantInput>, res: Response) => {
     const { id } = res.locals.user;
-    const data = { ...req.body, partner: id };
+    let data = { ...req.body, partner: id };
+    const summary = (await summarizeRestaurant(data)) as string;
+    if (summary) data = { ...data, summary };
     const reservation = await createRestaurant(data);
     return res.status(201).json({ reservation: omit(reservation.toJSON(), privateFields) });
   }
