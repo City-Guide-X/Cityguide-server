@@ -40,7 +40,7 @@ export class Stay {
   address: IAddress;
 
   @prop({ default: 0.0 })
-  rating: string;
+  rating: number;
 
   @prop({ default: 0 })
   reviewCount: number;
