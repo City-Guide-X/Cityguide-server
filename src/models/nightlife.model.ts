@@ -23,7 +23,10 @@ export class NightLife {
   address: IAddress;
 
   @prop({ default: 0.0 })
-  rating: number;
+  rating: string;
+
+  @prop({ default: 0 })
+  reviewCount: number;
 
   @prop({ required: true })
   avatar: string;
