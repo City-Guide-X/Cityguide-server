@@ -28,8 +28,9 @@ export enum NightLifeType {
 export enum Status {
   PENDING = 'Pending',
   CONFIRMED = 'Confirmed',
-  CANCELLED = 'Cancelled',
+  INHOUSE = 'In House',
   COMPLETED = 'Completed',
+  CANCELLED = 'Cancelled',
 }
 
 export enum Rating {
