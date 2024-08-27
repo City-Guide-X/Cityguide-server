@@ -12,7 +12,6 @@ class ErrorHandler {
 export const handler = new ErrorHandler();
 
 export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
-  log.error(err);
   if (err.name === 'ValidationError') {
     return res.status(400).json({
       message: Object.keys(err.errors)
