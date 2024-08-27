@@ -1,5 +1,5 @@
 import { MaxDays, Parking, Rating, StayType } from '@types';
-import { boolean, coerce, nativeEnum, number, object, strictObject, string, TypeOf } from 'zod';
+import { boolean, coerce, nativeEnum, number, object, strictObject, string, TypeOf, ZodIssueCode } from 'zod';
 
 export const createStaySchema = object({
   body: object({
@@ -513,6 +513,16 @@ export const searchStaySchema = object({
     children: string().optional(),
     guests: coerce.number({ invalid_type_error: 'No of guests should be a number' }).optional(),
     count: coerce.number({ invalid_type_error: 'Reservation count should be a number' }).optional(),
+  }).superRefine((data, ctx) => {
+    if (!!data.checkin !== !!data.checkout) {
+      ctx.addIssue({
+        code: ZodIssueCode.custom,
+        message: !!data.checkin
+          ? 'Checkout date is required when Check-in date is provided'
+          : 'Check-in date is required when Checkout date is provided',
+        path: ['checkin', 'checkout'],
+      });
+    }
   }),
 });
 
