@@ -151,6 +151,26 @@ export const searchRestaurantHandler = asyncWrapper(
     const { children, count, lat, lng, guests } = req.query;
     const geoLocation = { lat, lng };
     const restaurants = await searchRestaurant(!!children, guests, count);
-    return res.status(200).json({ count: restaurants.length, restaurants });
+    const locations = restaurants.map((restaurant) => restaurant.address.geoLocation);
+    const restaurantDistances = await calculateDistance([geoLocation as ILatLng], locations);
+    if (!restaurantDistances)
+      return res.status(200).json({
+        count: restaurants.length,
+        properties: restaurants.map((restaurant) => omit(restaurant, privateFields)),
+      });
+    const result = restaurants
+      .map((property, i) => {
+        const restaurant = {
+          ...omit(property, privateFields),
+          locationInfo: {
+            distance: restaurantDistances[i].distance?.value || 999999999,
+            distanceInWords: restaurantDistances[i].distance?.text || '',
+            duration: restaurantDistances[i].duration?.text || '',
+          },
+        };
+        return restaurant;
+      })
+      .sort((a, b) => a.locationInfo.distance - b.locationInfo.distance);
+    return res.status(200).json({ count: result.length, properties: result });
   }
 );
