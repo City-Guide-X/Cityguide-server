@@ -57,9 +57,15 @@ export interface IMenu {
   dietaryProvisions?: string[];
 }
 
+export interface IRestaurantReservation {
+  price: number;
+  max: number;
+  available: number;
+}
+
 export interface IRestaurantDetails {
   delivery: boolean;
-  reservation?: number;
+  reservation?: IRestaurantReservation;
   amenities: string[];
   paymentOptions: string[];
   children: boolean;
