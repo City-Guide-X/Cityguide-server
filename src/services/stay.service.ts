@@ -96,7 +96,13 @@ export const updateAccommodationAvailability = (_id: string, accommodations: IRe
   return StayModel.bulkWrite(bulkOps);
 };
 
-export const searchStay = async (checkin?: Date, checkout?: Date, children?: boolean, count?: number) => {
+export const searchStay = async (
+  checkin?: Date,
+  checkout?: Date,
+  children?: boolean,
+  count?: number,
+  guests?: number
+) => {
   return StayModel.aggregate([
     {
       $match: {
@@ -123,16 +129,20 @@ export const searchStay = async (checkin?: Date, checkout?: Date, children?: boo
         availableRooms: {
           $sum: '$accommodation.available',
         },
+        maxGuests: {
+          $max: '$accommodation.maxGuests',
+        },
       },
     },
     {
       $match: {
         ...(children && { childrenAllowed: children }),
         ...(count && { availableRooms: { $gte: +count } }),
+        ...(guests && { maxGuests: { $gte: +guests } }),
       },
     },
     {
-      $project: { childrenAllowed: 0, availableRooms: 0 },
+      $project: { childrenAllowed: 0, availableRooms: 0, maxGuests: 0 },
     },
   ]);
 };
