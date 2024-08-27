@@ -63,3 +63,15 @@ export const removeMenu = async (_id: string, partner: string, menuId: string) =
   }
   if (!modifiedCount) throw new NotFoundError('Restaurant not found');
 };
+
+export const searchRestaurant = async (children?: boolean, guests?: number, count: number = 0) => {
+  return RestaurantModel.aggregate([
+    {
+      $match: {
+        ...(children && { 'details.children': children }),
+        ...(guests && { 'details.reservation.max': { $gte: +guests } }),
+        'details.reservation.available': { $gte: +count },
+      },
+    },
+  ]);
+};

@@ -8,6 +8,7 @@ import {
   getAllRestautantInput,
   getRestaurantDetailInput,
   removeMenuInput,
+  searchRestaurantInput,
   updateMenuInput,
   updateRestaurantInput,
 } from '@schemas';
@@ -20,6 +21,7 @@ import {
   getPartnerRestaurants,
   getRestaurantById,
   removeMenu,
+  searchRestaurant,
   updateMenu,
   updateRestaurant,
 } from '@services';
@@ -143,3 +145,12 @@ export const removeMenuHandler = asyncWrapper(async (req: Request<removeMenuInpu
   await removeMenu(restaurantId, id, menuId);
   return res.sendStatus(204);
 });
+
+export const searchRestaurantHandler = asyncWrapper(
+  async (req: Request<{}, {}, {}, searchRestaurantInput>, res: Response) => {
+    const { children, count, lat, lng, guests } = req.query;
+    const geoLocation = { lat, lng };
+    const restaurants = await searchRestaurant(!!children, guests, count);
+    return res.status(200).json({ count: restaurants.length, restaurants });
+  }
+);

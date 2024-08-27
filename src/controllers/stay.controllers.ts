@@ -157,7 +157,7 @@ export const removeAccommodationHandler = asyncWrapper(
 export const searchStayHandler = asyncWrapper(async (req: Request<{}, {}, {}, searchStayInput>, res: Response) => {
   const { checkin, checkout, children, count, guests, lat, lng } = req.query;
   const geoLocation = { lat, lng };
-  const stays = await searchStay(checkin, checkout, !!children, count, guests);
+  const stays = await searchStay(checkin, checkout, !!children, guests, count);
   if (geoLocation.lat && geoLocation.lng) {
     const locations = stays.map((stay) => stay.address.geoLocation);
     const stayDistances = await calculateDistance([geoLocation as ILatLng], locations);

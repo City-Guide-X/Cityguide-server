@@ -100,8 +100,8 @@ export const searchStay = async (
   checkin?: Date,
   checkout?: Date,
   children?: boolean,
-  count?: number,
-  guests?: number
+  guests?: number,
+  count: number = 1
 ) => {
   return StayModel.aggregate([
     {

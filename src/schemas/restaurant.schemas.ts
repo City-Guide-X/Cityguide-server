@@ -85,7 +85,23 @@ export const createRestaurantSchema = object({
           required_error: 'Delivery availability is required',
           invalid_type_error: 'Delivery availability should be a boolean',
         }),
-        reservation: number({ invalid_type_error: 'Max number of guests for reservation should be number' }).optional(),
+        reservation: object(
+          {
+            max: number({
+              required_error: 'Max reservation per table is required',
+              invalid_type_error: 'Max reservation per table should be a number',
+            }),
+            available: number({
+              required_error: 'Number of available tables is required',
+              invalid_type_error: 'Number of available tables should be a number',
+            }),
+            price: number({
+              required_error: 'Reservation price per person is required',
+              invalid_type_error: 'Reservation price per person should be number',
+            }),
+          },
+          { invalid_type_error: 'Reservation info should be an object containing max, available and price' }
+        ).optional(),
         amenities: string({
           required_error: 'Atleast 1 amenity is required',
           invalid_type_error: 'Amenities should be an array',
@@ -180,7 +196,23 @@ export const updateRestaurantSchema = object({
         required_error: 'Delivery availability is required',
         invalid_type_error: 'Delivery availability should be a boolean',
       }),
-      reservation: number({ invalid_type_error: 'Max number of guests for reservation is required' }).optional(),
+      reservation: object(
+        {
+          max: number({
+            required_error: 'Max reservation per table is required',
+            invalid_type_error: 'Max reservation per table should be a number',
+          }),
+          available: number({
+            required_error: 'Number of available tables is required',
+            invalid_type_error: 'Number of available tables should be a number',
+          }),
+          price: number({
+            required_error: 'Reservation price per person is required',
+            invalid_type_error: 'Reservation price per person should be number',
+          }),
+        },
+        { invalid_type_error: 'Reservation info should be an object containing max, available and price' }
+      ).optional(),
       amenities: string({
         required_error: 'Atleast 1 amenity is required',
         invalid_type_error: 'Amenities should be an array',
@@ -292,6 +324,16 @@ export const getAllRestautantSchema = object({
   }),
 });
 
+export const searchRestaurantSchema = object({
+  query: object({
+    lat: coerce.number({ required_error: 'Latitude is required', invalid_type_error: 'Latitude has to be a number' }),
+    lng: coerce.number({ required_error: 'Longitude is required', invalid_type_error: 'Longitude has to be a number' }),
+    children: string().optional(),
+    guests: coerce.number({ invalid_type_error: 'No of guests should be a number' }).optional(),
+    count: coerce.number({ invalid_type_error: 'Reservation count should be a number' }).optional(),
+  }),
+});
+
 export type createRestaurantInput = TypeOf<typeof createRestaurantSchema>['body'];
 export type getRestaurantDetailInput = TypeOf<typeof getRestaurantDetailSchema>['params'];
 export type updateRestaurantInput = TypeOf<typeof updateRestaurantSchema>;
@@ -300,3 +342,4 @@ export type addMenuInput = TypeOf<typeof addMenuSchema>;
 export type updateMenuInput = TypeOf<typeof updateMenuSchema>;
 export type removeMenuInput = TypeOf<typeof removeMenuSchema>['params'];
 export type getAllRestautantInput = TypeOf<typeof getAllRestautantSchema>['query'];
+export type searchRestaurantInput = TypeOf<typeof searchRestaurantSchema>['query'];

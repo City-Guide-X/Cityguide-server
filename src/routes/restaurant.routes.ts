@@ -6,6 +6,7 @@ import {
   getPartnerRestaurantsHandler,
   getRestaurantDetailHandler,
   removeMenuHandler,
+  searchRestaurantHandler,
   updateMenuHandler,
   updateRestaurantHandler,
 } from '@controllers';
@@ -17,6 +18,7 @@ import {
   getAllRestautantSchema,
   getRestaurantDetailSchema,
   removeMenuSchema,
+  searchRestaurantSchema,
   updateMenuSchema,
   updateRestaurantSchema,
 } from '@schemas';
@@ -25,6 +27,7 @@ import { Router } from 'express';
 const router = Router();
 
 router.get('/', validateSchema(getAllRestautantSchema), getAllRestaurantHandler);
+router.get('/search', validateSchema(searchRestaurantSchema), searchRestaurantHandler);
 router.get('/admin', requireAuth, partnerOnly, getPartnerRestaurantsHandler);
 router.get('/:restaurantId', validateSchema(getRestaurantDetailSchema), getRestaurantDetailHandler);
 router.use(requireAuth, establishmentOnly);
