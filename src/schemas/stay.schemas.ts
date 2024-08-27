@@ -511,6 +511,7 @@ export const searchStaySchema = object({
     checkin: coerce.date({ invalid_type_error: 'Invalid checkin date' }).optional(),
     checkout: coerce.date({ invalid_type_error: 'Invalid checkout date' }).optional(),
     children: string().optional(),
+    guests: coerce.number({ invalid_type_error: 'No of guests should be a number' }).optional(),
     count: coerce.number({ invalid_type_error: 'Reservation count should be a number' }).optional(),
   }),
 });
