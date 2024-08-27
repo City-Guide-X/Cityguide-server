@@ -7,6 +7,7 @@ import {
   getStayDetailHandler,
   getTrendingStaysHandler,
   removeAccommodationHandler,
+  searchStayHandler,
   updateAccommodationHandler,
   updateStayHandler,
 } from '@controllers';
@@ -18,6 +19,7 @@ import {
   getStayByLocationSchema,
   getStayDetailSchema,
   removeAccommodationSchema,
+  searchStaySchema,
   updateAccommodationSchema,
   updateStaySchema,
 } from '@schemas';
@@ -26,6 +28,7 @@ import { Router } from 'express';
 const router = Router();
 
 router.get('/', validateSchema(getStayByLocationSchema), getAllStayHandler);
+router.get('/search', validateSchema(searchStaySchema), searchStayHandler);
 router.get('/trending', getTrendingStaysHandler);
 router.get('/admin', requireAuth, partnerOnly, getPartnerStaysHandler);
 router.get('/:stayId', validateSchema(getStayDetailSchema), getStayDetailHandler);

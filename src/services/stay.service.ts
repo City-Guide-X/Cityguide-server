@@ -1,6 +1,7 @@
 import { AuthorizationError, BadRequestError, NotFoundError } from '@errors';
 import { ReservationModel, ReviewModel, Stay, StayModel } from '@models';
 import { IAccommodation, IReservationAccommodation } from '@types';
+import dayjs from 'dayjs';
 
 export const createStay = (input: Partial<Stay>) => {
   return StayModel.create({ ...input });
@@ -93,4 +94,45 @@ export const updateAccommodationAvailability = (_id: string, accommodations: IRe
     },
   }));
   return StayModel.bulkWrite(bulkOps);
+};
+
+export const searchStay = async (checkin?: Date, checkout?: Date, children?: boolean, count?: number) => {
+  return StayModel.aggregate([
+    {
+      $match: {
+        ...(checkin && checkout && { maxDays: { $lte: dayjs(checkout).diff(dayjs(checkin), 'd') } }),
+      },
+    },
+    {
+      $addFields: {
+        childrenAllowed: {
+          $anyElementTrue: {
+            $map: {
+              input: '$accommodation',
+              as: 'acc',
+              in: {
+                $and: [
+                  { $eq: ['$$acc.children', true] },
+                  { $eq: ['$$acc.infants', true] },
+                  { $gte: ['$$acc.available', 1] },
+                ],
+              },
+            },
+          },
+        },
+        availableRooms: {
+          $sum: '$accommodation.available',
+        },
+      },
+    },
+    {
+      $match: {
+        ...(children && { childrenAllowed: children }),
+        ...(count && { availableRooms: { $gte: +count } }),
+      },
+    },
+    {
+      $project: { childrenAllowed: 0, availableRooms: 0 },
+    },
+  ]);
 };

@@ -504,6 +504,17 @@ export const getStayByLocationSchema = object({
   }),
 });
 
+export const searchStaySchema = object({
+  query: object({
+    lat: coerce.number({ required_error: 'Latitude is required', invalid_type_error: 'Latitude has to be a number' }),
+    lng: coerce.number({ required_error: 'Longitude is required', invalid_type_error: 'Longitude has to be a number' }),
+    checkin: coerce.date({ invalid_type_error: 'Invalid checkin date' }).optional(),
+    checkout: coerce.date({ invalid_type_error: 'Invalid checkout date' }).optional(),
+    children: string().optional(),
+    count: coerce.number({ invalid_type_error: 'Reservation count should be a number' }).optional(),
+  }),
+});
+
 export type createStayInput = TypeOf<typeof createStaySchema>['body'];
 export type getStayDetailInput = TypeOf<typeof getStayDetailSchema>['params'];
 export type updateStayInput = TypeOf<typeof updateStaySchema>;
@@ -512,3 +523,4 @@ export type updateAccommodationInput = TypeOf<typeof updateAccommodationSchema>;
 export type removeAccommodationInput = TypeOf<typeof removeAccommodationSchema>['params'];
 export type deleteStayInput = TypeOf<typeof deleteStaySchema>['params'];
 export type getStayByLocationInput = TypeOf<typeof getStayByLocationSchema>['query'];
+export type searchStayInput = TypeOf<typeof searchStaySchema>['query'];

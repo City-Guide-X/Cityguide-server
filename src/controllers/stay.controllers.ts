@@ -6,6 +6,7 @@ import {
   getStayByLocationInput,
   getStayDetailInput,
   removeAccommodationInput,
+  searchStayInput,
   updateAccommodationInput,
   updateStayInput,
 } from '@schemas';
@@ -20,6 +21,7 @@ import {
   getTrendingStays,
   nearbyLocations,
   removeAccommodation,
+  searchStay,
   updateAccommodation,
   updateStay,
 } from '@services';
@@ -151,3 +153,30 @@ export const removeAccommodationHandler = asyncWrapper(
     return res.sendStatus(204);
   }
 );
+
+export const searchStayHandler = asyncWrapper(async (req: Request<{}, {}, {}, searchStayInput>, res: Response) => {
+  const { checkin, checkout, children, count, lat, lng } = req.query;
+  const geoLocation = { lat, lng };
+  const stays = await searchStay(checkin, checkout, !!children, count);
+  if (geoLocation.lat && geoLocation.lng) {
+    const locations = stays.map((stay) => stay.address.geoLocation);
+    const stayDistances = await calculateDistance([geoLocation as ILatLng], locations);
+    if (!stayDistances)
+      return res.status(200).json({ count: stays.length, stays: stays.map((stay) => omit(stay, privateFields)) });
+    const result = stays
+      .map((property, i) => {
+        const stay = {
+          ...omit(property, privateFields),
+          locationInfo: {
+            distance: stayDistances[i].distance?.value || 999999999,
+            distanceInWords: stayDistances[i].distance?.text || '',
+            duration: stayDistances[i].duration?.text || '',
+          },
+        };
+        return stay;
+      })
+      .sort((a, b) => a.locationInfo.distance - b.locationInfo.distance);
+    return res.status(200).json({ count: result.length, stay: result });
+  }
+  return res.status(200).json({ stay: stays.map((stay) => omit(stay, privateFields)) });
+});
