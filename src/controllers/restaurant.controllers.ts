@@ -2,7 +2,6 @@ import { BadRequestError, NotFoundError } from '@errors';
 import { privateFields } from '@models';
 import {
   addMenuInput,
-  createReservationInput,
   createRestaurantInput,
   deleteRestaurantInput,
   getAllRestautantInput,

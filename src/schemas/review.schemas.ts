@@ -1,5 +1,5 @@
 import { PropertyType, Rating } from '@types';
-import { nativeEnum, object, optional, string, TypeOf } from 'zod';
+import { nativeEnum, object, string, TypeOf } from 'zod';
 
 export const createReviewSchema = object({
   body: object({

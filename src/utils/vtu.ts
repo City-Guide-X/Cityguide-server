@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { encode } from 'base-64';
-import { put, get } from 'memory-cache';
+import { get, put } from 'memory-cache';
 
 const MAIN_C_SECRET = process.env.QUICKTELLER_CLIENT_SECRET;
 const MAIN_C_ID = process.env.QUICKTELLER_CLIENT_ID;

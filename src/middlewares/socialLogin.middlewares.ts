@@ -1,5 +1,5 @@
-import { Strategy } from 'passport-google-oauth20';
 import { Strategy as FbStrategy } from 'passport-facebook';
+import { Strategy } from 'passport-google-oauth20';
 
 export const googleStrategy = new Strategy(
   {

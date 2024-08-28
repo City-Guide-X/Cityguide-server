@@ -1,7 +1,7 @@
+import { IEmail } from '@types';
 import Email from 'email-templates';
 import nodemailer from 'nodemailer';
 import log from './logger';
-import { IEmail } from '@types';
 
 const transport = nodemailer.createTransport({
   service: 'gmail',
