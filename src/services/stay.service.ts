@@ -106,7 +106,7 @@ export const searchStay = async (
   return StayModel.aggregate([
     {
       $match: {
-        ...(checkin && checkout && { maxDays: { $lte: dayjs(checkout).diff(dayjs(checkin), 'd') } }),
+        ...(checkin && checkout && { maxDays: { $gte: dayjs(checkout).diff(dayjs(checkin), 'd') } }),
       },
     },
     {
