@@ -103,10 +103,11 @@ export const searchStay = async (
   guests?: number,
   count: number = 1
 ) => {
+  const dayDiff = dayjs(checkout).diff(dayjs(checkin), 'd');
   return StayModel.aggregate([
     {
       $match: {
-        ...(checkin && checkout && { maxDays: { $gte: dayjs(checkout).diff(dayjs(checkin), 'd') } }),
+        ...(checkin && checkout && { maxDays: { $gte: dayDiff } }),
       },
     },
     {
@@ -142,7 +143,40 @@ export const searchStay = async (
       },
     },
     {
-      $project: { childrenAllowed: 0, availableRooms: 0, maxGuests: 0 },
+      $lookup: {
+        from: 'establishments',
+        localField: 'partner',
+        foreignField: '_id',
+        as: 'est',
+        pipeline: [
+          {
+            $project: { name: 1, phoneNumber: 1, email: 1, imgUrl: 1, cancellationPolicy: 1 },
+          },
+        ],
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'partner',
+        foreignField: '_id',
+        as: 'user',
+        pipeline: [
+          {
+            $project: { firstName: 1, lastName: 1, phoneNumber: 1, email: 1, imgUrl: 1, cancellationPolicy: 1 },
+          },
+        ],
+      },
+    },
+    {
+      $addFields: {
+        partner: {
+          $arrayElemAt: [{ $concatArrays: ['$user', '$est'] }, 0],
+        },
+      },
+    },
+    {
+      $project: { childrenAllowed: 0, availableRooms: 0, maxGuests: 0, est: 0, user: 0 },
     },
   ]);
 };
