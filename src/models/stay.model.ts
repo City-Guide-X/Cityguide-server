@@ -69,6 +69,9 @@ export class Stay {
   @prop({ required: true })
   language: string[];
 
+  @prop({ required: true })
+  paymentMethods: string[];
+
   @prop({ default: [] })
   optionalServices: IOptionalService[];
 

@@ -184,6 +184,12 @@ export const createStaySchema = object({
     })
       .array()
       .min(1, 'Atleast one language is required'),
+    paymentMethods: string({
+      required_error: 'Payment methods are required',
+      invalid_type_error: 'Payment methods should be an array',
+    })
+      .array()
+      .min(1, 'Atleast one payment methods is required'),
     optionalServices: object({
       title: string({ required_error: 'Optional service title is required' }).min(
         3,
@@ -274,6 +280,10 @@ export const updateStaySchema = object({
     language: string({ invalid_type_error: 'Languages should be an array' })
       .array()
       .min(1, 'Atleast one language is required')
+      .optional(),
+    paymentMethods: string({ invalid_type_error: 'Payment methods should be an array' })
+      .array()
+      .min(1, 'Atleast one payment methods is required')
       .optional(),
     optionalServices: object({
       title: string({ required_error: 'Optional service title is required' }).min(
