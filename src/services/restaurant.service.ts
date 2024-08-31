@@ -22,6 +22,23 @@ export const getRestaurantById = (_id: string) => {
   });
 };
 
+export const getTrendingRestaurants = () => {
+  return RestaurantModel.aggregate([
+    {
+      $lookup: {
+        from: 'reservations',
+        localField: '_id',
+        foreignField: 'property',
+        as: 'reservations',
+      },
+    },
+    { $addFields: { reservationCount: { $size: '$reservations' } } },
+    { $sort: { reservationCount: -1 } },
+    { $limit: 10 },
+    { $project: { reservations: 0, reservationCount: 0 } },
+  ]);
+};
+
 export const updateRestaurant = (_id: string, partner: string, body: Partial<Restaurant>) => {
   return RestaurantModel.updateOne({ _id, partner }, { $set: body });
 };
