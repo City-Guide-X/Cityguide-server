@@ -517,8 +517,8 @@ export const getStayByLocationSchema = object({
 
 export const searchStaySchema = object({
   query: object({
-    lat: coerce.number({ required_error: 'Latitude is required', invalid_type_error: 'Latitude has to be a number' }),
-    lng: coerce.number({ required_error: 'Longitude is required', invalid_type_error: 'Longitude has to be a number' }),
+    lat: coerce.number({ invalid_type_error: 'Latitude has to be a number' }).optional(),
+    lng: coerce.number({ invalid_type_error: 'Longitude has to be a number' }).optional(),
     checkin: coerce.date({ invalid_type_error: 'Invalid checkin date' }).optional(),
     checkout: coerce.date({ invalid_type_error: 'Invalid checkout date' }).optional(),
     children: string().optional(),
@@ -532,6 +532,15 @@ export const searchStaySchema = object({
           ? 'Checkout date is required when Check-in date is provided'
           : 'Check-in date is required when Checkout date is provided',
         path: ['checkin', 'checkout'],
+      });
+    }
+    if (!!data.lat !== !!data.lng) {
+      ctx.addIssue({
+        code: ZodIssueCode.custom,
+        message: !!data.lat
+          ? 'Longitude is required when Latitude is provided'
+          : 'Latitude is required when Longitude is provided',
+        path: ['lat', 'lng'],
       });
     }
   }),

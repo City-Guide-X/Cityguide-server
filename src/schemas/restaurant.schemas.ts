@@ -1,5 +1,5 @@
 import { DayOfWeek, PriceRange } from '@types';
-import { boolean, coerce, nativeEnum, number, object, strictObject, string, TypeOf } from 'zod';
+import { boolean, coerce, nativeEnum, number, object, strictObject, string, TypeOf, ZodIssueCode } from 'zod';
 
 export const createRestaurantSchema = object({
   body: object({
@@ -326,11 +326,21 @@ export const getAllRestautantSchema = object({
 
 export const searchRestaurantSchema = object({
   query: object({
-    lat: coerce.number({ required_error: 'Latitude is required', invalid_type_error: 'Latitude has to be a number' }),
-    lng: coerce.number({ required_error: 'Longitude is required', invalid_type_error: 'Longitude has to be a number' }),
+    lat: coerce.number({ invalid_type_error: 'Latitude has to be a number' }).optional(),
+    lng: coerce.number({ invalid_type_error: 'Longitude has to be a number' }).optional(),
     children: string().optional(),
     guests: coerce.number({ invalid_type_error: 'No of guests should be a number' }).optional(),
     count: coerce.number({ invalid_type_error: 'Reservation count should be a number' }).optional(),
+  }).superRefine((data, ctx) => {
+    if (!!data.lat !== !!data.lng) {
+      ctx.addIssue({
+        code: ZodIssueCode.custom,
+        message: !!data.lat
+          ? 'Longitude is required when Latitude is provided'
+          : 'Latitude is required when Longitude is provided',
+        path: ['lat', 'lng'],
+      });
+    }
   }),
 });
 

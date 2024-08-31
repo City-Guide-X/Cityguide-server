@@ -158,7 +158,11 @@ export const searchRestaurantHandler = asyncWrapper(
     const { children, count, lat, lng, guests } = req.query;
     const geoLocation = { lat, lng };
     const restaurants = await searchRestaurant(!!children, guests, count);
-    if (!restaurants.length) return res.status(200).json({ count: 0, properties: [] });
+    if (!restaurants.length || !lat)
+      return res.status(200).json({
+        count: restaurants.length,
+        properties: restaurants.map((restaurant) => omit(restaurant, privateFields)),
+      });
     const locations = restaurants.map((restaurant) => restaurant.address.geoLocation);
     const restaurantDistances = await calculateDistance([geoLocation as ILatLng], locations);
     if (!restaurantDistances)
