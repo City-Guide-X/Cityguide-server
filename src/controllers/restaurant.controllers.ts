@@ -19,6 +19,7 @@ import {
   getAllRestaurants,
   getPartnerRestaurants,
   getRestaurantById,
+  getTrendingRestaurants,
   removeMenu,
   searchRestaurant,
   updateMenu,
@@ -27,7 +28,7 @@ import {
 import { ILatLng } from '@types';
 import { asyncWrapper, summarizeRestaurant } from '@utils';
 import { Request, Response } from 'express';
-import { omit } from 'lodash';
+import { countBy, omit } from 'lodash';
 
 export const createRestaurantHandler = asyncWrapper(
   async (req: Request<{}, {}, createRestaurantInput>, res: Response) => {
@@ -73,6 +74,13 @@ export const getAllRestaurantHandler = asyncWrapper(
     });
   }
 );
+
+export const getTrendingRestaurantsHandlers = asyncWrapper(async (req: Request, res: Response) => {
+  const properties = await getTrendingRestaurants();
+  return res
+    .status(200)
+    .json({ count: properties.length, properties: properties.map((restaurant) => omit(restaurant, privateFields)) });
+});
 
 export const getPartnerRestaurantsHandler = asyncWrapper(async (req: Request, res: Response) => {
   const { id } = res.locals.user;
