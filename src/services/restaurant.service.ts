@@ -1,6 +1,6 @@
 import { AuthorizationError, BadRequestError, NotFoundError } from '@errors';
 import { ReservationModel, Restaurant, RestaurantModel, ReviewModel } from '@models';
-import { IMenu } from '@types';
+import { DayOfWeek, IMenu } from '@types';
 
 export const createRestaurant = (input: Partial<Restaurant>) => {
   return RestaurantModel.create({ ...input });
@@ -81,13 +81,69 @@ export const removeMenu = async (_id: string, partner: string, menuId: string) =
   if (!modifiedCount) throw new NotFoundError('Restaurant not found');
 };
 
-export const searchRestaurant = async (children?: boolean, guests?: number, count: number = 0) => {
+export const searchRestaurant = async (
+  children?: boolean,
+  guests?: number,
+  time?: string,
+  day?: DayOfWeek,
+  count: number = 1
+) => {
   return RestaurantModel.aggregate([
     {
       $match: {
         ...(children && { 'details.children': children }),
         ...(guests && { 'details.reservation.max': { $gte: +guests } }),
         'details.reservation.available': { $gte: +count },
+        ...(time &&
+          day && {
+            $expr: {
+              $anyElementTrue: {
+                $map: {
+                  input: '$availability',
+                  as: 'avail',
+                  in: {
+                    $and: [
+                      { $eq: ['$$avail.day', day] },
+                      {
+                        $gte: [
+                          {
+                            $toDate: {
+                              $concat: ['2000-01-01T', time, ':00Z'],
+                            },
+                          },
+                          {
+                            $toDate: {
+                              $concat: ['2000-01-01T', '$$avail.from', ':00Z'],
+                            },
+                          },
+                        ],
+                      },
+                      {
+                        $lte: [
+                          {
+                            $dateAdd: {
+                              startDate: {
+                                $toDate: {
+                                  $concat: ['2000-01-01T', time, ':00Z'],
+                                },
+                              },
+                              unit: 'hour',
+                              amount: 1,
+                            },
+                          },
+                          {
+                            $toDate: {
+                              $concat: ['2000-01-01T', '$$avail.to', ':00Z'],
+                            },
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+          }),
       },
     },
   ]);

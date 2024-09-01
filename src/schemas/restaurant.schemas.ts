@@ -43,8 +43,14 @@ export const createRestaurantSchema = object({
           required_error: 'Day is required',
           invalid_type_error: 'Day should be a day of the week in full and capitalized',
         }),
-        from: string({ required_error: 'From time is required' }),
-        to: string({ required_error: 'To time is required' }),
+        from: string({ required_error: 'From time is required' }).regex(
+          /^\d{2}:\d{2}$/,
+          'From time should be in HH:MM 23-hour format'
+        ),
+        to: string({ required_error: 'To time is required' }).regex(
+          /^\d{2}:\d{2}$/,
+          'To time should be in HH:MM 23-hour format'
+        ),
       },
       { required_error: 'Availability is required', invalid_type_error: 'Availability is should be an array' }
     )
@@ -177,8 +183,14 @@ export const updateRestaurantSchema = object({
           required_error: 'Day is required',
           invalid_type_error: 'Day should be a day of the week in full and capitalized',
         }),
-        from: string({ required_error: 'From time is required' }),
-        to: string({ required_error: 'To time is required' }),
+        from: string({ required_error: 'From time is required' }).regex(
+          /^\d{2}:\d{2}$/,
+          'From time should be in HH:MM 23-hour format'
+        ),
+        to: string({ required_error: 'To time is required' }).regex(
+          /^\d{2}:\d{2}$/,
+          'To time should be in HH:MM 23-hour format'
+        ),
       },
       { invalid_type_error: 'Availability is should be an array' }
     )
@@ -328,6 +340,12 @@ export const searchRestaurantSchema = object({
   query: object({
     lat: coerce.number({ invalid_type_error: 'Latitude has to be a number' }).optional(),
     lng: coerce.number({ invalid_type_error: 'Longitude has to be a number' }).optional(),
+    day: nativeEnum(DayOfWeek, {
+      invalid_type_error: 'Day should be a day of the week in full and capitalized',
+    }).optional(),
+    time: string()
+      .regex(/^\d{2}:\d{2}$/, 'Time should be in HH:MM 23-hour format')
+      .optional(),
     children: string().optional(),
     guests: coerce.number({ invalid_type_error: 'No of guests should be a number' }).optional(),
     count: coerce.number({ invalid_type_error: 'Reservation count should be a number' }).optional(),
@@ -339,6 +357,13 @@ export const searchRestaurantSchema = object({
           ? 'Longitude is required when Latitude is provided'
           : 'Latitude is required when Longitude is provided',
         path: ['lat', 'lng'],
+      });
+    }
+    if (!!data.day !== !!data.time) {
+      ctx.addIssue({
+        code: ZodIssueCode.custom,
+        message: !!data.day ? 'Time is required when the day is provided' : 'Day is required when the time is provided',
+        path: ['day', 'time'],
       });
     }
   }),

@@ -155,9 +155,9 @@ export const removeMenuHandler = asyncWrapper(async (req: Request<removeMenuInpu
 
 export const searchRestaurantHandler = asyncWrapper(
   async (req: Request<{}, {}, {}, searchRestaurantInput>, res: Response) => {
-    const { children, count, lat, lng, guests } = req.query;
+    const { children, count, lat, lng, guests, time, day } = req.query;
     const geoLocation = { lat, lng };
-    const restaurants = await searchRestaurant(!!children, guests, count);
+    const restaurants = await searchRestaurant(!!children, guests, time, day, count);
     if (!restaurants.length || !lat)
       return res.status(200).json({
         count: restaurants.length,
