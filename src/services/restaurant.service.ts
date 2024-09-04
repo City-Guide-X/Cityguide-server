@@ -11,7 +11,7 @@ export const getAllRestaurants = () => {
 };
 
 export const getPartnerRestaurants = (partner: string) => {
-  return RestaurantModel.find({ partner }).sort('-creadted');
+  return RestaurantModel.find({ partner }).sort('-updatedAt');
 };
 
 export const getRestaurantById = (_id: string) => {

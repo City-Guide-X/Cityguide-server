@@ -12,7 +12,7 @@ export const getAllStays = () => {
 };
 
 export const getPartnerStays = (partner: string) => {
-  return StayModel.find({ partner }).sort('-created');
+  return StayModel.find({ partner }).sort('-updatedAt');
 };
 
 export const getStayById = (_id: string) => {
