@@ -69,7 +69,7 @@ export const getTrendingNightlifesHandler = asyncWrapper(async (req: Request, re
   const properties = await getTrendingNightlifes();
   return res.status(200).json({
     count: properties.length,
-    properties: properties.map((nightlife) => omit(nightlife.toJSON(), privateFields)),
+    properties: properties.map((nightlife) => omit(nightlife, privateFields)),
   });
 });
 
