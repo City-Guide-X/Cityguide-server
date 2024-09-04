@@ -28,7 +28,7 @@ import {
 import { ILatLng } from '@types';
 import { asyncWrapper, summarizeRestaurant } from '@utils';
 import { Request, Response } from 'express';
-import { countBy, omit } from 'lodash';
+import { omit } from 'lodash';
 
 export const createRestaurantHandler = asyncWrapper(
   async (req: Request<{}, {}, createRestaurantInput>, res: Response) => {
@@ -75,7 +75,7 @@ export const getAllRestaurantHandler = asyncWrapper(
   }
 );
 
-export const getTrendingRestaurantsHandlers = asyncWrapper(async (req: Request, res: Response) => {
+export const getTrendingRestaurantsHandler = asyncWrapper(async (req: Request, res: Response) => {
   const properties = await getTrendingRestaurants();
   return res
     .status(200)

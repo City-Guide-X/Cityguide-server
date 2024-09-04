@@ -13,6 +13,8 @@ import {
   deleteNightLife,
   getAllNightlife,
   getNightLifeById,
+  getPartnerNightlifes,
+  getTrendingNightlifes,
   updateNightLife,
 } from '@services';
 import { ILatLng } from '@types';
@@ -62,6 +64,23 @@ export const getAllNightlifeHandler = asyncWrapper(
     });
   }
 );
+
+export const getTrendingNightlifesHandler = asyncWrapper(async (req: Request, res: Response) => {
+  const properties = await getTrendingNightlifes();
+  return res.status(200).json({
+    count: properties.length,
+    properties: properties.map((nightlife) => omit(nightlife.toJSON(), privateFields)),
+  });
+});
+
+export const getPartnerNightlifesHandler = asyncWrapper(async (req: Request, res: Response) => {
+  const { id } = res.locals.user;
+  const properties = await getPartnerNightlifes(id);
+  return res.status(200).json({
+    count: properties.length,
+    properties: properties.map((nightlife) => omit(nightlife.toJSON(), privateFields)),
+  });
+});
 
 export const getNightLifeDetailHandler = asyncWrapper(async (req: Request<getNightLifeDetailInput>, res: Response) => {
   const { nightLifeId } = req.params;
