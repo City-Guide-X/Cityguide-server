@@ -5,7 +5,7 @@ import {
   getAllRestaurantHandler,
   getPartnerRestaurantsHandler,
   getRestaurantDetailHandler,
-  getTrendingRestaurantsHandlers,
+  getTrendingRestaurantsHandler,
   removeMenuHandler,
   searchRestaurantHandler,
   updateMenuHandler,
@@ -29,7 +29,7 @@ const router = Router();
 
 router.get('/', validateSchema(getAllRestautantSchema), getAllRestaurantHandler);
 router.get('/search', validateSchema(searchRestaurantSchema), searchRestaurantHandler);
-router.get('/trending', getTrendingRestaurantsHandlers);
+router.get('/trending', getTrendingRestaurantsHandler);
 router.get('/admin', requireAuth, partnerOnly, getPartnerRestaurantsHandler);
 router.get('/:restaurantId', validateSchema(getRestaurantDetailSchema), getRestaurantDetailHandler);
 router.use(requireAuth, establishmentOnly);
