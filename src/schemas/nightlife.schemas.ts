@@ -114,6 +114,9 @@ export const getNightLifeDetailSchema = object({
 
 export const updateNightLifeSchema = object({
   body: strictObject({
+    type: nativeEnum(NightLifeType, {
+      invalid_type_error: 'NightLife type should be a Club | Bar | Lounge | Other',
+    }).optional(),
     name: string().min(3, 'NightLife name requires atleast 3 characters').optional(),
     summary: string().min(10, 'Summary should be atleast 10 characters').optional(),
     address: object({
@@ -135,10 +138,11 @@ export const updateNightLifeSchema = object({
       }),
       extraDetails: string().optional(),
     }).optional(),
-    avatar: string({ required_error: 'Avatar is required' }),
-    images: string({ required_error: 'Images is required', invalid_type_error: 'Images should be an array' })
+    avatar: string().optional(),
+    images: string({ invalid_type_error: 'Images should be an array' })
       .array()
-      .min(7, 'Atleast 7 images are required'),
+      .min(11, 'Atleast 11 images are required')
+      .optional(),
     availability: object(
       {
         day: nativeEnum(DayOfWeek, {
