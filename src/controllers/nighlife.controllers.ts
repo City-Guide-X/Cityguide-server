@@ -18,14 +18,16 @@ import {
   updateNightLife,
 } from '@services';
 import { ILatLng } from '@types';
-import { asyncWrapper } from '@utils';
+import { asyncWrapper, summarizeNightlife } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
 
 export const createNightLifeHandler = asyncWrapper(
   async (req: Request<{}, {}, createNightLifeInput>, res: Response) => {
     const { id } = res.locals.user;
-    const data = { ...req.body, partner: id };
+    let data = { ...req.body, partner: id };
+    const summary = (await summarizeNightlife(data)) as string;
+    if (summary) data = { ...data, summary };
     const nightlife = await createNightLife(data);
     return res.status(201).json({ nightlife: omit(nightlife.toJSON(), privateFields) });
   }
