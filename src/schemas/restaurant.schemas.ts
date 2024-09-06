@@ -176,7 +176,10 @@ export const updateRestaurantSchema = object({
       extraDetails: string().optional(),
     }).optional(),
     avatar: string().optional(),
-    images: string({ invalid_type_error: 'Images should be an array' }).array().optional(),
+    images: string({ invalid_type_error: 'Images should be an array' })
+      .array()
+      .min(11, 'Atleast 11 images are required')
+      .optional(),
     availability: object(
       {
         day: nativeEnum(DayOfWeek, {
