@@ -1,5 +1,5 @@
 import { DayOfWeek, NightLifeType, Parking } from '@types';
-import { coerce, nativeEnum, number, object, strictObject, string, TypeOf } from 'zod';
+import { coerce, nativeEnum, number, object, strictObject, string, TypeOf, ZodIssueCode } from 'zod';
 
 export const createNightLifeSchema = object({
   body: object({
@@ -216,8 +216,40 @@ export const getAllNightlifeSchema = object({
   }),
 });
 
+export const searchNightlifeSchema = object({
+  query: object({
+    lat: coerce.number({ invalid_type_error: 'Latitude has to be a number' }).optional(),
+    lng: coerce.number({ invalid_type_error: 'Longitude has to be a number' }).optional(),
+    day: nativeEnum(DayOfWeek, {
+      invalid_type_error: 'Day should be a day of the week in full and capitalized',
+    }).optional(),
+    time: string()
+      .regex(/^\d{2}:\d{2}$/, 'Time should be in HH:MM 23-hour format')
+      .optional(),
+    minAge: coerce.number({ invalid_type_error: 'Min group age should be a number' }).optional(),
+  }).superRefine((data, ctx) => {
+    if (!!data.lat !== !!data.lng) {
+      ctx.addIssue({
+        code: ZodIssueCode.custom,
+        message: !!data.lat
+          ? 'Longitude is required when Latitude is provided'
+          : 'Latitude is required when Longitude is provided',
+        path: ['lat', 'lng'],
+      });
+    }
+    if (!!data.day !== !!data.time) {
+      ctx.addIssue({
+        code: ZodIssueCode.custom,
+        message: !!data.day ? 'Time is required when the day is provided' : 'Day is required when the time is provided',
+        path: ['day', 'time'],
+      });
+    }
+  }),
+});
+
 export type createNightLifeInput = TypeOf<typeof createNightLifeSchema>['body'];
 export type getNightLifeDetailInput = TypeOf<typeof getNightLifeDetailSchema>['params'];
 export type updateNightLifeInput = TypeOf<typeof updateNightLifeSchema>;
 export type deleteNightLifeInput = TypeOf<typeof deleteNightLifeSchema>['params'];
 export type getAllNightlifeInput = TypeOf<typeof getAllNightlifeSchema>['query'];
+export type searchNightlifeInput = TypeOf<typeof searchNightlifeSchema>['query'];
