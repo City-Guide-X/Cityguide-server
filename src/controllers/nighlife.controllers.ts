@@ -5,6 +5,7 @@ import {
   deleteNightLifeInput,
   getAllNightlifeInput,
   getNightLifeDetailInput,
+  searchNightlifeInput,
   updateNightLifeInput,
 } from '@schemas';
 import {
@@ -15,6 +16,7 @@ import {
   getNightLifeById,
   getPartnerNightlifes,
   getTrendingNightlifes,
+  searchNightlife,
   updateNightLife,
 } from '@services';
 import { ILatLng } from '@types';
@@ -111,3 +113,37 @@ export const deleteNightLifeHandler = asyncWrapper(async (req: Request<deleteNig
   await deleteNightLife(nightLifeId, id);
   return res.sendStatus(204);
 });
+
+export const searchNightlifeHandler = asyncWrapper(
+  async (req: Request<{}, {}, {}, searchNightlifeInput>, res: Response) => {
+    const { day, minAge, lat, lng, time } = req.query;
+    const geoLocation = { lat, lng };
+    const nightlifes = await searchNightlife(day, time, minAge);
+    if (!nightlifes.length || !lat)
+      return res.status(200).json({
+        count: nightlifes.length,
+        properties: nightlifes.map((nightlife) => omit(nightlife, privateFields)),
+      });
+    const locations = nightlifes.map((nightlife) => nightlife.address.geoLocation);
+    const nightlifeDistances = await calculateDistance([geoLocation as ILatLng], locations);
+    if (!nightlifeDistances)
+      return res.status(200).json({
+        count: nightlifes.length,
+        properties: nightlifes.map((nightlife) => omit(nightlife, privateFields)),
+      });
+    const result = nightlifes
+      .map((property, i) => {
+        const nightlife = {
+          ...omit(property, privateFields),
+          locationInfo: {
+            distance: nightlifeDistances[i].distance?.value || 999999999,
+            distanceInWords: nightlifeDistances[i].distance?.text || '',
+            duration: nightlifeDistances[i].duration?.text || '',
+          },
+        };
+        return nightlife;
+      })
+      .sort((a, b) => a.locationInfo.distance - b.locationInfo.distance);
+    return res.status(200).json({ count: result.length, properties: result });
+  }
+);
