@@ -5,6 +5,7 @@ import {
   getNightLifeDetailHandler,
   getPartnerNightlifesHandler,
   getTrendingNightlifesHandler,
+  searchNightlifeHandler,
   updateNightLifeHandler,
 } from '@controllers';
 import { establishmentOnly, partnerOnly, requireAuth, validateSchema } from '@middlewares';
@@ -13,6 +14,7 @@ import {
   deleteNightLifeSchema,
   getAllNightlifeSchema,
   getNightLifeDetailSchema,
+  searchNightlifeSchema,
   updateNightLifeSchema,
 } from '@schemas';
 import { Router } from 'express';
@@ -20,6 +22,7 @@ import { Router } from 'express';
 const router = Router();
 
 router.get('/', validateSchema(getAllNightlifeSchema), getAllNightlifeHandler);
+router.get('/search', validateSchema(searchNightlifeSchema), searchNightlifeHandler);
 router.get('/trending', getTrendingNightlifesHandler);
 router.get('/admin', requireAuth, partnerOnly, getPartnerNightlifesHandler);
 router.get('/:nightLifeId', validateSchema(getNightLifeDetailSchema), getNightLifeDetailHandler);
