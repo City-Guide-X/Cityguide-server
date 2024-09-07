@@ -41,72 +41,33 @@ export const searchNightlife = async (day?: DayOfWeek, time?: string, minAge?: n
     {
       $match: {
         ...(minAge && { 'rules.minAge': { $gte: +minAge } }),
-        ...(time &&
-          day && {
+        ...(day &&
+          time && {
             $expr: {
               $anyElementTrue: {
                 $map: {
                   input: '$availability',
                   as: 'avail',
                   in: {
-                    $let: {
-                      vars: {
-                        fromTime: { $toDate: { $concat: ['2000-01-01T', '$$avail.from', ':00Z'] } },
-                        toTime: { $toDate: { $concat: ['2000-01-01T', '$$avail.to', ':00Z'] } },
-                        queryTime: { $toDate: { $concat: ['2000-01-01T', time, ':00Z'] } },
-                        isOvernight: { $gt: ['$$avail.from', '$$avail.to'] },
-                      },
-                      in: {
-                        $and: [
-                          { $eq: ['$$avail.day', day] },
+                    $and: [
+                      { $eq: ['$$avail.day', day] },
+                      {
+                        $or: [
                           {
-                            $cond: {
-                              if: '$$isOvernight',
-                              then: {
-                                $and: [
-                                  { $gte: ['$$queryTime', '$$fromTime'] },
-                                  {
-                                    $lte: [
-                                      {
-                                        $dateAdd: {
-                                          startDate: '$$queryTime',
-                                          unit: 'hour',
-                                          amount: 1,
-                                        },
-                                      },
-                                      {
-                                        $dateAdd: {
-                                          startDate: '$$toTime',
-                                          unit: 'day',
-                                          amount: 1,
-                                        },
-                                      },
-                                    ],
-                                  },
-                                ],
-                              },
-                              else: {
-                                $and: [
-                                  { $gte: ['$$queryTime', '$$fromTime'] },
-                                  {
-                                    $lte: [
-                                      {
-                                        $dateAdd: {
-                                          startDate: '$$queryTime',
-                                          unit: 'hour',
-                                          amount: 1,
-                                        },
-                                      },
-                                      '$$toTime',
-                                    ],
-                                  },
-                                ],
-                              },
-                            },
+                            $gte: [
+                              { $toDate: { $concat: ['2000-01-01T', time, ':00Z'] } },
+                              { $toDate: { $concat: ['2000-01-01T', '$$avail.from', ':00Z'] } },
+                            ],
+                          },
+                          {
+                            $lte: [
+                              { $toDate: { $concat: ['2000-01-01T', time, ':00Z'] } },
+                              { $toDate: { $concat: ['2000-01-01T', '$$avail.to', ':00Z'] } },
+                            ],
                           },
                         ],
                       },
-                    },
+                    ],
                   },
                 },
               },
