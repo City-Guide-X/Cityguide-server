@@ -1,5 +1,5 @@
 import { AuthorizationError, BadRequestError, NotFoundError } from '@errors';
-import { ReservationModel, ReviewModel, Stay, StayModel } from '@models';
+import { Stay, StayModel } from '@models';
 import { IAccommodation, IReservationAccommodation } from '@types';
 import dayjs from 'dayjs';
 
@@ -44,9 +44,7 @@ export const updateStay = (_id: string, partner: string, body: Partial<Stay>) =>
 };
 
 export const deleteStay = async (_id: string, partner: string) => {
-  const { deletedCount } = await StayModel.deleteOne({ _id, partner });
-  if (!deletedCount) throw new NotFoundError('Stay not found');
-  await Promise.all([ReservationModel.deleteMany({ property: _id }), ReviewModel.deleteMany({ property: _id })]);
+  return StayModel.updateOne({ _id, partner }, { deletedAt: Date.now() });
 };
 
 export const addAccommodation = (_id: string, partner: string, body: IAccommodation[]) => {

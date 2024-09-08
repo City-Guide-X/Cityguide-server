@@ -22,7 +22,7 @@ export const setUserRefreshToken = (_id: string, refreshToken: string | null) =>
 };
 
 export const deleteUser = (_id: string) => {
-  return UserModel.findOneAndDelete({ _id });
+  return UserModel.updateOne({ _id }, { deletedAt: Date.now() });
 };
 
 export const addFavouriteProperties = (_id: string, favouriteProperties: IFavProperties) => {

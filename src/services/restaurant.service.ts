@@ -1,5 +1,5 @@
 import { AuthorizationError, BadRequestError, NotFoundError } from '@errors';
-import { ReservationModel, Restaurant, RestaurantModel, ReviewModel } from '@models';
+import { Restaurant, RestaurantModel } from '@models';
 import { DayOfWeek, IMenu } from '@types';
 
 export const createRestaurant = (input: Partial<Restaurant>) => {
@@ -43,10 +43,8 @@ export const updateRestaurant = (_id: string, partner: string, body: Partial<Res
   return RestaurantModel.updateOne({ _id, partner }, { $set: body });
 };
 
-export const deleteRestaurant = async (_id: string, partner: string) => {
-  const { deletedCount } = await RestaurantModel.deleteOne({ _id, partner });
-  if (!deletedCount) throw new NotFoundError('Restaurant not found');
-  await Promise.all([ReservationModel.deleteMany({ property: _id }), ReviewModel.deleteMany({ property: _id })]);
+export const deleteRestaurant = (_id: string, partner: string) => {
+  return RestaurantModel.updateOne({ _id, partner }, { deletedAt: Date.now() });
 };
 
 export const addMenu = (_id: string, partner: string, menu: IMenu[]) => {

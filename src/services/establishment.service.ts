@@ -55,5 +55,5 @@ export const changeEstablishmentCancellationPolicy = (_id: string, cancellationP
 };
 
 export const deleteEstablishment = (_id: string) => {
-  return EstablishmentModel.findOneAndDelete({ _id });
+  return EstablishmentModel.updateOne({ _id }, { deletedAt: Date.now() });
 };

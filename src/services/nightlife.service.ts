@@ -1,5 +1,4 @@
-import { NotFoundError } from '@errors';
-import { NightLife, NightLifeModel, ReservationModel, ReviewModel } from '@models';
+import { NightLife, NightLifeModel } from '@models';
 import { DayOfWeek } from '@types';
 
 export const createNightLife = (input: Partial<NightLife>) => {
@@ -30,10 +29,8 @@ export const updateNightLife = (_id: string, partner: string, body: Partial<Nigh
   return NightLifeModel.updateOne({ _id, partner }, { $set: body });
 };
 
-export const deleteNightLife = async (_id: string, partner: string) => {
-  const { deletedCount } = await NightLifeModel.deleteOne({ _id, partner });
-  if (!deletedCount) throw new NotFoundError('NightLife not found');
-  await Promise.all([ReviewModel.deleteMany({ property: _id }), ReservationModel.deleteMany({ property: _id })]);
+export const deleteNightLife = (_id: string, partner: string) => {
+  return NightLifeModel.updateOne({ _id, partner }, { deletedAt: Date.now() });
 };
 
 export const searchNightlife = async (day?: DayOfWeek, time?: string, minAge?: number) => {

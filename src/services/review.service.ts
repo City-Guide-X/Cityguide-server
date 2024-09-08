@@ -5,7 +5,7 @@ export const createReview = (input: Partial<Review>) => {
 };
 
 export const deleteReview = (_id: string, user: string) => {
-  return ReviewModel.findOneAndDelete({ _id, user });
+  return ReviewModel.updateOne({ _id, user }, { deletedAt: Date.now() });
 };
 
 export const getReviews = (property: string) => {
