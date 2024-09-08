@@ -1,5 +1,6 @@
 import { NightLife, NightLifeModel } from '@models';
 import { DayOfWeek } from '@types';
+import dayjs from 'dayjs';
 
 export const createNightLife = (input: Partial<NightLife>) => {
   return NightLifeModel.create({ ...input });
@@ -30,7 +31,7 @@ export const updateNightLife = (_id: string, partner: string, body: Partial<Nigh
 };
 
 export const deleteNightLife = (_id: string, partner: string) => {
-  return NightLifeModel.updateOne({ _id, partner }, { deletedAt: Date.now() });
+  return NightLifeModel.updateOne({ _id, partner }, { deletedAt: dayjs().toDate() });
 };
 
 export const searchNightlife = async (day?: DayOfWeek, time?: string, minAge?: number) => {

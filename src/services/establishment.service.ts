@@ -1,5 +1,6 @@
 import { Establishment, EstablishmentModel } from '@models';
 import { ICancellation } from '@types';
+import dayjs from 'dayjs';
 import { Types } from 'mongoose';
 
 export const createEstablishment = (input: Partial<Establishment>) => {
@@ -55,5 +56,5 @@ export const changeEstablishmentCancellationPolicy = (_id: string, cancellationP
 };
 
 export const deleteEstablishment = (_id: string) => {
-  return EstablishmentModel.updateOne({ _id }, { deletedAt: Date.now() });
+  return EstablishmentModel.updateOne({ _id }, { deletedAt: dayjs().toDate() });
 };

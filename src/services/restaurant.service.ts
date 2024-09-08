@@ -1,6 +1,7 @@
 import { AuthorizationError, BadRequestError, NotFoundError } from '@errors';
 import { Restaurant, RestaurantModel } from '@models';
 import { DayOfWeek, IMenu } from '@types';
+import dayjs from 'dayjs';
 
 export const createRestaurant = (input: Partial<Restaurant>) => {
   return RestaurantModel.create({ ...input });
@@ -44,7 +45,7 @@ export const updateRestaurant = (_id: string, partner: string, body: Partial<Res
 };
 
 export const deleteRestaurant = (_id: string, partner: string) => {
-  return RestaurantModel.updateOne({ _id, partner }, { deletedAt: Date.now() });
+  return RestaurantModel.updateOne({ _id, partner }, { deletedAt: dayjs().toDate() });
 };
 
 export const addMenu = (_id: string, partner: string, menu: IMenu[]) => {

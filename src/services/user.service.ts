@@ -1,5 +1,6 @@
 import { User, UserModel } from '@models';
 import { ICancellation, IFavProperties } from '@types';
+import dayjs from 'dayjs';
 
 export const createUser = (input: Partial<User>) => {
   return UserModel.create({ ...input });
@@ -22,7 +23,7 @@ export const setUserRefreshToken = (_id: string, refreshToken: string | null) =>
 };
 
 export const deleteUser = (_id: string) => {
-  return UserModel.updateOne({ _id }, { deletedAt: Date.now() });
+  return UserModel.updateOne({ _id }, { deletedAt: dayjs().toDate() });
 };
 
 export const addFavouriteProperties = (_id: string, favouriteProperties: IFavProperties) => {

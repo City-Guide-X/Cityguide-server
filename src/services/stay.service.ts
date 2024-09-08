@@ -44,7 +44,7 @@ export const updateStay = (_id: string, partner: string, body: Partial<Stay>) =>
 };
 
 export const deleteStay = async (_id: string, partner: string) => {
-  return StayModel.updateOne({ _id, partner }, { deletedAt: Date.now() });
+  return StayModel.updateOne({ _id, partner }, { deletedAt: dayjs().toDate() });
 };
 
 export const addAccommodation = (_id: string, partner: string, body: IAccommodation[]) => {
