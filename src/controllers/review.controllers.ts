@@ -25,7 +25,7 @@ export const getPropertyReviewsHandler = asyncWrapper(async (req: Request<getPro
 export const deleteReviewHandler = asyncWrapper(async (req: Request<deleteReviewInput>, res: Response) => {
   const { id } = res.locals.user;
   const { reviewId } = req.params;
-  const isDeleted = await deleteReview(reviewId, id);
-  if (!isDeleted) throw new BadRequestError();
+  const { matchedCount, modifiedCount } = await deleteReview(reviewId, id);
+  if (!matchedCount || !modifiedCount) throw new BadRequestError();
   return res.sendStatus(204);
 });

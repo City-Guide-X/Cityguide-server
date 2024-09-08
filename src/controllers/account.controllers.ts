@@ -122,11 +122,9 @@ export const logoutHandler = asyncWrapper(async (req: Request, res: Response) =>
 
 export const deleteAccountHandler = asyncWrapper(async (req: Request, res: Response) => {
   const { id, type } = res.locals.user;
-  const user = type === EntityType.USER ? await findUserById(id) : await findEstablishmentById(id);
-  if (!user) return res.sendStatus(204);
-  if (type === EntityType.USER) await deleteUser(id);
-  else await deleteEstablishment(id);
-  return res.sendStatus(204);
+  const { matchedCount, modifiedCount } =
+    type === EntityType.USER ? await deleteUser(id) : await deleteEstablishment(id);
+  if (!matchedCount || !modifiedCount) return res.sendStatus(204);
 });
 
 export const notFoundHandler = (req: Request, res: Response) => {
