@@ -2,11 +2,18 @@ import { DocumentType, getModelForClass, index, modelOptions, pre, prop, Severit
 import { ICancellation, IFavProperties } from '@types';
 import { verifyCode } from '@utils';
 import bcrypt from 'bcrypt';
+import { Query } from 'mongoose';
 
 @pre<User>('save', async function () {
   if (!this.password || !this.isModified('password')) return;
   this.password = await bcrypt.hash(this.password, 10);
   return;
+})
+@pre<User>('find', function (this: Query<any, any>) {
+  this.where({ deletedAt: null });
+})
+@pre<User>('findOne', function (this: Query<any, any>) {
+  this.where({ deletedAt: null });
 })
 @modelOptions({
   schemaOptions: { timestamps: true },
@@ -61,6 +68,9 @@ export class User {
 
   @prop({ default: null })
   cancellationPolicy: ICancellation | null;
+
+  @prop({ default: null })
+  deletedAt: Date | null;
 
   async validatePassword(this: DocumentType<User>, password: string) {
     try {

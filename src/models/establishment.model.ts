@@ -2,11 +2,17 @@ import { DocumentType, getModelForClass, index, modelOptions, pre, prop, Severit
 import { IAddress, ICancellation } from '@types';
 import { verifyCode } from '@utils';
 import bcrypt from 'bcrypt';
+import { Query } from 'mongoose';
 
 @pre<Establishment>('save', async function () {
   if (!this.isModified('password')) return;
   this.password = await bcrypt.hash(this.password, 10);
-  return;
+})
+@pre<Establishment>('find', function (this: Query<any, any>) {
+  this.where({ deletedAt: null });
+})
+@pre<Establishment>('findOne', function (this: Query<any, any>) {
+  this.where({ deletedAt: null });
 })
 @modelOptions({
   schemaOptions: { timestamps: true },
@@ -55,6 +61,9 @@ export class Establishment {
 
   @prop({ default: null })
   cancellationPolicy: ICancellation | null;
+
+  @prop({ default: null })
+  deletedAt: Date | null;
 
   async validatePassword(this: DocumentType<Establishment>, password: string) {
     try {

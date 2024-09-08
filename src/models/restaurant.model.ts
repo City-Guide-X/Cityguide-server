@@ -1,7 +1,14 @@
-import { getModelForClass, modelOptions, prop, Ref, Severity } from '@typegoose/typegoose';
+import { getModelForClass, modelOptions, pre, prop, Ref, Severity } from '@typegoose/typegoose';
 import { IAddress, IContact, ICustomAvailability, IMenu, IRestaurantDetails, PriceRange } from '@types';
+import { Query } from 'mongoose';
 import { Establishment } from './establishment.model';
 
+@pre<Restaurant>('find', function (this: Query<any, any>) {
+  this.where({ deletedAt: null });
+})
+@pre<Restaurant>('findOne', function (this: Query<any, any>) {
+  this.where({ deletedAt: null });
+})
 @modelOptions({
   schemaOptions: { timestamps: true },
   options: { allowMixed: Severity.ALLOW },
@@ -54,6 +61,9 @@ export class Restaurant {
 
   @prop({ required: true, _id: false })
   contact: IContact;
+
+  @prop({ default: null })
+  deletedAt: Date | null;
 
   public createdAt: Date;
   public updatedAt: Date;

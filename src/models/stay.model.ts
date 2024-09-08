@@ -1,4 +1,4 @@
-import { getModelForClass, modelOptions, prop, Ref, Severity } from '@typegoose/typegoose';
+import { getModelForClass, modelOptions, pre, prop, Ref, Severity } from '@typegoose/typegoose';
 import {
   EntityType,
   IAccommodation,
@@ -10,9 +10,16 @@ import {
   Rating,
   StayType,
 } from '@types';
+import { Query } from 'mongoose';
 import { Establishment } from './establishment.model';
 import { User } from './user.model';
 
+@pre<Stay>('find', function (this: Query<any, any>) {
+  this.where({ deletedAt: null });
+})
+@pre<Stay>('findOne', function (this: Query<any, any>) {
+  this.where({ deletedAt: null });
+})
 @modelOptions({
   schemaOptions: { timestamps: true, discriminatorKey: 'partnerType' },
   options: { allowMixed: Severity.ALLOW },
@@ -74,6 +81,9 @@ export class Stay {
 
   @prop({ default: [] })
   optionalServices: IOptionalService[];
+
+  @prop({ default: null })
+  deletedAt: Date | null;
 
   public createdAt: Date;
   public updatedAt: Date;
