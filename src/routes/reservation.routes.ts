@@ -21,8 +21,8 @@ const router = Router();
 
 router.use(requireAuth);
 router.get('/', userOnly, getUserReservationsHandler);
-router.get('/:reservationId', validateSchema(getReservationDetailSchema), getReservationDetailsHandler);
 router.get('/partner', partnerOnly, getPartnerReservationsHandler);
+router.get('/:reservationId', validateSchema(getReservationDetailSchema), getReservationDetailsHandler);
 router.post('/create', userOnly, validateSchema(createReservationSchema), createReservationHandler);
 router.post('/analytics', partnerOnly, validateSchema(reservationAnalyticsSchema), reservationAnalyticsHandler);
 router.patch('/update', validateSchema(updateReservationSchema), updateReservationHandler);
