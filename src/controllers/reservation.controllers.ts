@@ -3,11 +3,13 @@ import { privateFields } from '@models';
 import {
   cancelReservationInput,
   createReservationInput,
+  getReservationDetailInput,
   reservationAnalyticsInput,
   updateReservationInput,
 } from '@schemas';
 import {
   createReservation,
+  findReservationById,
   getPartnerReservations,
   getUserReservations,
   reservationAnalytics,
@@ -49,6 +51,15 @@ export const getPartnerReservationsHandler = asyncWrapper(async (req: Request, r
     .status(200)
     .json({ count: reservations.length, reservations: reservations.map((r) => omit(r.toJSON(), privateFields)) });
 });
+
+export const getReservationDetailsHandler = asyncWrapper(
+  async (req: Request<getReservationDetailInput>, res: Response) => {
+    const { reservationId } = req.params;
+    const reservation = await findReservationById(reservationId);
+    if (!reservation) throw new NotFoundError('Reservation not found');
+    return res.status(200).json({ reservation: omit(reservation.toJSON(), privateFields) });
+  }
+);
 
 export const cancelReservationHandler = asyncWrapper(async (req: Request<cancelReservationInput>, res: Response) => {
   const { id } = res.locals.user;

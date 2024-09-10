@@ -102,6 +102,12 @@ export const updateReservationSchema = object({
   }),
 });
 
+export const getReservationDetailSchema = object({
+  params: object({
+    reservationId: string({ required_error: 'Reservation ID is required' }),
+  }),
+});
+
 export const cancelReservationSchema = object({
   params: object({
     reservationId: string({ required_error: 'Reservation ID is required' }),
@@ -124,3 +130,4 @@ export type createReservationInput = TypeOf<typeof createReservationSchema>['bod
 export type updateReservationInput = TypeOf<typeof updateReservationSchema>['body'];
 export type reservationAnalyticsInput = TypeOf<typeof reservationAnalyticsSchema>['body'];
 export type cancelReservationInput = TypeOf<typeof cancelReservationSchema>['params'];
+export type getReservationDetailInput = TypeOf<typeof getReservationDetailSchema>['params'];

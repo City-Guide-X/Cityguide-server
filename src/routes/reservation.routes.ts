@@ -2,6 +2,7 @@ import {
   cancelReservationHandler,
   createReservationHandler,
   getPartnerReservationsHandler,
+  getReservationDetailsHandler,
   getUserReservationsHandler,
   reservationAnalyticsHandler,
   updateReservationHandler,
@@ -10,6 +11,7 @@ import { partnerOnly, requireAuth, userOnly, validateSchema } from '@middlewares
 import {
   cancelReservationSchema,
   createReservationSchema,
+  getReservationDetailSchema,
   reservationAnalyticsSchema,
   updateReservationSchema,
 } from '@schemas';
@@ -19,6 +21,7 @@ const router = Router();
 
 router.use(requireAuth);
 router.get('/', userOnly, getUserReservationsHandler);
+router.get('/:reservationId', validateSchema(getReservationDetailSchema), getReservationDetailsHandler);
 router.get('/partner', partnerOnly, getPartnerReservationsHandler);
 router.post('/create', userOnly, validateSchema(createReservationSchema), createReservationHandler);
 router.post('/analytics', partnerOnly, validateSchema(reservationAnalyticsSchema), reservationAnalyticsHandler);
