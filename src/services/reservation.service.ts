@@ -25,6 +25,10 @@ export const findReservationById = (_id: string) => {
   return ReservationModel.findOne({ _id });
 };
 
+export const findReservationByRef = (reservationRef: string) => {
+  return ReservationModel.findOne({ reservationRef });
+};
+
 export const updateReservation = (_id: string, isAdmin: boolean, id: string, option: Partial<Reservation>) => {
   const searchQuery = { _id, ...(isAdmin ? { partner: id } : { user: id }) };
   return ReservationModel.updateOne(searchQuery, { ...option });

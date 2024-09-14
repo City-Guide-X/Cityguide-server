@@ -5,11 +5,13 @@ import {
   createReservationInput,
   getReservationDetailInput,
   reservationAnalyticsInput,
+  reservationRefInput,
   updateReservationInput,
 } from '@schemas';
 import {
   createReservation,
   findReservationById,
+  findReservationByRef,
   getPartnerReservations,
   getUserReservations,
   reservationAnalytics,
@@ -60,6 +62,13 @@ export const getReservationDetailsHandler = asyncWrapper(
     return res.status(200).json({ reservation: omit(reservation.toJSON(), privateFields) });
   }
 );
+
+export const getReservationByRefHandler = asyncWrapper(async (req: Request<reservationRefInput>, res: Response) => {
+  const { reservationRef } = req.params;
+  const reservation = await findReservationByRef(reservationRef);
+  if (!reservation) throw new NotFoundError('Reservation not found');
+  return res.status(200).json({ reservation: omit(reservation.toJSON(), privateFields) });
+});
 
 export const cancelReservationHandler = asyncWrapper(async (req: Request<cancelReservationInput>, res: Response) => {
   const { id } = res.locals.user;
