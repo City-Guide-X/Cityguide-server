@@ -50,7 +50,7 @@ export const createStaySchema = object({
     avatar: string({ required_error: 'Avatar is required' }),
     images: string({ required_error: 'Images is required', invalid_type_error: 'Images should be an array' })
       .array()
-      .min(11, 'Atleast 11 images are required'),
+      .min(7, 'Atleast 7 images are required'),
     amenities: string({
       required_error: 'Atleast one amenity is required',
       invalid_type_error: 'Amenities should be an array',
@@ -251,7 +251,7 @@ export const updateStaySchema = object({
     avatar: string().optional(),
     images: string({ required_error: 'Images is required', invalid_type_error: 'Images should be an array' })
       .array()
-      .min(11, 'Atleast 11 images are required')
+      .min(7, 'Atleast 7 images are required')
       .optional(),
     amenities: string({ invalid_type_error: 'Amenities should be an array' })
       .array()
