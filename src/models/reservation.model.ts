@@ -1,5 +1,6 @@
 import { getModelForClass, index, modelOptions, prop, Ref, Severity } from '@typegoose/typegoose';
 import { EntityType, IGuests, IReservationAccommodation, PropertyType, Status } from '@types';
+import { refCode } from '@utils';
 import { Establishment } from './establishment.model';
 import { NightLife } from './nightlife.model';
 import { Restaurant } from './restaurant.model';
@@ -12,6 +13,9 @@ import { User } from './user.model';
 })
 @index({ createdAt: 1 })
 export class Reservation {
+  @prop({ default: refCode, unique: true })
+  reservationRef: string;
+
   @prop({ required: true, refPath: 'propertyType' })
   property!: Ref<Stay | Restaurant | NightLife>;
 
