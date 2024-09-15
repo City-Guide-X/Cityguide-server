@@ -211,3 +211,12 @@ export interface IReservation {
   noOfGuests: IGuests;
   price?: number;
 }
+
+// Review
+export interface ICreateReview {
+  property: string;
+  propertyType: PropertyType;
+  user: string;
+  rating: Rating;
+  message: string;
+}
