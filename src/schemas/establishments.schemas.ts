@@ -63,6 +63,17 @@ export const updateEstablishmentSchema = object({
       extraDetails: string().optional(),
     }).optional(),
     phoneNumber: string().min(11, 'Invalid phone number').optional(),
+    imgUrl: string().optional(),
+    cancellationPolicy: object({
+      daysFromReservation: number({
+        required_error: 'Days from reservation is required',
+        invalid_type_error: 'Days from reservation should be a number',
+      }).nonnegative(),
+      percentRefundable: number({
+        required_error: 'Percent refundable is required',
+        invalid_type_error: 'Percent refundable should be a number',
+      }).refine((val) => val >= 0 && val <= 1, { message: 'Percent refundable should be between 0 and 1' }),
+    }).nullish(),
   }),
 });
 
