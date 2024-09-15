@@ -6,7 +6,6 @@ import { IAccommodation } from './model.interface';
 
 export interface ClientToServerEvents {
   add_user: (userId: string) => void;
-  add_establishment: (establishmentId: string) => void;
   create_reservation: (establishmentId: string, reservation: Partial<Reservation>) => void;
   update_reservation: (to: string, data: { reservationId: string; status: Status }) => void;
   create_review: (data: { establishmentId: string; review: Partial<Review> }) => void;
