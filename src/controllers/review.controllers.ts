@@ -9,7 +9,7 @@ import { omit } from 'lodash';
 export const createReviewHandler = asyncWrapper(async (req: Request<{}, {}, createReviewInput>, res: Response) => {
   const { id } = res.locals.user;
   const { property, ...body } = req.body;
-  const data = { ...body, property: property as any, user: id };
+  const data = { ...body, property: property, user: id };
   const isValid = await isPropertyType(property, data.propertyType);
   if (!isValid) throw new BadRequestError(`Invalid ${data.propertyType} ID`);
   const review = await createReview(data);

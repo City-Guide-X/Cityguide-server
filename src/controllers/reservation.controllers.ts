@@ -20,7 +20,7 @@ import {
   updateReservation,
   validateReservationInput,
 } from '@services';
-import { IReservation, PropertyType, Status, TSocket } from '@types';
+import { IReservation, PropertyType, Status } from '@types';
 import { asyncWrapper } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
