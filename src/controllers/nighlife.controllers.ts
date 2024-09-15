@@ -19,7 +19,7 @@ import {
   searchNightlife,
   updateNightLife,
 } from '@services';
-import { ILatLng } from '@types';
+import { ILatLng, PropertyType, TSocket } from '@types';
 import { asyncWrapper, summarizeNightlife } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
@@ -103,6 +103,8 @@ export const updateNightLifeHandler = asyncWrapper(
     const { matchedCount, modifiedCount } = await updateNightLife(nightLifeId, id, body);
     if (!matchedCount) throw new NotFoundError('Night Life not found');
     if (!modifiedCount) throw new BadRequestError();
+    if (res.locals.io)
+      (res.locals.io as TSocket).emit('update_property', { id: nightLifeId, type: PropertyType.NIGHTLIFE, body });
     return res.sendStatus(204);
   }
 );
@@ -111,6 +113,8 @@ export const deleteNightLifeHandler = asyncWrapper(async (req: Request<deleteNig
   const { id } = res.locals.user;
   const { nightLifeId } = req.params;
   await deleteNightLife(nightLifeId, id);
+  if (res.locals.io)
+    (res.locals.io as TSocket).emit('delete_property', { id: nightLifeId, type: PropertyType.NIGHTLIFE });
   return res.sendStatus(204);
 });
 
