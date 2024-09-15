@@ -1,5 +1,6 @@
 import { Establishment, Reservation, Review } from '@models';
 import { Status } from './enums';
+import { Server } from 'socket.io';
 
 export interface ClientToServerEvents {
   add_user: (userId: string) => void;
@@ -27,3 +28,5 @@ export interface SocketData {
   name: string;
   age: number;
 }
+
+export type TSocket = Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;
