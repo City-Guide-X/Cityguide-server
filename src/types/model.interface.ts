@@ -1,4 +1,15 @@
-import { EntityType, Parking, PropertyType, Status } from './enums';
+import { IAddress, ICustomAvailability } from './common.interface';
+import {
+  EntityType,
+  MaxDays,
+  NightLifeType,
+  Parking,
+  PriceRange,
+  PropertyType,
+  Rating,
+  Status,
+  StayType,
+} from './enums';
 
 // General
 export interface ISocialLink {
@@ -46,6 +57,20 @@ export interface INightLifeDetails {
   amenities: string[];
 }
 
+export interface ICreateNightlife {
+  partner: string;
+  type: NightLifeType;
+  name: string;
+  summary: string;
+  address: IAddress;
+  avatar: string;
+  images: string[];
+  availability: ICustomAvailability[];
+  rules: INightLifeRules;
+  details: INightLifeDetails;
+  contact: IContact;
+}
+
 // Restaurants
 export interface IMenu {
   id: string;
@@ -69,6 +94,23 @@ export interface IRestaurantDetails {
   amenities: string[];
   paymentOptions: string[];
   children: boolean;
+}
+
+export interface ICreateRestaurant {
+  partner: string;
+  name: string;
+  summary: string;
+  address: IAddress;
+  avatar: string;
+  images: string[];
+  availability: ICustomAvailability[];
+  priceRange: PriceRange;
+  serviceStyle?: string[];
+  cuisine?: string[];
+  dietaryProvisions?: string[];
+  menu: IMenu[];
+  details: IRestaurantDetails;
+  contact: IContact;
 }
 
 // Stays
@@ -121,6 +163,26 @@ export interface IExtraInfo {
 export interface IOptionalService {
   title: string;
   description: string;
+}
+
+export interface ICreateStay {
+  partner: string;
+  partnerType: EntityType;
+  type: StayType;
+  name: string;
+  summary: string;
+  extraInfo?: IExtraInfo;
+  address: IAddress;
+  avatar: string;
+  images: string[];
+  amenities: string[];
+  hotelRating?: Rating;
+  rules: IStayRules;
+  accommodation: IAccommodation[];
+  maxDays?: MaxDays;
+  language: string[];
+  paymentMethods: string[];
+  optionalServices?: IOptionalService[];
 }
 
 // Reservations
