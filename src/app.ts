@@ -1,4 +1,5 @@
 import {
+  addSocketToRequest,
   corsCredentials,
   corsOptions,
   deserializeUser,
@@ -33,6 +34,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(compression());
 app.use(deserializeUser);
+app.use(addSocketToRequest);
 app.use(passport.initialize());
 
 // SOCIAL LOGIN STRATEGIES
