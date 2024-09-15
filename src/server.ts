@@ -31,6 +31,7 @@ mongoose.connection.once('open', () => {
       credentials: true,
     },
   });
+  app.set('socketConn', io);
   io.on('connection', (socket) => {
     put('appSocket', socket);
     socket.on('add_user', async (userId) => {
