@@ -25,7 +25,7 @@ import {
   updateMenu,
   updateRestaurant,
 } from '@services';
-import { ILatLng, PropertyType, TSocket } from '@types';
+import { ILatLng, PropertyType } from '@types';
 import { asyncWrapper, summarizeRestaurant } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
@@ -109,8 +109,7 @@ export const updateRestaurantHandler = asyncWrapper(
     const { matchedCount, modifiedCount } = await updateRestaurant(restaurantId, id, body);
     if (!matchedCount) throw new NotFoundError('Restaurant not found');
     if (!modifiedCount) throw new BadRequestError();
-    if (res.locals.io)
-      (res.locals.io as TSocket).emit('update_property', { id: restaurantId, type: PropertyType.RESTAURANT, body });
+    res.locals.io?.emit('update_property', { id: restaurantId, type: PropertyType.RESTAURANT, body });
     return res.sendStatus(204);
   }
 );
@@ -119,8 +118,7 @@ export const deleteRestaurantHandler = asyncWrapper(async (req: Request<deleteRe
   const { id } = res.locals.user;
   const { restaurantId } = req.params;
   await deleteRestaurant(restaurantId, id);
-  if (res.locals.io)
-    (res.locals.io as TSocket).emit('delete_property', { id: restaurantId, type: PropertyType.RESTAURANT });
+  res.locals.io?.emit('delete_property', { id: restaurantId, type: PropertyType.RESTAURANT });
   return res.sendStatus(204);
 });
 
@@ -134,7 +132,7 @@ export const addMenuHandler = asyncWrapper(
     const { matchedCount, modifiedCount } = await addMenu(restaurantId, id, body);
     if (!matchedCount) throw new NotFoundError('Restaurant not found');
     if (!modifiedCount) throw new BadRequestError('Menu item not added');
-    if (res.locals.io) (res.locals.io as TSocket).emit('restaurant_menu', { id: restaurantId, action: 'add', body });
+    res.locals.io?.emit('restaurant_menu', { id: restaurantId, action: 'add', body });
     return res.sendStatus(204);
   }
 );
@@ -147,7 +145,7 @@ export const updateMenuHandler = asyncWrapper(
       params: { restaurantId, menuId },
     } = req;
     await updateMenu(restaurantId, id, menuId, body);
-    if (res.locals.io) (res.locals.io as TSocket).emit('restaurant_menu', { id: restaurantId, action: 'update', body });
+    res.locals.io?.emit('restaurant_menu', { id: restaurantId, action: 'update', body });
     return res.sendStatus(204);
   }
 );
@@ -156,7 +154,7 @@ export const removeMenuHandler = asyncWrapper(async (req: Request<removeMenuInpu
   const { id } = res.locals.user;
   const { restaurantId, menuId } = req.params;
   await removeMenu(restaurantId, id, menuId);
-  if (res.locals.io) (res.locals.io as TSocket).emit('restaurant_menu', { id: restaurantId, action: 'remove', menuId });
+  res.locals.io?.emit('restaurant_menu', { id: restaurantId, action: 'remove', menuId });
   return res.sendStatus(204);
 });
 

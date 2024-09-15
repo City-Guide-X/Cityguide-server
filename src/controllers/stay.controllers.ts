@@ -25,7 +25,7 @@ import {
   updateAccommodation,
   updateStay,
 } from '@services';
-import { ILatLng, PropertyType, TSocket } from '@types';
+import { ILatLng, PropertyType } from '@types';
 import { asyncWrapper, summarizeProperty } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
@@ -108,8 +108,7 @@ export const updateStayHandler = asyncWrapper(
     const { matchedCount, modifiedCount } = await updateStay(stayId, id, body);
     if (!matchedCount) throw new NotFoundError('Stay not found');
     if (!modifiedCount) throw new BadRequestError();
-    if (res.locals.io)
-      (res.locals.io as TSocket).emit('update_property', { id: stayId, type: PropertyType.STAY, body });
+    res.locals.io?.emit('update_property', { id: stayId, type: PropertyType.STAY, body });
     return res.sendStatus(204);
   }
 );
@@ -118,7 +117,7 @@ export const deleteStayHandler = asyncWrapper(async (req: Request<removeAccommod
   const { id } = res.locals.user;
   const { stayId } = req.params;
   await deleteStay(stayId, id);
-  if (res.locals.io) (res.locals.io as TSocket).emit('delete_property', { id: stayId, type: PropertyType.STAY });
+  res.locals.io?.emit('delete_property', { id: stayId, type: PropertyType.STAY });
   return res.sendStatus(204);
 });
 
@@ -132,7 +131,7 @@ export const addAccommodationHandler = asyncWrapper(
     const { modifiedCount, matchedCount } = await addAccommodation(stayId, id, body);
     if (!matchedCount) throw new NotFoundError('Stay not found');
     if (!modifiedCount) throw new BadRequestError();
-    if (res.locals.io) (res.locals.io as TSocket).emit('stay_acc', { id: stayId, action: 'add', body });
+    res.locals.io?.emit('stay_acc', { id: stayId, action: 'add', body });
     return res.sendStatus(204);
   }
 );
@@ -145,7 +144,7 @@ export const updateAccommodationHandler = asyncWrapper(
       params: { stayId, accommodationId },
     } = req;
     await updateAccommodation(stayId, id, accommodationId, body);
-    if (res.locals.io) (res.locals.id as TSocket).emit('stay_acc', { id: stayId, action: 'update', body });
+    res.locals.id?.emit('stay_acc', { id: stayId, action: 'update', body });
     return res.sendStatus(204);
   }
 );
@@ -155,8 +154,7 @@ export const removeAccommodationHandler = asyncWrapper(
     const { id } = res.locals.user;
     const { stayId, accommodationId } = req.params;
     await removeAccommodation(stayId, id, accommodationId);
-    if (res.locals.io)
-      (res.locals.id as TSocket).emit('stay_acc', { id: stayId, action: 'remove', accId: accommodationId });
+    res.locals.io?.emit('stay_acc', { id: stayId, action: 'remove', accId: accommodationId });
     return res.sendStatus(204);
   }
 );

@@ -13,13 +13,14 @@ import {
   findReservationById,
   findReservationByRef,
   getPartnerReservations,
+  getStayById,
   getUserReservations,
   reservationAnalytics,
   updateAccommodationAvailability,
   updateReservation,
   validateReservationInput,
 } from '@services';
-import { IReservation, PropertyType, Status } from '@types';
+import { IReservation, PropertyType, Status, TSocket } from '@types';
 import { asyncWrapper } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
@@ -27,14 +28,20 @@ import { omit } from 'lodash';
 export const createReservationHandler = asyncWrapper(
   async (req: Request<{}, {}, createReservationInput>, res: Response) => {
     const { id } = res.locals.user;
-    const body = req.body;
-    let data: IReservation = { ...body, user: id };
+    let data: IReservation = { ...req.body, user: id };
     await validateReservationInput(data);
     const reservation = await createReservation(data);
     res.status(201).json({ reservation: omit(reservation, privateFields) });
-    if (data.propertyType === PropertyType.STAY)
-      return await updateAccommodationAvailability(body.property, data.accommodations!);
-    return;
+    const socketId = onlineUsers.get(data.partner);
+    if (socketId) res.locals.io?.to(socketId).emit('new_reservation', omit(reservation, privateFields));
+    if (data.propertyType === PropertyType.STAY) {
+      await updateAccommodationAvailability(data.property, data.accommodations!);
+      const stay = await getStayById(data.property);
+      if (stay) {
+        const accs = stay.accommodation.filter((a) => data.accommodations!.some((da) => da.accommodationId === a.id));
+        res.locals.io?.emit('stay_acc', { id: data.property, action: 'update', body: accs });
+      }
+    }
   }
 );
 
@@ -78,16 +85,18 @@ export const cancelReservationHandler = asyncWrapper(async (req: Request<cancelR
   });
   if (!matchedCount) throw new NotFoundError('Reservation not found');
   if (!modifiedCount) throw new BadRequestError('Reservation not cancelled');
+  res.locals.io?.emit('updated_reservation', { reservationId, status: Status.CANCELLED });
   return res.sendStatus(204);
 });
 
 export const updateReservationHandler = asyncWrapper(
   async (req: Request<{}, {}, updateReservationInput>, res: Response) => {
     const { id } = res.locals.user;
-    const { id: itemId, status } = req.body;
-    const { matchedCount, modifiedCount } = await updateReservation(itemId, true, id, { status });
+    const { id: reservationId, status } = req.body;
+    const { matchedCount, modifiedCount } = await updateReservation(reservationId, true, id, { status });
     if (!matchedCount) throw new NotFoundError('Reservation not found');
-    if (!modifiedCount) throw new BadRequestError();
+    if (!modifiedCount) throw new BadRequestError('Reservation could not be updated');
+    res.locals.io?.emit('updated_reservation', { reservationId, status });
     return res.sendStatus(204);
   }
 );
