@@ -412,7 +412,12 @@ export const updateAccommodationSchema = object({
       'Accommodation name should be atleast 3 characters'
     ),
     description: string().min(10, 'Accommodation description should be atleast 10 characters').optional(),
-    images: string({ invalid_type_error: 'Accommodation images should be an array' }).array().optional(),
+    images: string({
+      required_error: 'Accommodation images are required',
+      invalid_type_error: 'Accommodation images should be an array',
+    })
+      .array()
+      .min(4, 'Atleast 4 accommodation images are required'),
     rooms: object(
       {
         name: string({ required_error: 'Room name is required' }).min(3, 'Room name should be atleast 3 characters'),
