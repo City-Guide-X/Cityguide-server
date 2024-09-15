@@ -1,7 +1,8 @@
-import { Review, ReviewModel } from '@models';
+import { ReviewModel } from '@models';
+import { ICreateReview } from '@types';
 import dayjs from 'dayjs';
 
-export const createReview = (input: Partial<Review>) => {
+export const createReview = (input: ICreateReview) => {
   return ReviewModel.create({ ...input });
 };
 
