@@ -19,10 +19,10 @@ export interface ServerToClientEvents {
   update_property: (data: { id: string; type: PropertyType; body: Partial<Stay | Restaurant | NightLife> }) => void;
   delete_property: (data: { id: string; type: PropertyType }) => void;
   new_reservation: (reservation: Partial<Reservation>) => void;
-  updated_reservation: (data: { reservationId: string; status: Status }) => void;
+  update_reservation: (data: { reservationId: string; status: Status }) => void;
   new_review: (data: { establishmentId: string; review: Partial<Review> }) => void;
-  deleted_review: (data: { establishmentId: string; reviewId: string }) => void;
-  updated_establishment: (establishment: Partial<Establishment>) => void;
+  delete_review: (data: { establishmentId: string; reviewId: string }) => void;
+  update_establishment: (establishment: Partial<Establishment>) => void;
 }
 export interface InterServerEvents {}
 export interface SocketData {}

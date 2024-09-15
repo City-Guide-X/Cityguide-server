@@ -85,7 +85,7 @@ export const cancelReservationHandler = asyncWrapper(async (req: Request<cancelR
   });
   if (!matchedCount) throw new NotFoundError('Reservation not found');
   if (!modifiedCount) throw new BadRequestError('Reservation not cancelled');
-  res.locals.io?.emit('updated_reservation', { reservationId, status: Status.CANCELLED });
+  res.locals.io?.emit('update_reservation', { reservationId, status: Status.CANCELLED });
   return res.sendStatus(204);
 });
 
@@ -96,7 +96,7 @@ export const updateReservationHandler = asyncWrapper(
     const { matchedCount, modifiedCount } = await updateReservation(reservationId, true, id, { status });
     if (!matchedCount) throw new NotFoundError('Reservation not found');
     if (!modifiedCount) throw new BadRequestError('Reservation could not be updated');
-    res.locals.io?.emit('updated_reservation', { reservationId, status });
+    res.locals.io?.emit('update_reservation', { reservationId, status });
     return res.sendStatus(204);
   }
 );

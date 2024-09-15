@@ -38,23 +38,6 @@ mongoose.connection.once('open', () => {
       put('currentUser', userId);
       onlineUsers.set(userId, socket.id);
     });
-    socket.on('update_reservation', async (to, data) => {
-      const sendUserSocket = onlineUsers.get(to);
-      if (sendUserSocket) socket.to(sendUserSocket).emit('updated_reservation', data);
-    });
-    socket.on('create_reservation', async (establishmentId, reservation) => {
-      const sendUserSocket = onlineUsers.get(establishmentId);
-      if (sendUserSocket) socket.to(sendUserSocket).emit('new_reservation', reservation);
-    });
-    socket.on('create_review', async (data) => {
-      socket.broadcast.emit('new_review', data);
-    });
-    socket.on('delete_review', async (data) => {
-      socket.broadcast.emit('deleted_review', data);
-    });
-    socket.on('update_establishment', async (data) => {
-      socket.broadcast.emit('updated_establishment', data);
-    });
     socket.on('disconnect', () => {
       onlineUsers.forEach((val, key) => {
         if (val === socket.id) onlineUsers.delete(key);
