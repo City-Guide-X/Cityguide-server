@@ -1,8 +1,8 @@
 import { NightLife, NightLifeModel } from '@models';
-import { DayOfWeek } from '@types';
+import { DayOfWeek, ICreateNightlife } from '@types';
 import dayjs from 'dayjs';
 
-export const createNightLife = (input: Partial<NightLife>) => {
+export const createNightLife = (input: ICreateNightlife) => {
   return NightLifeModel.create({ ...input });
 };
 

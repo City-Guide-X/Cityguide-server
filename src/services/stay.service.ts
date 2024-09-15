@@ -1,9 +1,9 @@
 import { AuthorizationError, BadRequestError, NotFoundError } from '@errors';
 import { Stay, StayModel } from '@models';
-import { IAccommodation, IReservationAccommodation } from '@types';
+import { IAccommodation, ICreateStay, IReservationAccommodation } from '@types';
 import dayjs from 'dayjs';
 
-export const createStay = (input: Partial<Stay>) => {
+export const createStay = (input: ICreateStay) => {
   return StayModel.create({ ...input });
 };
 

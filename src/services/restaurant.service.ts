@@ -1,9 +1,9 @@
 import { AuthorizationError, BadRequestError, NotFoundError } from '@errors';
 import { Restaurant, RestaurantModel } from '@models';
-import { DayOfWeek, IMenu } from '@types';
+import { DayOfWeek, ICreateRestaurant, IMenu } from '@types';
 import dayjs from 'dayjs';
 
-export const createRestaurant = (input: Partial<Restaurant>) => {
+export const createRestaurant = (input: ICreateRestaurant) => {
   return RestaurantModel.create({ ...input });
 };
 
