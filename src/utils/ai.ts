@@ -1,9 +1,9 @@
-import { NightLife, Restaurant, Stay } from '@models';
+import { ICreateNightlife, ICreateRestaurant, ICreateStay } from '@types';
 import OpenAI from 'openai';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-export const summarizeProperty = async (property: Partial<Stay>) => {
+export const summarizeProperty = async (property: ICreateStay) => {
   const stay = JSON.parse(JSON.stringify(property));
   delete stay.avatar;
   delete stay.images;
@@ -28,7 +28,7 @@ export const summarizeProperty = async (property: Partial<Stay>) => {
   }
 };
 
-export const summarizeRestaurant = async (property: Partial<Restaurant>) => {
+export const summarizeRestaurant = async (property: ICreateRestaurant) => {
   const restaurant = JSON.parse(JSON.stringify(property));
   delete restaurant.avatar;
   delete restaurant.images;
@@ -53,7 +53,7 @@ export const summarizeRestaurant = async (property: Partial<Restaurant>) => {
   }
 };
 
-export const summarizeNightlife = async (property: Partial<NightLife>) => {
+export const summarizeNightlife = async (property: ICreateNightlife) => {
   const nightlife = JSON.parse(JSON.stringify(property));
   delete nightlife.avatar;
   delete nightlife.images;
