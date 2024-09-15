@@ -45,13 +45,13 @@ export class Restaurant {
   priceRange: PriceRange;
 
   @prop()
-  serviceStyle: string[];
+  serviceStyle?: string[];
 
   @prop()
-  cuisine: string[];
+  cuisine?: string[];
 
   @prop()
-  dietaryProvisions: string[];
+  dietaryProvisions?: string[];
 
   @prop({ required: true, _id: false })
   menu: IMenu[];
