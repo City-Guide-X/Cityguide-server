@@ -50,3 +50,5 @@ export interface IFavProperties {
   propertyId: string;
   propertyType: PropertyType;
 }
+
+export type TAction = 'add' | 'update' | 'remove';
