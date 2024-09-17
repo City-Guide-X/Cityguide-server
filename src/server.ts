@@ -1,7 +1,6 @@
 require('dotenv').config();
 import { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData } from '@types';
 import { log } from '@utils';
-import { put } from 'memory-cache';
 import mongoose from 'mongoose';
 import { Server } from 'socket.io';
 import app from './app';
@@ -33,9 +32,7 @@ mongoose.connection.once('open', () => {
   });
   app.set('socketConn', io);
   io.on('connection', (socket) => {
-    put('appSocket', socket);
     socket.on('add_user', async (userId) => {
-      put('currentUser', userId);
       onlineUsers.set(userId, socket.id);
     });
     socket.on('disconnect', () => {
