@@ -6,11 +6,6 @@ import { IAccommodation, IMenu } from './model.interface';
 
 export interface ClientToServerEvents {
   add_user: (userId: string) => void;
-  create_reservation: (establishmentId: string, reservation: Partial<Reservation>) => void;
-  update_reservation: (to: string, data: { reservationId: string; status: Status }) => void;
-  create_review: (data: { establishmentId: string; review: Partial<Review> }) => void;
-  delete_review: (data: { establishmentId: string; reviewId: string }) => void;
-  update_establishment: (establishment: Partial<Establishment>) => void;
 }
 export interface ServerToClientEvents {
   ping: (val: string) => void;
