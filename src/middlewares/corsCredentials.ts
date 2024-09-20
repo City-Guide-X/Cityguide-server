@@ -1,7 +1,7 @@
 import { CorsOptions } from 'cors';
 import { NextFunction, Request, Response } from 'express';
 
-export const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001', 'https://cityguide-web.vercel.app/'];
+export const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001', 'https://cityguide-web.vercel.app'];
 
 export const corsCredentials = (req: Request, res: Response, next: NextFunction) => {
   const origin = req?.headers?.origin;
