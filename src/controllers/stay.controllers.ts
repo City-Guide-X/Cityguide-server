@@ -144,7 +144,7 @@ export const updateAccommodationHandler = asyncWrapper(
       params: { stayId, accommodationId },
     } = req;
     await updateAccommodation(stayId, id, accommodationId, body);
-    res.locals.id?.emit('stay_acc', { id: stayId, action: 'update', body });
+    res.locals.io?.emit('stay_acc', { id: stayId, action: 'update', body });
     return res.sendStatus(204);
   }
 );
