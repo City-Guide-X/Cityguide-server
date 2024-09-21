@@ -22,6 +22,7 @@ export enum NightLifeType {
   CLUB = 'Club',
   BAR = 'Bar',
   LOUNGE = 'Lounge',
+  ATTRACTION = 'Attraction',
   OTHER = 'Other',
 }
 
