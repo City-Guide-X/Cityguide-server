@@ -19,7 +19,7 @@ import {
   searchNightlife,
   updateNightLife,
 } from '@services';
-import { ILatLng, PropertyType, TSocket } from '@types';
+import { ILatLng, PropertyType } from '@types';
 import { asyncWrapper, summarizeNightlife } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
