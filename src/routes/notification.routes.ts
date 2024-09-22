@@ -7,6 +7,6 @@ const router = Router();
 
 router.use(requireAuth);
 router.get('/', getUserNotificationsHandler);
-router.patch('/:notificationId', validateSchema(readNotificationSchema), readNotificationHandler);
+router.patch('/', validateSchema(readNotificationSchema), readNotificationHandler);
 
 export default router;
