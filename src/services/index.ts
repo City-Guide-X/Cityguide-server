@@ -2,6 +2,7 @@ export * from './establishment.service';
 export * from './map.service';
 export * from './misc.service';
 export * from './nightlife.service';
+export * from './notification.service';
 export * from './reservation.service';
 export * from './restaurant.service';
 export * from './review.service';
