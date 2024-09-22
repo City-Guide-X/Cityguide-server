@@ -1,9 +1,11 @@
 import { object, string, TypeOf } from 'zod';
 
 export const readNotificationSchema = object({
-  params: object({
-    notificationId: string({ required_error: 'Notification ID is required' }),
+  body: object({
+    notificationIds: string({ required_error: 'Notification Ids is required' })
+      .array()
+      .min(1, 'Notification Ids should contain atleast 1 ID'),
   }),
 });
 
-export type readNotificationInput = TypeOf<typeof readNotificationSchema>['params'];
+export type readNotificationInput = TypeOf<typeof readNotificationSchema>['body'];
