@@ -11,6 +11,7 @@ import {
 import {
   accountRoutes,
   establishmentRoutes,
+  notificationRoutes,
   propertyRoutes,
   reservationRoutes,
   reviewRoutes,
@@ -43,11 +44,12 @@ passport.use(facebookStrategy);
 
 // ROUTERS
 app.use('/api/v1/account', accountRoutes);
-app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/establishment', establishmentRoutes);
+app.use('/api/v1/notification', notificationRoutes);
 app.use('/api/v1/property', propertyRoutes);
 app.use('/api/v1/reservation', reservationRoutes);
 app.use('/api/v1/review', reviewRoutes);
+app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/vtu', vtuRoutes);
 app.use('*', notFoundHandler);
 
