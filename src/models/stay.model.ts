@@ -21,7 +21,7 @@ import { User } from './user.model';
   this.where({ deletedAt: null });
 })
 @modelOptions({
-  schemaOptions: { timestamps: true, discriminatorKey: 'partnerType' },
+  schemaOptions: { timestamps: true },
   options: { allowMixed: Severity.ALLOW },
 })
 export class Stay {

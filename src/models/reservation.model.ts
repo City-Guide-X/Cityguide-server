@@ -8,7 +8,7 @@ import { Stay } from './stay.model';
 import { User } from './user.model';
 
 @modelOptions({
-  schemaOptions: { timestamps: true, discriminatorKey: 'propertyType' },
+  schemaOptions: { timestamps: true },
   options: { allowMixed: Severity.ALLOW },
 })
 @index({ createdAt: 1 })
