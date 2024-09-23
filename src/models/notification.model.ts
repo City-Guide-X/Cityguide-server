@@ -1,5 +1,5 @@
 import { getModelForClass, modelOptions, prop, Ref, Severity } from '@typegoose/typegoose';
-import { EntityType } from '@types';
+import { EntityType, NotificationType } from '@types';
 import { Establishment } from './establishment.model';
 import { User } from './user.model';
 
@@ -8,11 +8,17 @@ import { User } from './user.model';
   options: { allowMixed: Severity.ALLOW },
 })
 export class Notification {
-  @prop({ required: true, refPath: 'recipientType' })
+  @prop({ refPath: 'recipientType', required: true })
   recipient!: Ref<User | Establishment>;
 
   @prop({ enum: EntityType, required: true, type: String })
   recipientType: EntityType;
+
+  @prop({ enum: NotificationType, required: true, type: String })
+  type: NotificationType;
+
+  @prop({ required: true })
+  title: string;
 
   @prop({ required: true })
   message: string;
