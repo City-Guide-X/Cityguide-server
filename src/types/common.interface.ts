@@ -1,4 +1,4 @@
-import { DayOfWeek, EntityType, PropertyType, Rating } from './enums';
+import { DayOfWeek, EntityType, PropertyType } from './enums';
 
 export interface ILatLng {
   lat: number;
@@ -36,14 +36,6 @@ export interface IEmail {
   template: string;
   to: string;
   locals: object;
-}
-
-export interface IReview {
-  id: string;
-  user: string;
-  rating: Rating;
-  message: string;
-  createdAt: Date;
 }
 
 export interface IFavProperties {

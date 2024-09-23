@@ -1,6 +1,7 @@
 import { IAddress, ICustomAvailability } from './common.interface';
 import {
   EntityType,
+  HotelRating,
   MaxDays,
   NightLifeType,
   Parking,
@@ -176,7 +177,7 @@ export interface ICreateStay {
   avatar: string;
   images: string[];
   amenities: string[];
-  hotelRating?: Rating;
+  hotelRating?: HotelRating;
   rules: IStayRules;
   accommodation: IAccommodation[];
   maxDays?: MaxDays;
