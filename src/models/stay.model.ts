@@ -1,6 +1,7 @@
 import { getModelForClass, modelOptions, pre, prop, Ref, Severity } from '@typegoose/typegoose';
 import {
   EntityType,
+  HotelRating,
   IAccommodation,
   IAddress,
   IExtraInfo,
@@ -61,8 +62,8 @@ export class Stay {
   @prop({ required: true })
   amenities: string[];
 
-  @prop({ enum: Rating, type: Number })
-  hotelRating?: Rating;
+  @prop({ enum: HotelRating, type: Number })
+  hotelRating?: HotelRating;
 
   @prop({ required: true, _id: false })
   rules: IStayRules;
