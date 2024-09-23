@@ -191,6 +191,7 @@ export interface IReservationAccommodation {
   reservationCount: number;
   noOfGuests: IGuests;
 }
+
 export interface IReservation {
   property: any;
   propertyType: PropertyType;
@@ -217,6 +218,10 @@ export interface ICreateReview {
   property: string;
   propertyType: PropertyType;
   user: string;
-  rating: Rating;
+  categoryRatings: ICategoryRating;
   message: string;
+}
+
+export interface ICategoryRating {
+  [key: string]: Rating;
 }
