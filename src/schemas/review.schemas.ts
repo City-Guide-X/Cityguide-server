@@ -15,7 +15,6 @@ export const createReviewSchema = object({
     const requiredCategories = categoryMap[data.propertyType];
     const providedCategories = new Set(Object.keys(data.categoryRatings));
     const invalidCategories = requiredCategories.filter((category) => !providedCategories.has(category));
-    console.log({ requiredCategories, providedCategories, invalidCategories });
     if (invalidCategories.length > 0 || providedCategories.size !== requiredCategories.length) {
       ctx.addIssue({
         code: ZodIssueCode.custom,

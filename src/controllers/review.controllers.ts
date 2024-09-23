@@ -1,7 +1,7 @@
 import { BadRequestError, NotFoundError } from '@errors';
 import { privateFields } from '@models';
 import { createReviewInput, deleteReviewInput, getPropertyReviewInput } from '@schemas';
-import { createNotification, createReview, deleteReview, getReviews, isPropertyType } from '@services';
+import { canReview, createNotification, createReview, deleteReview, getReviews } from '@services';
 import { EntityType, NotificationType } from '@types';
 import { asyncWrapper } from '@utils';
 import { Request, Response } from 'express';
@@ -11,8 +11,8 @@ export const createReviewHandler = asyncWrapper(async (req: Request<{}, {}, crea
   const { id } = res.locals.user;
   const { property, ...body } = req.body;
   const data = { ...body, property, user: id };
-  const isValid = await isPropertyType(property, data.propertyType);
-  if (!isValid) throw new BadRequestError(`Invalid ${data.propertyType} ID`);
+  const isValid = await canReview(property, data.propertyType, id);
+  if (!isValid) throw new BadRequestError('You cannot review this property');
   const review = await createReview(data);
   const reviewResponse = omit(review.toJSON(), privateFields);
   res.status(201).json({ review: reviewResponse });
