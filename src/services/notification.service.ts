@@ -1,7 +1,7 @@
 import { BadRequestError, NotFoundError } from '@errors';
 import { NotificationModel } from '@models';
 
-export const CreateNotification = (input: Partial<Notification>) => {
+export const createNotification = (input: Partial<Notification>) => {
   return NotificationModel.create({ ...input });
 };
 
