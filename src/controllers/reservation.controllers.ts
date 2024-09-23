@@ -1,4 +1,4 @@
-import { BadRequestError, NotFoundError } from '@errors';
+import { NotFoundError } from '@errors';
 import { privateFields } from '@models';
 import {
   cancelReservationInput,
@@ -9,19 +9,20 @@ import {
   updateReservationInput,
 } from '@schemas';
 import {
+  createNotification,
   createReservation,
   findReservationById,
   findReservationByRef,
   getPartnerReservations,
-  getStayById,
   getUserReservations,
   reservationAnalytics,
   updateAccommodationAvailability,
   updateReservation,
   validateReservationInput,
 } from '@services';
-import { IReservation, PropertyType, Status } from '@types';
+import { EntityType, IReservation, NotificationType, PropertyType, Status } from '@types';
 import { asyncWrapper } from '@utils';
+import dayjs from 'dayjs';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
 
@@ -31,16 +32,40 @@ export const createReservationHandler = asyncWrapper(
     let data: IReservation = { ...req.body, user: id };
     await validateReservationInput(data);
     const reservation = await createReservation(data);
-    res.status(201).json({ reservation: omit(reservation, privateFields) });
+    const reservationResponse = omit(reservation.toJSON(), privateFields);
+    res.status(201).json({ reservation });
+
+    const populatedProperty: any = await reservation.populate({
+      path: 'property',
+      select: 'type name accommodation -_id',
+    });
+    const notification = {
+      recipient: data.partner,
+      recipientType: EntityType.ESTABLISHMENT,
+      type: NotificationType.RESERVATION,
+      title: 'New Reservation',
+      message: `A new reservation (Ref: ${reservation.reservationRef}) has been made at your ${
+        populatedProperty.property.type ?? 'Restaurant'
+      } — ${populatedProperty.property.name}! The reservation is for ${dayjs(data.checkInDay).format(
+        'dddd, MMMM D, YYYY [at] h:mm A'
+      )}, with ${data.noOfGuests.adults + data.noOfGuests.children} guest(s). Head to your dashboard for more details`,
+    };
+    const [newNotification] = await Promise.all([
+      createNotification(notification),
+      data.propertyType === PropertyType.STAY
+        ? updateAccommodationAvailability(data.property, data.accommodations!)
+        : Promise.resolve(),
+    ]);
     const socketId = onlineUsers.get(data.partner);
-    if (socketId) res.locals.io?.to(socketId).emit('new_reservation', omit(reservation, privateFields));
+    if (socketId) {
+      res.locals.io?.to(socketId).emit('new_reservation', reservationResponse);
+      res.locals.io?.to(socketId).emit('new_notification', omit(newNotification.toJSON(), privateFields));
+    }
     if (data.propertyType === PropertyType.STAY) {
-      await updateAccommodationAvailability(data.property, data.accommodations!);
-      const stay = await getStayById(data.property);
-      if (stay) {
-        const accs = stay.accommodation.filter((a) => data.accommodations!.some((da) => da.accommodationId === a.id));
-        res.locals.io?.emit('stay_acc', { id: data.property, action: 'update', body: accs });
-      }
+      const updatedAccommodations = populatedProperty.property.accommodation.filter((a: any) =>
+        data.accommodations!.some((da) => da.accommodationId === a.id)
+      );
+      res.locals.io?.emit('stay_acc', { id: data.property, action: 'update', body: updatedAccommodations });
     }
   }
 );
@@ -80,11 +105,28 @@ export const getReservationByRefHandler = asyncWrapper(async (req: Request<reser
 export const cancelReservationHandler = asyncWrapper(async (req: Request<cancelReservationInput>, res: Response) => {
   const { id } = res.locals.user;
   const { reservationId } = req.params;
-  const { matchedCount, modifiedCount } = await updateReservation(reservationId, false, id, {
-    status: Status.CANCELLED,
+  const reservation = await updateReservation(reservationId, false, id, { status: Status.CANCELLED });
+  if (!reservation) throw new NotFoundError('Reservation not found');
+  const populatedProperty: any = await reservation.populate({
+    path: 'property',
+    select: 'type name -_id',
   });
-  if (!matchedCount) throw new NotFoundError('Reservation not found');
-  if (!modifiedCount) throw new BadRequestError('Reservation not cancelled');
+  const notification = {
+    recipient: reservation.partner,
+    recipientType: EntityType.ESTABLISHMENT,
+    type: NotificationType.RESERVATION,
+    title: 'Reservation Cancelled',
+    message: `A reservation (Ref: ${reservation.reservationRef}) at your ${
+      populatedProperty.property.type ?? 'Restaurant'
+    } — ${populatedProperty.property.name} has been cancelled. The reservation was for ${dayjs(
+      reservation.checkInDay
+    ).format('dddd, MMMM D, YYYY [at] h:mm A')}, with ${
+      reservation.noOfGuests.adults + reservation.noOfGuests.children
+    } guest(s). Head to your dashboard for more details`,
+  };
+  const newNotification = await createNotification(notification);
+  const socketId = onlineUsers.get(reservation.partner.toString());
+  if (socketId) res.locals.io?.to(socketId).emit('new_notification', omit(newNotification.toJSON(), privateFields));
   res.locals.io?.emit('update_reservation', { reservationId, status: Status.CANCELLED });
   return res.sendStatus(204);
 });
@@ -93,9 +135,28 @@ export const updateReservationHandler = asyncWrapper(
   async (req: Request<{}, {}, updateReservationInput>, res: Response) => {
     const { id } = res.locals.user;
     const { id: reservationId, status } = req.body;
-    const { matchedCount, modifiedCount } = await updateReservation(reservationId, true, id, { status });
-    if (!matchedCount) throw new NotFoundError('Reservation not found');
-    if (!modifiedCount) throw new BadRequestError('Reservation could not be updated');
+    const reservation = await updateReservation(reservationId, true, id, { status });
+    if (!reservation) throw new NotFoundError('Reservation not found');
+    const populatedProperty: any = await reservation.populate({
+      path: 'property',
+      select: 'type name -_id',
+    });
+    const notification = {
+      recipient: reservation.user,
+      recipientType: EntityType.USER,
+      type: NotificationType.RESERVATION,
+      title: `Reservation ${reservation.status}`,
+      message: `Your reservation (Ref: ${reservation.reservationRef}) at ${
+        populatedProperty.property.name
+      } is ${reservation.status.toLowerCase()}. The reservation was for ${dayjs(reservation.checkInDay).format(
+        'dddd, MMMM D, YYYY [at] h:mm A'
+      )}, with ${
+        reservation.noOfGuests.adults + reservation.noOfGuests.children
+      } guest(s). Head to your dashboard for more details`,
+    };
+    const newNotification = await createNotification(notification);
+    const socketId = onlineUsers.get(reservation.user.toString());
+    if (socketId) res.locals.io?.to(socketId).emit('new_notification', omit(newNotification.toJSON(), privateFields));
     res.locals.io?.emit('update_reservation', { reservationId, status });
     return res.sendStatus(204);
   }
