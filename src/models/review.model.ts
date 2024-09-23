@@ -1,5 +1,7 @@
+import { categoryMap } from '@constants';
+import { BadRequestError } from '@errors';
 import { getModelForClass, modelOptions, pre, prop, Ref, Severity } from '@typegoose/typegoose';
-import { PropertyType, Rating } from '@types';
+import { ICategoryRating, PropertyType } from '@types';
 import { Query } from 'mongoose';
 import { NightLife } from './nightlife.model';
 import { Restaurant } from './restaurant.model';
@@ -11,6 +13,12 @@ import { User } from './user.model';
 })
 @pre<Review>('findOne', function (this: Query<any, any>) {
   this.where({ deletedAt: null });
+})
+@pre<Review>('validate', function () {
+  const requiredCategories = categoryMap[this.propertyType];
+  const providedCategories = Object.keys(this.categoryRatings);
+  if (providedCategories.length !== requiredCategories.length) throw new BadRequestError('Invalid categories provided');
+  this.rating = Object.values(this.categoryRatings).reduce((acc, curr) => acc + curr, 0) / providedCategories.length;
 })
 @modelOptions({
   schemaOptions: { timestamps: true },
@@ -26,8 +34,11 @@ export class Review {
   @prop({ ref: () => 'User', required: true })
   user!: Ref<User>;
 
-  @prop({ enum: Rating, required: true, type: Number })
-  rating!: Rating;
+  @prop({ required: true })
+  categoryRatings: ICategoryRating;
+
+  @prop({ required: true })
+  rating!: number;
 
   @prop({ required: true })
   message!: string;
