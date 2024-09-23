@@ -1,5 +1,6 @@
+import { categoryMap } from '@constants';
 import { PropertyType, Rating } from '@types';
-import { nativeEnum, object, string, TypeOf } from 'zod';
+import { nativeEnum, object, string, TypeOf, ZodIssueCode } from 'zod';
 
 export const createReviewSchema = object({
   body: object({
@@ -8,11 +9,20 @@ export const createReviewSchema = object({
       required_error: 'Property type is required',
       invalid_type_error: 'Property type should be a Stay | Restaurant | NightLife',
     }),
-    rating: nativeEnum(Rating, {
-      required_error: 'Rating is required',
-      invalid_type_error: 'Rating should be a 0 | 1 | 2 | 3 | 4 | 5',
-    }),
+    categoryRatings: object({}, { required_error: 'Category rating is required' }).catchall(nativeEnum(Rating)),
     message: string({ required_error: 'Message is required' }).min(10, 'Message requires atleast 10 characters'),
+  }).superRefine((data, ctx) => {
+    const requiredCategories = categoryMap[data.propertyType];
+    const providedCategories = new Set(Object.keys(data.categoryRatings));
+    const invalidCategories = requiredCategories.filter((category) => !providedCategories.has(category));
+    console.log({ requiredCategories, providedCategories, invalidCategories });
+    if (invalidCategories.length > 0 || providedCategories.size !== requiredCategories.length) {
+      ctx.addIssue({
+        code: ZodIssueCode.custom,
+        message: `Invalid categories provided. Missing categories are ${invalidCategories.join(', ')}`,
+        path: ['categoryRatings'],
+      });
+    }
   }),
 });
 
