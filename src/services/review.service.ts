@@ -7,7 +7,7 @@ export const createReview = (input: ICreateReview) => {
 };
 
 export const deleteReview = (_id: string, user: string) => {
-  return ReviewModel.updateOne({ _id, user }, { deletedAt: dayjs().toDate() });
+  return ReviewModel.findOneAndUpdate({ _id, user }, { deletedAt: dayjs().toDate() });
 };
 
 export const getReviews = (property: string) => {
