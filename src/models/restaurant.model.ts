@@ -1,5 +1,14 @@
+import { defaultRestaurantCatReviews } from '@constants';
 import { getModelForClass, modelOptions, pre, prop, Ref, Severity } from '@typegoose/typegoose';
-import { IAddress, IContact, ICustomAvailability, IMenu, IRestaurantDetails, PriceRange } from '@types';
+import {
+  IAddress,
+  ICategoryRating,
+  IContact,
+  ICustomAvailability,
+  IMenu,
+  IRestaurantDetails,
+  PriceRange,
+} from '@types';
 import { Query } from 'mongoose';
 import { Establishment } from './establishment.model';
 
@@ -28,6 +37,9 @@ export class Restaurant {
 
   @prop({ default: 0.0 })
   rating: number;
+
+  @prop({ default: defaultRestaurantCatReviews, _id: false })
+  categoryRatings: ICategoryRating;
 
   @prop({ default: 0 })
   reviewCount: number;

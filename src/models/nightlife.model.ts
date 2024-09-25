@@ -1,5 +1,14 @@
+import { defaultNightLifeCatReviews } from '@constants';
 import { getModelForClass, modelOptions, pre, prop, Ref, Severity } from '@typegoose/typegoose';
-import { IAddress, IContact, ICustomAvailability, INightLifeDetails, INightLifeRules, NightLifeType } from '@types';
+import {
+  IAddress,
+  ICategoryRating,
+  IContact,
+  ICustomAvailability,
+  INightLifeDetails,
+  INightLifeRules,
+  NightLifeType,
+} from '@types';
 import { Query } from 'mongoose';
 import { Establishment } from './establishment.model';
 
@@ -31,6 +40,9 @@ export class NightLife {
 
   @prop({ default: 0.0 })
   rating: number;
+
+  @prop({ default: defaultNightLifeCatReviews, _id: false })
+  categoryRatings: ICategoryRating;
 
   @prop({ default: 0 })
   reviewCount: number;

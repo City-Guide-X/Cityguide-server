@@ -1,14 +1,15 @@
+import { defaultStayCatReviews } from '@constants';
 import { getModelForClass, modelOptions, pre, prop, Ref, Severity } from '@typegoose/typegoose';
 import {
   EntityType,
   HotelRating,
   IAccommodation,
   IAddress,
+  ICategoryRating,
   IExtraInfo,
   IOptionalService,
   IStayRules,
   MaxDays,
-  Rating,
   StayType,
 } from '@types';
 import { Query } from 'mongoose';
@@ -49,6 +50,9 @@ export class Stay {
 
   @prop({ default: 0.0 })
   rating: number;
+
+  @prop({ default: defaultStayCatReviews, _id: false })
+  categoryRatings: ICategoryRating;
 
   @prop({ default: 0 })
   reviewCount: number;
