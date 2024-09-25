@@ -1,6 +1,6 @@
 import { BadRequestError, NotFoundError } from '@errors';
 import { privateFields } from '@models';
-import { createReviewInput, deleteReviewInput, getPropertyReviewInput } from '@schemas';
+import { canReviewInput, createReviewInput, deleteReviewInput, getPropertyReviewInput } from '@schemas';
 import { canReview, createNotification, createReview, deleteReview, getReviews } from '@services';
 import { EntityType, NotificationType } from '@types';
 import { asyncWrapper } from '@utils';
@@ -36,6 +36,13 @@ export const getPropertyReviewsHandler = asyncWrapper(async (req: Request<getPro
   const { propertyId } = req.params;
   const reviews = await getReviews(propertyId);
   return res.status(200).json({ reviews: reviews.map((review) => omit(review.toJSON(), privateFields)) });
+});
+
+export const getCanReviewHandler = asyncWrapper(async (req: Request<{}, {}, {}, canReviewInput>, res: Response) => {
+  const { id } = res.locals.user;
+  const { propertyId, propertyType } = req.query;
+  const isValid = await canReview(propertyId, propertyType, id);
+  return res.status(200).json({ canReview: isValid });
 });
 
 export const deleteReviewHandler = asyncWrapper(async (req: Request<deleteReviewInput>, res: Response) => {
