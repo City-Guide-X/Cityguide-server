@@ -1,6 +1,6 @@
 import { BadRequestError } from '@errors';
 import { NightLifeModel, RestaurantModel, ReviewModel, StayModel } from '@models';
-import { ICreateReview, PropertyType } from '@types';
+import { ICategoryRating, ICreateReview, PropertyType } from '@types';
 import dayjs from 'dayjs';
 import { Types } from 'mongoose';
 
@@ -76,4 +76,50 @@ export const canReview = async (property: string, type: PropertyType, user: stri
   const isValid = await NightLifeModel.exists({ _id: property });
   if (!isValid) throw new BadRequestError('Invalid NightLife ID');
   return true;
+};
+
+const modelMap = {
+  [PropertyType.STAY]: StayModel,
+  [PropertyType.RESTAURANT]: RestaurantModel,
+  [PropertyType.NIGHTLIFE]: NightLifeModel,
+};
+export const updatePropertyReviewDetail = async (property: string, type: PropertyType) => {
+  const [result] = await ReviewModel.aggregate([
+    {
+      $match: {
+        property: new Types.ObjectId(property),
+        propertyType: type,
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        rating: { $avg: '$rating' },
+        reviewCount: { $sum: 1 },
+        categoryRatings: { $push: '$categoryRatings' },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        rating: { $round: ['$rating', 1] },
+        reviewCount: 1,
+        categoryRatings: 1,
+      },
+    },
+  ]);
+  if (!result) return;
+  const { categoryRatings, reviewCount, rating } = result;
+  const summedRatings = categoryRatings.reduce((acc: ICategoryRating, curr: ICategoryRating) => {
+    Object.keys(curr).forEach((category) => {
+      acc[category] = (acc[category] || 0) + curr[category];
+    });
+    return acc;
+  }, {});
+  const averagedCategories = Object.fromEntries(
+    Object.entries<number>(summedRatings).map(([key, value]) => [key, value / reviewCount])
+  );
+  const updateObj = { reviewCount, rating, categoryRatings: averagedCategories };
+  const Model = modelMap[type];
+  await Model.updateOne({ _id: property }, { $set: updateObj });
 };
