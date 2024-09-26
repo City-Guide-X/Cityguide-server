@@ -89,6 +89,7 @@ export const updatePropertyReviewDetail = async (property: string, type: Propert
       $match: {
         property: new Types.ObjectId(property),
         propertyType: type,
+        deletedAt: null,
       },
     },
     {
@@ -117,7 +118,7 @@ export const updatePropertyReviewDetail = async (property: string, type: Propert
     return acc;
   }, {});
   const averagedCategories = Object.fromEntries(
-    Object.entries<number>(summedRatings).map(([key, value]) => [key, value / reviewCount])
+    Object.entries<number>(summedRatings).map(([key, value]) => [key, +(value / reviewCount).toFixed(1)])
   );
   const updateObj = { reviewCount, rating, categoryRatings: averagedCategories };
   const Model = modelMap[type];
