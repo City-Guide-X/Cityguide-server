@@ -127,7 +127,7 @@ export const cancelReservationHandler = asyncWrapper(async (req: Request<cancelR
     if (!reservation) throw new NotFoundError('Reservation not found');
     const populatedProperty: any = await reservation.populate({
       path: 'property',
-      select: 'type name -_id',
+      select: 'type name accommodation -_id',
     });
 
     const notification = {
@@ -143,13 +143,24 @@ export const cancelReservationHandler = asyncWrapper(async (req: Request<cancelR
         reservation.noOfGuests.adults + reservation.noOfGuests.children
       } guest(s). Head to your dashboard for more details`,
     };
-    const newNotification = await createNotification(notification);
+    const [newNotification] = await Promise.all([
+      createNotification(notification),
+      reservation.propertyType === PropertyType.STAY
+        ? updateAccommodationAvailability(reservation.property.id, reservation.accommodations!, true)
+        : Promise.resolve(),
+    ]);
     await session.commitTransaction();
     session.endSession();
 
     const socketId = onlineUsers.get(reservation.partner.toString());
     if (socketId) res.locals.io?.to(socketId).emit('new_notification', omit(newNotification.toJSON(), privateFields));
     res.locals.io?.emit('update_reservation', { reservationId, status: Status.CANCELLED });
+    if (reservation.propertyType === PropertyType.STAY) {
+      const updatedAccommodations = populatedProperty.property.accommodation.filter((a: any) =>
+        reservation.accommodations!.some((da) => da.accommodationId === a.id)
+      );
+      res.locals.io?.emit('stay_acc', { id: reservation.property.id, action: 'update', body: updatedAccommodations });
+    }
     return res.sendStatus(204);
   } catch (err: any) {
     await session.abortTransaction();
@@ -169,7 +180,7 @@ export const updateReservationHandler = asyncWrapper(
       if (!reservation) throw new NotFoundError('Reservation not found');
       const populatedProperty: any = await reservation.populate({
         path: 'property',
-        select: 'type name -_id',
+        select: 'type name accommodation -_id',
       });
 
       const notification = {
@@ -185,13 +196,24 @@ export const updateReservationHandler = asyncWrapper(
           reservation.noOfGuests.adults + reservation.noOfGuests.children
         } guest(s). Head to your dashboard for more details`,
       };
-      const newNotification = await createNotification(notification);
+      const [newNotification] = await Promise.all([
+        createNotification(notification),
+        reservation.propertyType === PropertyType.STAY && [Status.CANCELLED, Status.COMPLETED].includes(status)
+          ? updateAccommodationAvailability(reservation.property.id, reservation.accommodations!, true)
+          : Promise.resolve(),
+      ]);
       await session.commitTransaction();
       session.endSession();
 
       const socketId = onlineUsers.get(reservation.user.toString());
       if (socketId) res.locals.io?.to(socketId).emit('new_notification', omit(newNotification.toJSON(), privateFields));
       res.locals.io?.emit('update_reservation', { reservationId, status });
+      if (reservation.propertyType === PropertyType.STAY && [Status.CANCELLED, Status.COMPLETED].includes(status)) {
+        const updatedAccommodations = populatedProperty.property.accommodation.filter((a: any) =>
+          reservation.accommodations!.some((da) => da.accommodationId === a.id)
+        );
+        res.locals.io?.emit('stay_acc', { id: reservation.property.id, action: 'update', body: updatedAccommodations });
+      }
       return res.sendStatus(204);
     } catch (err: any) {
       await session.abortTransaction();
