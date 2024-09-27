@@ -13,13 +13,6 @@ export const createStaySchema = object({
       'Summary should be atleast 10 characters'
     ),
     extraInfo: object({
-      host: object({
-        name: string({ required_error: 'Host name is required' }),
-        info: string({ required_error: 'Host description is required' }).min(
-          10,
-          'Host description should be atleast 10 characters'
-        ),
-      }).optional(),
       property: string().min(10, 'Property description should be atleast 10 characters').optional(),
       neighborhood: object({
         info: string().min(10, 'Neighborhood description should be atleast 10 characters').optional(),
@@ -219,13 +212,6 @@ export const updateStaySchema = object({
     name: string().min(3, 'Stay name should be atleast 3 characters').optional(),
     summary: string().min(10, 'Summary should be atleast 10 characters').optional(),
     extraInfo: object({
-      host: object({
-        name: string({ required_error: 'Host name is required' }),
-        info: string({ required_error: 'Host description is required' }).min(
-          10,
-          'Host description should be atleast 10 characters'
-        ),
-      }).optional(),
       property: string().min(10, 'Property description should be atleast 10 characters').optional(),
       neighborhood: object({
         info: string().min(10, 'Neighborhood description should be atleast 10 characters').optional(),
