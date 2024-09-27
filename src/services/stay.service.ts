@@ -84,11 +84,15 @@ export const removeAccommodation = async (_id: string, partner: string, roomId: 
   if (!modifiedCount) throw new BadRequestError();
 };
 
-export const updateAccommodationAvailability = (_id: string, accommodations: IReservationAccommodation[]) => {
+export const updateAccommodationAvailability = (
+  _id: string,
+  accommodations: IReservationAccommodation[],
+  release?: boolean
+) => {
   const bulkOps = accommodations.map(({ accommodationId, reservationCount }) => ({
     updateOne: {
       filter: { _id, 'accommodation.id': accommodationId },
-      update: { $inc: { 'accommodation.$.available': -reservationCount } },
+      update: { $inc: { 'accommodation.$.available': release ? reservationCount : -reservationCount } },
     },
   }));
   return StayModel.bulkWrite(bulkOps);
