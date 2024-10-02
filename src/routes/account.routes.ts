@@ -2,6 +2,7 @@ import {
   changeCancellationPolicyHandler,
   changePasswordHandler,
   deleteAccountHandler,
+  getAdminAnalyticsHandler,
   logoutHandler,
   refreshAccessTokenHandler,
   sendVerifyEmailHandler,
@@ -26,6 +27,7 @@ router.use(requireAuth);
 router.get('/verifyemail/:otp', validateSchema(verifyEmailSchema), verifyEmailHandler);
 router.get('/sendverificationemail', sendVerifyEmailHandler);
 router.post('/changepassword/:otp', validateSchema(changePasswordSchema), changePasswordHandler);
+router.get('/admin', partnerOnly, getAdminAnalyticsHandler);
 router.post('/upload', parser.array('images', 5), uploadImageHandler);
 router.delete('/delete', deleteAccountHandler);
 router.patch(
