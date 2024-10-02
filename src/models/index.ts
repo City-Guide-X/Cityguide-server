@@ -8,3 +8,15 @@ export * from './stay.model';
 export * from './user.model';
 
 export const privateFields = ['__v', 'password', 'refreshToken', 'otp'];
+export const privateUserFields = [
+  ...privateFields,
+  'dateOfBirth',
+  'emailIsVerified',
+  'favouriteProperties',
+  'isSocial',
+  'isPartner',
+  'cancellationPolicy',
+  'deletedAt',
+  'createdAt',
+  'updatedAt',
+];
