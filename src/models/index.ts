@@ -20,3 +20,5 @@ export const privateUserFields = [
   'createdAt',
   'updatedAt',
 ];
+export const privateEstablishmentFields = [...privateFields, 'emailIsVerified', 'deletedAt', 'createdAt', 'updatedAt'];
+export const privatePartnerFields = [...privateUserFields, ...privateEstablishmentFields];
