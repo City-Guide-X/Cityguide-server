@@ -7,7 +7,7 @@ export * from './review.model';
 export * from './stay.model';
 export * from './user.model';
 
-export const privateFields = ['__v', 'password', 'refreshToken', 'otp'];
+export const privateFields = ['__v', 'password', 'refreshToken', 'otp', 'deletedAt'];
 export const privateUserFields = [
   ...privateFields,
   'dateOfBirth',
@@ -16,9 +16,8 @@ export const privateUserFields = [
   'isSocial',
   'isPartner',
   'cancellationPolicy',
-  'deletedAt',
   'createdAt',
   'updatedAt',
 ];
-export const privateEstablishmentFields = [...privateFields, 'emailIsVerified', 'deletedAt', 'createdAt', 'updatedAt'];
+export const privateEstablishmentFields = [...privateFields, 'emailIsVerified', 'createdAt', 'updatedAt'];
 export const privatePartnerFields = [...privateUserFields, ...privateEstablishmentFields];
