@@ -1,5 +1,5 @@
 import { AuthorizationError, BadRequestError, NotFoundError } from '@errors';
-import { User } from '@models';
+import { privateFields, User } from '@models';
 import {
   changeCancellationPolicyInput,
   changePasswordInput,
@@ -13,13 +13,15 @@ import {
   deleteUser,
   findEstablishmentById,
   findUserById,
+  getAdminAnalytics,
   setEstablishmentRefreshToken,
   setUserRefreshToken,
   signTokens,
 } from '@services';
 import { EntityType, IPayload } from '@types';
-import { asyncWrapper, sendEmail, verifyCode, verifyJWT } from '@utils';
+import { asyncWrapper, sanitizeEngagement, sendEmail, verifyCode, verifyJWT } from '@utils';
 import { Request, Response } from 'express';
+import { omit } from 'lodash';
 
 export const refreshAccessTokenHandler = asyncWrapper(
   async (req: Request<{}, {}, refreshAccessTokenInput>, res: Response) => {
@@ -110,6 +112,17 @@ export const changePasswordHandler = asyncWrapper(
     return res.sendStatus(204);
   }
 );
+
+export const getAdminAnalyticsHandler = asyncWrapper(async (req: Request, res: Response) => {
+  const { id, type } = res.locals.user;
+  const analytics = await getAdminAnalytics(id, type);
+  return res.status(200).json({
+    analytics: {
+      ...analytics,
+      engagements: analytics.engagements.map(sanitizeEngagement),
+    },
+  });
+});
 
 export const logoutHandler = asyncWrapper(async (req: Request, res: Response) => {
   const { id, type } = res.locals.user;
