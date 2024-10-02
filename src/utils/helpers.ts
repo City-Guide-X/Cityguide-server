@@ -1,5 +1,5 @@
 import { PlaceData } from '@googlemaps/google-maps-services-js';
-import { privateFields } from '@models';
+import { privateFields, privateUserFields } from '@models';
 import { omit } from 'lodash';
 
 export const formatNearbyLocations = (res: Partial<PlaceData>) => ({
@@ -10,5 +10,5 @@ export const formatNearbyLocations = (res: Partial<PlaceData>) => ({
 
 export const sanitizeEngagement = (engagement: any) => ({
   ...omit(engagement, privateFields),
-  user: engagement.user[0] ? omit(engagement.user[0], privateFields) : null,
+  user: engagement.user[0] ? omit(engagement.user[0], privateUserFields) : null,
 });
