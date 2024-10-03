@@ -11,8 +11,8 @@ export const createReservationSchema = object({
     }),
     propertyType: nativeEnum(PropertyType, {
       required_error: 'Property type is required',
-      invalid_type_error: 'Property type should be a Stay | Restaurant | NightLife',
-    }),
+      invalid_type_error: 'Property type should be a Stay | Restaurant',
+    }).refine((data) => data !== PropertyType.NIGHTLIFE, { message: 'NightLife reservations are not supported' }),
     checkInDay: coerce.date({ required_error: 'From date is required', invalid_type_error: 'Invalid date' }),
     checkInTime: string({ required_error: 'Check-in time is required' }).regex(
       /^\d{2}:\d{2}$/,
