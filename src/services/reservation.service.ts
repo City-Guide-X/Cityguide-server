@@ -1,9 +1,11 @@
 import { BadRequestError } from '@errors';
-import { NightLifeModel, Reservation, ReservationModel, RestaurantModel, StayModel } from '@models';
-import { PropertyType } from '@types';
+import { Reservation, ReservationModel } from '@models';
+import { IReservation, PropertyType } from '@types';
 import { isFuture, isValidDate } from '@utils';
 import dayjs from 'dayjs';
 import { Types } from 'mongoose';
+import { getRestaurantById } from './restaurant.service';
+import { getStayById } from './stay.service';
 
 export const createReservation = (option: Partial<Reservation>) => {
   return ReservationModel.create({ ...option });
@@ -130,11 +132,16 @@ export const validateReservationInput = async ({
   checkOutDay,
   checkOutTime,
   noOfGuests,
-}: Partial<Reservation>) => {
+  creditCardToken,
+}: IReservation) => {
   if (isFuture(checkInDay!, checkInTime!)) throw new BadRequestError('The reservation date must be in the future');
   if (propertyType === PropertyType.STAY) {
-    const stay = await StayModel.findById(property);
+    const stay = await getStayById(property);
     if (!stay) throw new BadRequestError('Invalid Stay ID');
+    if ((stay.cancellationPolicy || (stay.partner as any).cancellationPolicy) && !creditCardToken)
+      throw new BadRequestError(
+        "Credit card information is required for this reservation due to the property's cancellation policy."
+      );
     if (dayjs(checkOutDay).diff(checkInDay, 'd') > stay.maxDays)
       throw new BadRequestError('The reservation exceeds the maximum stay');
     accommodations?.forEach(({ accommodationId, reservationCount, noOfGuests }) => {
@@ -150,10 +157,14 @@ export const validateReservationInput = async ({
     return true;
   }
   if (propertyType === PropertyType.RESTAURANT) {
-    const restaurant = await RestaurantModel.findById(property);
+    const restaurant = await getRestaurantById(property);
     if (!restaurant) throw new BadRequestError('Invalid Restaurant ID');
     const reservation = restaurant.details.reservation;
     if (!reservation) throw new BadRequestError("This restaurant doesn't accept reservations");
+    if ((restaurant.cancellationPolicy || (restaurant.partner as any).cancellationPolicy) && !creditCardToken)
+      throw new BadRequestError(
+        "Credit card information is required for this reservation due to the property's cancellation policy."
+      );
     const isAvailable = [
       restaurant.availability
         .map(({ day, from, to }) => isValidDate(checkInDay!, checkInTime!, day, from, to))
@@ -172,11 +183,6 @@ export const validateReservationInput = async ({
       throw new BadRequestError('Reservation max reached');
     if (!restaurant.details.children && noOfGuests!.children)
       throw new BadRequestError('Children are not allowed in the selected restaurant');
-    return true;
-  }
-  if (propertyType === PropertyType.NIGHTLIFE) {
-    const nightLife = await NightLifeModel.findById(property);
-    if (!nightLife) throw new BadRequestError('Invalid NightLife ID');
     return true;
   }
 };
