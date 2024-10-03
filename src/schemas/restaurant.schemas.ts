@@ -258,6 +258,18 @@ export const updateRestaurantSchema = object({
         .array()
         .optional(),
     }).optional(),
+    cancellationPolicy: object({
+      daysFromReservation: number({
+        required_error: 'Days from reservation is required',
+        invalid_type_error: 'Days from reservation should be a number',
+      }).nonnegative(),
+      percentRefundable: number({
+        required_error: 'Percent refundable is required',
+        invalid_type_error: 'Percent refundable should be a number',
+      }).refine((val) => val >= 0 && val <= 1, { message: 'Percent refundable should be between 0 and 1' }),
+    })
+      .nullish()
+      .optional(),
   }),
   params: object({
     restaurantId: string({ required_error: 'Restaurant id is required' }),
