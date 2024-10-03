@@ -211,6 +211,7 @@ export interface IReservation {
   reservationCount: number;
   noOfGuests: IGuests;
   price?: number;
+  creditCardToken?: string;
 }
 
 // Review
