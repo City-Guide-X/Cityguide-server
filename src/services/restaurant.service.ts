@@ -18,7 +18,7 @@ export const getPartnerRestaurants = (partner: string) => {
 export const getRestaurantById = (_id: string) => {
   return RestaurantModel.findById(_id).populate({
     path: 'partner',
-    select: 'name email phoneNumber imgUrl',
+    select: 'name email phoneNumber imgUrl cancellationPolicy',
     model: 'Establishment',
   });
 };
