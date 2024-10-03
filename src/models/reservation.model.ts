@@ -2,7 +2,6 @@ import { getModelForClass, index, modelOptions, prop, Ref, Severity } from '@typ
 import { EntityType, IGuests, IReservationAccommodation, PropertyType, Status } from '@types';
 import { refCode } from '@utils';
 import { Establishment } from './establishment.model';
-import { NightLife } from './nightlife.model';
 import { Restaurant } from './restaurant.model';
 import { Stay } from './stay.model';
 import { User } from './user.model';
@@ -17,7 +16,7 @@ export class Reservation {
   reservationRef: string;
 
   @prop({ required: true, refPath: 'propertyType' })
-  property!: Ref<Stay | Restaurant | NightLife>;
+  property!: Ref<Stay | Restaurant>;
 
   @prop({ enum: PropertyType, required: true, type: String })
   propertyType: PropertyType;
@@ -69,6 +68,9 @@ export class Reservation {
 
   @prop()
   price: number;
+
+  @prop()
+  creditCardToken?: string;
 
   public createdAt: Date;
   public updatedAt: Date;
