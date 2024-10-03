@@ -7,7 +7,7 @@ import { omit } from 'lodash';
 
 export const getUserNotificationsHandler = asyncWrapper(async (req: Request, res: Response) => {
   const { id } = res.locals.user;
-  const notifications = await getUserNotifications(id);
+  const notifications = await getUserNotifications(id).sort('-createdAt');
   return res.status(200).json({
     count: notifications.length,
     notifications: notifications.map((notification) => omit(notification, privateFields)),
