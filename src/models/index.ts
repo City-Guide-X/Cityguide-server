@@ -7,7 +7,7 @@ export * from './review.model';
 export * from './stay.model';
 export * from './user.model';
 
-export const privateFields = ['__v', 'password', 'refreshToken', 'otp', 'deletedAt'];
+export const privateFields = ['__v', 'password', 'refreshToken', 'otp', 'creditCardToken', 'deletedAt'];
 export const privateUserFields = [
   ...privateFields,
   'dateOfBirth',
