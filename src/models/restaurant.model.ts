@@ -2,6 +2,7 @@ import { defaultRestaurantCatReviews } from '@constants';
 import { getModelForClass, modelOptions, pre, prop, Ref, Severity } from '@typegoose/typegoose';
 import {
   IAddress,
+  ICancellation,
   ICategoryRating,
   IContact,
   ICustomAvailability,
@@ -73,6 +74,9 @@ export class Restaurant {
 
   @prop({ required: true, _id: false })
   contact: IContact;
+
+  @prop({ default: null })
+  cancellationPolicy: ICancellation | null;
 
   @prop({ default: null })
   deletedAt: Date | null;

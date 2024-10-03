@@ -5,6 +5,7 @@ import {
   HotelRating,
   IAccommodation,
   IAddress,
+  ICancellation,
   ICategoryRating,
   IExtraInfo,
   IOptionalService,
@@ -86,6 +87,9 @@ export class Stay {
 
   @prop({ default: [] })
   optionalServices: IOptionalService[];
+
+  @prop({ default: null })
+  cancellationPolicy: ICancellation | null;
 
   @prop({ default: null })
   deletedAt: Date | null;
