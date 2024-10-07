@@ -1,4 +1,4 @@
-import { getModelForClass, index, modelOptions, prop, Ref, Severity } from '@typegoose/typegoose';
+import { getModelForClass, index, modelOptions, pre, prop, Ref, Severity } from '@typegoose/typegoose';
 import { EntityType, IGuests, IReservationAccommodation, PropertyType, Status } from '@types';
 import { refCode } from '@utils';
 import { Establishment } from './establishment.model';
@@ -6,6 +6,9 @@ import { Restaurant } from './restaurant.model';
 import { Stay } from './stay.model';
 import { User } from './user.model';
 
+@pre<Reservation>('save', function () {
+  if (!this.reservationRef) this.reservationRef = refCode();
+})
 @modelOptions({
   schemaOptions: { timestamps: true },
   options: { allowMixed: Severity.ALLOW },
