@@ -2,6 +2,7 @@ export * from './account.controllers';
 export * from './establishment.controllers';
 export * from './nighlife.controllers';
 export * from './notification.controllers';
+export * from './payment.controllers';
 export * from './reservation.controllers';
 export * from './restaurant.controllers';
 export * from './review.controllers';

@@ -2,6 +2,7 @@ export * from './account.schemas';
 export * from './establishments.schemas';
 export * from './nightlife.schemas';
 export * from './notification.schemas';
+export * from './payment.schemas';
 export * from './reservation.schemas';
 export * from './restaurant.schemas';
 export * from './review.schemas';

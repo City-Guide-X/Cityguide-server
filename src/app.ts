@@ -12,6 +12,7 @@ import {
   accountRoutes,
   establishmentRoutes,
   notificationRoutes,
+  paymentRoutes,
   propertyRoutes,
   reservationRoutes,
   reviewRoutes,
@@ -51,6 +52,7 @@ app.use('/api/v1/reservation', reservationRoutes);
 app.use('/api/v1/review', reviewRoutes);
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/vtu', vtuRoutes);
+app.use('/api/v1/payment', paymentRoutes);
 app.use('*', notFoundHandler);
 
 // ERROR HANDLING
