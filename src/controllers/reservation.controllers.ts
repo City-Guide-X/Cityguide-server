@@ -15,12 +15,14 @@ import {
   findReservationByRef,
   getPartnerReservations,
   getUserReservations,
+  refundPayment,
   reservationAnalytics,
   updateAccommodationAvailability,
   updateReservation,
   validateReservationInput,
+  verifyPayment,
 } from '@services';
-import { EntityType, IReservation, NotificationType, PropertyType, Status } from '@types';
+import { EntityType, IReservation, NotificationType, PropertyType, Status, StayType } from '@types';
 import { asyncWrapper } from '@utils';
 import dayjs from 'dayjs';
 import { Request, Response } from 'express';
@@ -35,12 +37,19 @@ export const createReservationHandler = asyncWrapper(
     session.startTransaction();
     try {
       await validateReservationInput(data);
+      if (data.payReference) data.paymentAuth = await verifyPayment(data.payReference, data.price);
       const reservation = await createReservation(data);
       const reservationResponse = omit(reservation.toJSON(), privateFields);
       const populatedProperty: any = await reservation.populate({
         path: 'property',
         select: 'type name accommodation -_id',
       });
+      if (
+        data.payReference &&
+        data.propertyType === PropertyType.STAY &&
+        ![StayType.APARTMENT, StayType.BnB].includes(populatedProperty.property.type as StayType)
+      )
+        await refundPayment(data.payReference);
 
       const notification = {
         recipient: data.partner,
