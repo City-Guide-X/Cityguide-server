@@ -1,5 +1,5 @@
 import { getModelForClass, index, modelOptions, pre, prop, Ref, Severity } from '@typegoose/typegoose';
-import { EntityType, IGuests, IReservationAccommodation, PropertyType, Status } from '@types';
+import { EntityType, IGuests, IPaymentAuth, IReservationAccommodation, PropertyType, Status } from '@types';
 import { refCode } from '@utils';
 import { Establishment } from './establishment.model';
 import { Restaurant } from './restaurant.model';
@@ -69,11 +69,14 @@ export class Reservation {
   @prop({ required: true, _id: false })
   noOfGuests: IGuests;
 
-  @prop()
+  @prop({ required: true })
   price: number;
 
   @prop()
-  creditCardToken?: string;
+  payReference?: string;
+
+  @prop({ _id: false })
+  paymentAuth?: IPaymentAuth;
 
   public createdAt: Date;
   public updatedAt: Date;
