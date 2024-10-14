@@ -1,6 +1,6 @@
 import { BadRequestError } from '@errors';
 import { Reservation, ReservationModel } from '@models';
-import { IReservation, PropertyType } from '@types';
+import { IReservation, PropertyType, StayType } from '@types';
 import { isFuture, isValidDate } from '@utils';
 import dayjs from 'dayjs';
 import { Types } from 'mongoose';
@@ -132,13 +132,15 @@ export const validateReservationInput = async ({
   checkOutDay,
   checkOutTime,
   noOfGuests,
-  creditCardToken,
+  payReference,
 }: IReservation) => {
   if (isFuture(checkInDay!, checkInTime!)) throw new BadRequestError('The reservation date must be in the future');
   if (propertyType === PropertyType.STAY) {
     const stay = await getStayById(property);
     if (!stay) throw new BadRequestError('Invalid Stay ID');
-    if ((stay.cancellationPolicy || (stay.partner as any).cancellationPolicy) && !creditCardToken)
+    if ([StayType.APARTMENT, StayType.BnB].includes(stay.type) && !payReference)
+      throw new BadRequestError('Payment is required for this reservation');
+    if ((stay.cancellationPolicy || (stay.partner as any).cancellationPolicy) && !payReference)
       throw new BadRequestError(
         "Credit card information is required for this reservation due to the property's cancellation policy."
       );
@@ -161,7 +163,7 @@ export const validateReservationInput = async ({
     if (!restaurant) throw new BadRequestError('Invalid Restaurant ID');
     const reservation = restaurant.details.reservation;
     if (!reservation) throw new BadRequestError("This restaurant doesn't accept reservations");
-    if ((restaurant.cancellationPolicy || (restaurant.partner as any).cancellationPolicy) && !creditCardToken)
+    if ((restaurant.cancellationPolicy || (restaurant.partner as any).cancellationPolicy) && !payReference)
       throw new BadRequestError(
         "Credit card information is required for this reservation due to the property's cancellation policy."
       );
