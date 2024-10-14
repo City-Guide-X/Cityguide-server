@@ -71,10 +71,10 @@ export const createReservationSchema = object({
       },
       { required_error: 'Number of guests is required', invalid_type_error: 'Number of guests should be an object' }
     ),
-    price: number({ invalid_type_error: 'Price is a number' }).optional(),
+    price: number({ required_error: 'Price is required', invalid_type_error: 'Price is a number' }),
     guestFullName: string().min(3, 'Guest full name should be atleast 3 characters long').optional(),
     guestEmail: string().email('Invalid guest email').optional(),
-    creditCardToken: string().optional(),
+    payReference: string().optional(),
     requests: string().array().min(1, 'Atleast 1 request').optional(),
     isAgent: boolean({
       invalid_type_error: 'isAgent should be true if reservation is for someone else and false otherwise',
