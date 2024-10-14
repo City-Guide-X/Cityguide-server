@@ -210,8 +210,25 @@ export interface IReservation {
   accommodations?: IReservationAccommodation[];
   reservationCount: number;
   noOfGuests: IGuests;
-  price?: number;
-  creditCardToken?: string;
+  price: number;
+  payReference?: string;
+  paymentAuth?: IPaymentAuth;
+}
+
+export interface IPaymentAuth {
+  authorization_code: string;
+  card_type: string;
+  last4: string;
+  exp_month: string;
+  exp_year: string;
+  bin: string;
+  bank: string;
+  channel: string;
+  signature: string;
+  reusable: boolean;
+  country_code: string;
+  account_name: string | null;
+  email: string;
 }
 
 // Review
