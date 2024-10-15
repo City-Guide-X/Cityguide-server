@@ -229,6 +229,7 @@ export interface IPaymentAuth {
   country_code: string;
   account_name: string | null;
   email: string;
+  amount: number;
 }
 
 // Review

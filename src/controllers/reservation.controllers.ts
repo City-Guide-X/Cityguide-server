@@ -1,4 +1,4 @@
-import { NotFoundError } from '@errors';
+import { BadRequestError, NotFoundError } from '@errors';
 import { privateFields } from '@models';
 import {
   cancelReservationInput,
@@ -48,8 +48,10 @@ export const createReservationHandler = asyncWrapper(
         data.payReference &&
         data.propertyType === PropertyType.STAY &&
         ![StayType.APARTMENT, StayType.BnB].includes(populatedProperty.property.type as StayType)
-      )
+      ) {
+        if (data.paymentAuth!.amount !== data.price) throw new BadRequestError('Invalid payment amount');
         await refundPayment(data.payReference);
+      }
 
       const notification = {
         recipient: data.partner,

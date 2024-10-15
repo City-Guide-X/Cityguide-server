@@ -39,8 +39,7 @@ export const verifyPayment = async (reference: string, transactionAmount: number
     } = response.data.data;
     if (status !== 'success' && gateway_response !== 'Successful')
       throw new BadRequestError('Payment was not successful');
-    if (amount !== transactionAmount) throw new BadRequestError('Payment amount mismatch');
-    return { ...authorization, email } as IPaymentAuth;
+    return { ...authorization, email, amount } as IPaymentAuth;
   } catch (error: any) {
     throw new BadRequestError('Payment verification failed');
   }
