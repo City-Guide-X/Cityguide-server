@@ -80,11 +80,11 @@ export const createReservationSchema = object({
       invalid_type_error: 'isAgent should be true if reservation is for someone else and false otherwise',
     }).optional(),
   }).superRefine((data, ctx) => {
-    if (data.propertyType === PropertyType.STAY && (!data.accommodations?.length || !data.price)) {
+    if (data.propertyType === PropertyType.STAY && !data.accommodations?.length) {
       ctx.addIssue({
         code: ZodIssueCode.custom,
-        message: 'Price is required for Stay reservations and atleast 1 accommodation should be reserved',
-        path: ['accommodations', 'price'],
+        message: 'Atleast 1 accommodation should be reserved for stay reservations',
+        path: ['accommodations'],
       });
     }
     if (data.isAgent && (!data.guestEmail || !data.guestFullName))

@@ -26,7 +26,7 @@ router.get('/', userOnly, getUserReservationsHandler);
 router.get('/partner', partnerOnly, getPartnerReservationsHandler);
 router.get('/:reservationId', validateSchema(getReservationDetailSchema), getReservationDetailsHandler);
 router.get('/ref/:reservationRef', validateSchema(reservationRefSchema), getReservationByRefHandler);
-router.post('/create', userOnly, validateSchema(createReservationSchema), createReservationHandler);
+router.post('/', userOnly, validateSchema(createReservationSchema), createReservationHandler);
 router.post('/analytics', partnerOnly, validateSchema(reservationAnalyticsSchema), reservationAnalyticsHandler);
 router.patch('/update', validateSchema(updateReservationSchema), updateReservationHandler);
 router.patch('/cancel/:reservationId', userOnly, validateSchema(cancelReservationSchema), cancelReservationHandler);
