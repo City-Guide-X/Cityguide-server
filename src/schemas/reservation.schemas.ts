@@ -75,6 +75,7 @@ export const createReservationSchema = object({
     guestFullName: string().min(3, 'Guest full name should be atleast 3 characters long').optional(),
     guestEmail: string().email('Invalid guest email').optional(),
     payReference: string().optional(),
+    useSavedCard: boolean({ invalid_type_error: 'Use saved card should be a boolean' }).optional().default(false),
     saveCard: boolean({ invalid_type_error: 'Save card should be a boolean' }).optional().default(false),
     requests: string().array().min(1, 'Atleast 1 request').optional(),
     isAgent: boolean({

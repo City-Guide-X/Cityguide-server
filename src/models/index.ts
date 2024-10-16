@@ -7,16 +7,7 @@ export * from './review.model';
 export * from './stay.model';
 export * from './user.model';
 
-export const privateFields = [
-  '__v',
-  'password',
-  'refreshToken',
-  'otp',
-  'creditCardToken',
-  'paymentAuth',
-  'payReference',
-  'deletedAt',
-];
+export const privateFields = ['__v', 'password', 'refreshToken', 'otp', 'creditCardToken', 'payReference', 'deletedAt'];
 export const privateUserFields = [
   ...privateFields,
   'dateOfBirth',
@@ -30,3 +21,4 @@ export const privateUserFields = [
 ];
 export const privateEstablishmentFields = [...privateFields, 'emailIsVerified', 'createdAt', 'updatedAt'];
 export const privatePartnerFields = [...privateUserFields, ...privateEstablishmentFields];
+export const privateReservationFields = [...privateFields, 'paymentAuth'];
