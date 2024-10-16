@@ -1,5 +1,5 @@
 import { BadRequestError, NotFoundError } from '@errors';
-import { privateFields, privateReservationFields } from '@models';
+import { privateFields } from '@models';
 import {
   cancelReservationInput,
   createReservationInput,
@@ -13,14 +13,12 @@ import {
   createReservation,
   findReservationById,
   findReservationByRef,
-  findUserById,
   getPartnerReservations,
   getUserReservations,
   refundPayment,
   reservationAnalytics,
   updateAccommodationAvailability,
   updateReservation,
-  updateUserInfo,
   validateReservationInput,
   verifyPayment,
 } from '@services';
@@ -34,22 +32,14 @@ import mongoose from 'mongoose';
 export const createReservationHandler = asyncWrapper(
   async (req: Request<{}, {}, createReservationInput>, res: Response) => {
     const { id } = res.locals.user;
-    const { saveCard, ...body } = req.body;
-    let data: IReservation = { ...body, user: id };
+    let data: IReservation = { ...req.body, user: id };
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
       await validateReservationInput(data);
-      if (data.useSavedCard) {
-        const user = await findUserById(id);
-        if (!user?.paymentAuth) throw new BadRequestError('No saved card found');
-        data.paymentAuth = user.paymentAuth;
-      } else if (data.payReference) {
-        data.paymentAuth = await verifyPayment(data.payReference, data.price);
-        if (saveCard) await updateUserInfo(id, { paymentAuth: data.paymentAuth });
-      }
+      if (data.payReference) data.paymentAuth = await verifyPayment(data.payReference, data.price);
       const reservation = await createReservation(data);
-      const reservationResponse = omit(reservation.toJSON(), privateReservationFields);
+      const reservationResponse = omit(reservation.toJSON(), privateFields);
       const populatedProperty: any = await reservation.populate({
         path: 'property',
         select: 'type name accommodation -_id',
@@ -111,7 +101,7 @@ export const getUserReservationsHandler = asyncWrapper(async (req: Request, res:
   const reservations = await getUserReservations(id);
   return res.status(200).json({
     count: reservations.length,
-    reservations: reservations.map((r) => omit(r.toJSON(), privateReservationFields)),
+    reservations: reservations.map((r) => omit(r.toJSON(), privateFields)),
   });
 });
 
@@ -120,7 +110,7 @@ export const getPartnerReservationsHandler = asyncWrapper(async (req: Request, r
   const reservations = await getPartnerReservations(id);
   return res.status(200).json({
     count: reservations.length,
-    reservations: reservations.map((r) => omit(r.toJSON(), privateReservationFields)),
+    reservations: reservations.map((r) => omit(r.toJSON(), privateFields)),
   });
 });
 
@@ -129,7 +119,7 @@ export const getReservationDetailsHandler = asyncWrapper(
     const { reservationId } = req.params;
     const reservation = await findReservationById(reservationId);
     if (!reservation) throw new NotFoundError('Reservation not found');
-    return res.status(200).json({ reservation: omit(reservation.toJSON(), privateReservationFields) });
+    return res.status(200).json({ reservation: omit(reservation.toJSON(), privateFields) });
   }
 );
 
@@ -137,7 +127,7 @@ export const getReservationByRefHandler = asyncWrapper(async (req: Request<reser
   const { reservationRef } = req.params;
   const reservation = await findReservationByRef(reservationRef);
   if (!reservation) throw new NotFoundError('Reservation not found');
-  return res.status(200).json({ reservation: omit(reservation.toJSON(), privateReservationFields) });
+  return res.status(200).json({ reservation: omit(reservation.toJSON(), privateFields) });
 });
 
 export const cancelReservationHandler = asyncWrapper(async (req: Request<cancelReservationInput>, res: Response) => {
