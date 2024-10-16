@@ -34,7 +34,7 @@ export const getTrendingStays = () => {
     },
     { $addFields: { reservationCount: { $size: '$reservations' } } },
     { $sort: { reservationCount: -1 } },
-    { $limit: 10 },
+    { $limit: 12 },
     { $project: { reservations: 0, reservationCount: 0 } },
   ]);
 };

@@ -23,7 +23,7 @@ export const getNightLifeById = (_id: string) => {
 };
 
 export const getTrendingNightlifes = () => {
-  return NightLifeModel.aggregate([{ $sort: { reviewCount: -1, rating: -1 } }, { $limit: 10 }]);
+  return NightLifeModel.aggregate([{ $sort: { reviewCount: -1, rating: -1 } }, { $limit: 12 }]);
 };
 
 export const updateNightLife = (_id: string, partner: string, body: Partial<NightLife>) => {
