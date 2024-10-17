@@ -47,7 +47,7 @@ export const createReservationHandler = asyncWrapper(
       if (
         data.payReference &&
         data.propertyType === PropertyType.STAY &&
-        ![StayType.APARTMENT, StayType.BnB].includes(populatedProperty.property.type as StayType)
+        [StayType.APARTMENT, StayType.BnB].includes(populatedProperty.property.type as StayType)
       ) {
         if (data.paymentAuth!.amount !== data.price) throw new BadRequestError('Invalid payment amount');
         await refundPayment(data.payReference);
