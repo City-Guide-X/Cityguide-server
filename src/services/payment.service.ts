@@ -8,7 +8,7 @@ export const initiatePayment = async (email: string, amount: number, currency: s
   try {
     const response = await axios.post(
       `${PAYSTACK_BASE_URL}/transaction/initialize`,
-      { email, amount: String(amount * 100), currency },
+      { email, amount: String(amount * 100), currency, channels: ['card'] },
       {
         headers: {
           Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
