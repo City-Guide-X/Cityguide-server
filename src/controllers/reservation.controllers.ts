@@ -44,13 +44,13 @@ export const createReservationHandler = asyncWrapper(
         path: 'property',
         select: 'type name accommodation -_id',
       });
-      if (
-        data.payReference &&
-        data.propertyType === PropertyType.STAY &&
-        [StayType.APARTMENT, StayType.BnB].includes(populatedProperty.property.type as StayType)
-      ) {
-        if (data.paymentAuth!.amount !== data.price) throw new BadRequestError('Invalid payment amount');
-        await refundPayment(data.payReference);
+      if (data.payReference) {
+        if (
+          data.propertyType === PropertyType.STAY &&
+          [StayType.APARTMENT, StayType.BnB].includes(populatedProperty.property.type as StayType)
+        ) {
+          if (data.paymentAuth!.amount !== data.price * 100) throw new BadRequestError('Invalid payment amount');
+        } else await refundPayment(data.payReference);
       }
 
       const notification = {
