@@ -213,6 +213,7 @@ export interface IReservation {
   price: number;
   payReference?: string;
   paymentAuth?: IPaymentAuth;
+  useSavedCard?: boolean;
 }
 
 export interface IPaymentAuth {
@@ -229,7 +230,7 @@ export interface IPaymentAuth {
   country_code: string;
   account_name: string | null;
   email: string;
-  amount: number;
+  amount?: number;
 }
 
 // Review
