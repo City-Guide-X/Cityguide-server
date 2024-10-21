@@ -34,7 +34,7 @@ import mongoose from 'mongoose';
 export const createReservationHandler = asyncWrapper(
   async (req: Request<{}, {}, createReservationInput>, res: Response) => {
     const { id } = res.locals.user;
-    let { useSavedCard, ...data }: IReservation = { ...req.body, user: id };
+    let { useSavedCard, saveCard, ...data }: IReservation = { ...req.body, user: id };
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
@@ -49,7 +49,7 @@ export const createReservationHandler = asyncWrapper(
         data.paymentAuth = paymentAuth;
       } else if (data.payReference) {
         data.paymentAuth = await verifyPayment(data.payReference);
-        await updateUserInfo(id, { paymentAuth: data.paymentAuth });
+        if (saveCard) await updateUserInfo(id, { paymentAuth: data.paymentAuth });
       }
       const reservation = await createReservation(data);
       const reservationResponse = omit(reservation.toJSON(), privateFields);

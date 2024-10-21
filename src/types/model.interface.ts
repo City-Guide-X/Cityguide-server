@@ -214,6 +214,7 @@ export interface IReservation {
   payReference?: string;
   paymentAuth?: IPaymentAuth;
   useSavedCard?: boolean;
+  saveCard?: boolean;
 }
 
 export interface IPaymentAuth {

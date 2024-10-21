@@ -76,6 +76,7 @@ export const createReservationSchema = object({
     guestEmail: string().email('Invalid guest email').optional(),
     payReference: string().optional(),
     useSavedCard: boolean({ invalid_type_error: 'Save card should be true or false' }).optional().default(false),
+    saveCard: boolean({ invalid_type_error: 'Save card should be true or false' }).optional().default(true),
     requests: string().array().min(1, 'Atleast 1 request').optional(),
     isAgent: boolean({
       invalid_type_error: 'isAgent should be true if reservation is for someone else and false otherwise',

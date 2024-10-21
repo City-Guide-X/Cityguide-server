@@ -30,3 +30,13 @@ export const privateUserFields = [
 ];
 export const privateEstablishmentFields = [...privateFields, 'emailIsVerified', 'createdAt', 'updatedAt'];
 export const privatePartnerFields = [...privateUserFields, ...privateEstablishmentFields];
+export const privatePaymentAuthFields = [
+  'authorization_code',
+  'channel',
+  'signature',
+  'reusable',
+  'country_code',
+  'account_name',
+  'email',
+  'amount',
+];
