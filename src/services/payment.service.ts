@@ -1,14 +1,15 @@
 import { BadRequestError } from '@errors';
 import { IPaymentAuth } from '@types';
 import axios from 'axios';
+import { get, put } from 'memory-cache';
 
 const PAYSTACK_BASE_URL = 'https://api.paystack.co';
 
-export const initiatePayment = async (email: string, amount: number, currency: string) => {
+export const initiatePayment = async (email: string, amount?: number) => {
   try {
     const response = await axios.post(
       `${PAYSTACK_BASE_URL}/transaction/initialize`,
-      { email, amount: String(amount * 100), currency, channels: ['card'] },
+      { email, amount: String((amount ?? 50) * 100), channels: ['card'] },
       {
         headers: {
           Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
@@ -22,7 +23,7 @@ export const initiatePayment = async (email: string, amount: number, currency: s
   }
 };
 
-export const verifyPayment = async (reference: string, transactionAmount: number) => {
+export const verifyPayment = async (reference: string) => {
   try {
     const response = await axios.get(`${PAYSTACK_BASE_URL}/transaction/verify/${reference}`, {
       headers: {
@@ -56,5 +57,29 @@ export const refundPayment = async (transaction: string, amount?: number) => {
     });
   } catch (err: any) {
     throw new BadRequestError('Payment refund failed');
+  }
+};
+
+export const getExchangeRate = async (base: string, currency: string): Promise<number> => {
+  const EXPIRY = 1000 * 60 * 60 * 24;
+  let rate = get(`exchange_rate_${base}`);
+  if (rate) {
+    rate = JSON.parse(rate);
+    return rate[currency];
+  }
+  rate = get(`exchange_rate_${currency}`);
+  if (rate) {
+    rate = JSON.parse(rate);
+    return 1 / rate[base];
+  }
+  try {
+    const response = await axios.get(`https://v6.exchangerate-api.com/v6/latest/${base}`, {
+      headers: { Authorization: `Bearer ${process.env.EXCHANGE_RATE_API_KEY}` },
+    });
+    rate = response.data.conversion_rates;
+    put(`exchange_rate_${base}`, JSON.stringify(rate), EXPIRY);
+    return rate[currency];
+  } catch (error: any) {
+    throw new BadRequestError('Exchange rate fetch failed');
   }
 };
