@@ -1,5 +1,5 @@
 import { DocumentType, getModelForClass, index, modelOptions, pre, prop, Severity } from '@typegoose/typegoose';
-import { ICancellation, IFavProperties } from '@types';
+import { ICancellation, IFavProperties, IPaymentAuth } from '@types';
 import { verifyCode } from '@utils';
 import bcrypt from 'bcrypt';
 import { Query } from 'mongoose';
@@ -66,8 +66,11 @@ export class User {
   @prop({ default: false })
   isPartner: boolean;
 
-  @prop({ default: null })
-  cancellationPolicy: ICancellation | null;
+  @prop()
+  cancellationPolicy?: ICancellation;
+
+  @prop({ _id: false })
+  paymentAuth?: IPaymentAuth;
 
   @prop({ default: null })
   deletedAt: Date | null;
