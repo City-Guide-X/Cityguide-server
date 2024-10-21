@@ -1,12 +1,14 @@
 import { AuthorizationError, BadRequestError, NotFoundError } from '@errors';
-import { privateFields, User } from '@models';
+import { User } from '@models';
 import {
+  addBankDetailsInput,
   changeCancellationPolicyInput,
   changePasswordInput,
   refreshAccessTokenInput,
   verifyEmailInput,
 } from '@schemas';
 import {
+  addRecipient,
   changeEstablishmentCancellationPolicy,
   changeUserCancellationPolicy,
   deleteEstablishment,
@@ -17,11 +19,12 @@ import {
   setEstablishmentRefreshToken,
   setUserRefreshToken,
   signTokens,
+  updateEstablishmentInfo,
+  updateUserInfo,
 } from '@services';
 import { EntityType, IPayload } from '@types';
 import { asyncWrapper, sanitizeEngagement, sendEmail, verifyCode, verifyJWT } from '@utils';
 import { Request, Response } from 'express';
-import { omit } from 'lodash';
 
 export const refreshAccessTokenHandler = asyncWrapper(
   async (req: Request<{}, {}, refreshAccessTokenInput>, res: Response) => {
@@ -80,15 +83,25 @@ export const sendVerifyEmailHandler = asyncWrapper(async (req: Request, res: Res
 export const changeCancellationPolicyHandler = asyncWrapper(
   async (req: Request<{}, {}, changeCancellationPolicyInput>, res: Response) => {
     const { id, type } = res.locals.user;
-    const cancellation = req.body;
-    const isUpdated =
-      type === EntityType.USER
-        ? await changeUserCancellationPolicy(id, cancellation)
-        : await changeEstablishmentCancellationPolicy(id, cancellation);
-    if (!isUpdated.modifiedCount) throw new BadRequestError('Could not change cancellation policy');
+    const cancellationPolicy = req.body;
+    const { modifiedCount } = (type === EntityType.USER ? updateUserInfo : updateEstablishmentInfo)(id, {
+      cancellationPolicy,
+    });
+    if (!modifiedCount) throw new BadRequestError('Could not change cancellation policy');
     return res.sendStatus(204);
   }
 );
+
+export const addBankDetailsHandler = asyncWrapper(async (req: Request<{}, {}, addBankDetailsInput>, res: Response) => {
+  const { id, type: userType } = res.locals.user;
+  const { type, name, accountNumber, bankCode, currency } = req.body;
+  const recipientCode = await addRecipient(type, name, accountNumber, bankCode, currency);
+  const { modifiedCount } = await (userType === EntityType.USER ? updateUserInfo : updateEstablishmentInfo)(id, {
+    recipientCode,
+  });
+  if (!modifiedCount) throw new BadRequestError('Could not add bank details');
+  return res.sendStatus(204);
+});
 
 export const uploadImageHandler = asyncWrapper(async (req: Request, res: Response) => {
   const imgUrls = req.files as Express.Multer.File[];

@@ -83,3 +83,27 @@ export const getExchangeRate = async (base: string, currency: string): Promise<n
     throw new BadRequestError('Exchange rate fetch failed');
   }
 };
+
+export const addRecipient = async (
+  type: string,
+  name: string,
+  account_number: string,
+  bank_code: string,
+  currency: string
+): Promise<string> => {
+  try {
+    const response = await axios.post(
+      `${PAYSTACK_BASE_URL}/transferrecipient`,
+      { type, name, account_number, bank_code, currency },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data.data.recipient_code;
+  } catch (err: any) {
+    throw new BadRequestError('Recipient creation failed');
+  }
+};

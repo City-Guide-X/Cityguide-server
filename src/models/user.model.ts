@@ -72,6 +72,9 @@ export class User {
   @prop({ _id: false })
   paymentAuth?: IPaymentAuth;
 
+  @prop()
+  recipientCode?: string;
+
   @prop({ default: null })
   deletedAt: Date | null;
 

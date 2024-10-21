@@ -59,8 +59,11 @@ export class Establishment {
   @prop({ default: null })
   imgUrl: string | null;
 
-  @prop({ default: null })
-  cancellationPolicy: ICancellation | null;
+  @prop()
+  cancellationPolicy?: ICancellation;
+
+  @prop()
+  recipientCode?: string;
 
   @prop({ default: null })
   deletedAt: Date | null;
