@@ -1,4 +1,5 @@
 import {
+  addCardHandler,
   addFavouritePropertyHandler,
   createUserHandler,
   getUserProfileHandler,
@@ -10,6 +11,7 @@ import {
 } from '@controllers';
 import { requireAuth, userOnly, validateSchema } from '@middlewares';
 import {
+  addCardSchema,
   addFavouritePropertySchema,
   createUserSchema,
   loginUserSchema,
@@ -30,6 +32,7 @@ router.get('/login/google/callback', passport.authenticate('google', { session: 
 router.get('/login/facebook/callback', passport.authenticate('facebook', { session: false }), socialAuthHandler);
 router.use(requireAuth, userOnly);
 router.get('/profile', getUserProfileHandler);
+router.patch('/add-card', validateSchema(addCardSchema), addCardHandler);
 router.patch('/update', validateSchema(updateUserSchema), updateUserHandler);
 router.patch('/favproperty/add', validateSchema(addFavouritePropertySchema), addFavouritePropertyHandler);
 router.patch('/favproperty/remove', validateSchema(removeFavouritePropertySchema), removeFavouritePropertyHandler);
