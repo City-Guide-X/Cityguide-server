@@ -1,6 +1,6 @@
 import { NotFoundError } from '@errors';
-import { exchangeRateInput, initiatePaymentInput } from '@schemas';
-import { findUserById, getExchangeRate, initiatePayment } from '@services';
+import { exchangeRateInput, getBanksInput, initiatePaymentInput } from '@schemas';
+import { findUserById, getBanks, getExchangeRate, initiatePayment } from '@services';
 import { asyncWrapper } from '@utils';
 import { Request, Response } from 'express';
 
@@ -20,4 +20,10 @@ export const exchangeRateHandler = asyncWrapper(async (req: Request<{}, {}, {}, 
   const exchangeRate = await getExchangeRate(base, currency);
   const amountNum = amount ? +(amount * exchangeRate).toFixed(2) : undefined;
   return res.status(200).json({ exchangeRate, amount: amountNum });
+});
+
+export const getBanksHandler = asyncWrapper(async (req: Request<{}, {}, {}, getBanksInput>, res: Response) => {
+  const { country } = req.query;
+  const banks = await getBanks(country);
+  return res.status(200).json({ banks });
 });

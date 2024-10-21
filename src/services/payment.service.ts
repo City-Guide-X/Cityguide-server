@@ -107,3 +107,18 @@ export const addRecipient = async (
     throw new BadRequestError('Recipient creation failed');
   }
 };
+
+export const getBanks = async (country?: string) => {
+  const url = `${PAYSTACK_BASE_URL}/bank?country=${country}&perPage=100`;
+  try {
+    const response = await axios.get(url, { headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` } });
+    const banks = response.data.data.map((bank: any) => ({
+      name: bank.name,
+      code: bank.code,
+      country: bank.country,
+      currency: bank.currency,
+      type: bank.type,
+    }));
+    return banks;
+  } catch (err: any) {}
+};

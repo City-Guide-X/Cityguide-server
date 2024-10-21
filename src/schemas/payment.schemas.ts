@@ -1,4 +1,4 @@
-import { number, object, string, TypeOf } from 'zod';
+import { number, object, string, TypeOf, z } from 'zod';
 
 export const initiatePaymentSchema = object({
   body: object({
@@ -17,5 +17,12 @@ export const exchangeRateSchema = object({
   }),
 });
 
-export type initiatePaymentInput = TypeOf<typeof initiatePaymentSchema>['body'];
+export const getBanksSchema = object({
+  query: object({
+    country: z.enum(['ghana', 'kenya', 'nigeria', 'south africa'], { required_error: 'Country is required' }),
+  }),
+});
+
+export type getBanksInput = TypeOf<typeof getBanksSchema>['query'];
 export type exchangeRateInput = TypeOf<typeof exchangeRateSchema>['query'];
+export type initiatePaymentInput = TypeOf<typeof initiatePaymentSchema>['body'];
