@@ -36,7 +36,7 @@ export const updateUserSchema = object({
         required_error: 'Percent refundable is required',
         invalid_type_error: 'Percent refundable should be a number',
       }).refine((val) => val >= 0 && val <= 1, { message: 'Percent refundable should be between 0 and 1' }),
-    }).nullish(),
+    }).optional(),
   }),
 });
 
@@ -63,8 +63,15 @@ export const removeFavouritePropertySchema = object({
   }),
 });
 
-export type createUserInput = TypeOf<typeof createUserSchema>['body'];
+export const addCardSchema = object({
+  body: object({
+    reference: string({ required_error: 'Reference is required' }),
+  }),
+});
+
+export type addCardInput = TypeOf<typeof addCardSchema>['body'];
 export type loginUserInput = TypeOf<typeof loginUserSchema>['body'];
+export type createUserInput = TypeOf<typeof createUserSchema>['body'];
 export type updateUserInput = TypeOf<typeof updateUserSchema>['body'];
 export type upgradeUserToPartnerInput = TypeOf<typeof upgradeUserToPartnerSchema>['body'];
 export type addFavouritePropertyInput = TypeOf<typeof addFavouritePropertySchema>['body'];
