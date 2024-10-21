@@ -134,14 +134,20 @@ export const validateReservationInput = async ({
   noOfGuests,
   payReference,
   price,
+  useSavedCard,
 }: IReservation) => {
   if (isFuture(checkInDay!, checkInTime!)) throw new BadRequestError('The reservation date must be in the future');
   if (propertyType === PropertyType.STAY) {
     const stay = await getStayById(property);
     if (!stay) throw new BadRequestError('Invalid Stay ID');
-    if ([StayType.APARTMENT, StayType.BnB].includes(stay.type) && !payReference)
+    if ([StayType.APARTMENT, StayType.BnB].includes(stay.type) && !payReference && !useSavedCard)
       throw new BadRequestError('Payment is required for this reservation');
-    if ((stay.cancellationPolicy || (stay.partner as any).cancellationPolicy) && price && !payReference)
+    if (
+      (stay.cancellationPolicy || (stay.partner as any).cancellationPolicy) &&
+      price &&
+      !payReference &&
+      !useSavedCard
+    )
       throw new BadRequestError(
         "Credit card information is required for this reservation due to the property's cancellation policy."
       );
@@ -164,7 +170,12 @@ export const validateReservationInput = async ({
     if (!restaurant) throw new BadRequestError('Invalid Restaurant ID');
     const reservation = restaurant.details.reservation;
     if (!reservation) throw new BadRequestError("This restaurant doesn't accept reservations");
-    if ((restaurant.cancellationPolicy || (restaurant.partner as any).cancellationPolicy) && price && !payReference)
+    if (
+      (restaurant.cancellationPolicy || (restaurant.partner as any).cancellationPolicy) &&
+      price &&
+      !payReference &&
+      !useSavedCard
+    )
       throw new BadRequestError(
         "Credit card information is required for this reservation due to the property's cancellation policy."
       );
