@@ -13,12 +13,14 @@ import {
   createReservation,
   findReservationById,
   findReservationByRef,
+  findUserById,
   getPartnerReservations,
   getUserReservations,
   refundPayment,
   reservationAnalytics,
   updateAccommodationAvailability,
   updateReservation,
+  updateUserInfo,
   validateReservationInput,
   verifyPayment,
 } from '@services';
@@ -32,12 +34,23 @@ import mongoose from 'mongoose';
 export const createReservationHandler = asyncWrapper(
   async (req: Request<{}, {}, createReservationInput>, res: Response) => {
     const { id } = res.locals.user;
-    let data: IReservation = { ...req.body, user: id };
+    let { useSavedCard, ...data }: IReservation = { ...req.body, user: id };
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
-      await validateReservationInput(data);
-      if (data.payReference) data.paymentAuth = await verifyPayment(data.payReference, data.price);
+      await validateReservationInput({ ...data, useSavedCard });
+      if (useSavedCard) {
+        const user = await findUserById(id);
+        if (!user) throw new NotFoundError('User not found');
+        const paymentAuth = user.paymentAuth;
+        if (!paymentAuth) throw new BadRequestError('No payment method found');
+        if (dayjs().isBefore(`${paymentAuth.exp_year}-${paymentAuth.exp_month}-01`, 'month'))
+          throw new BadRequestError('Payment method expired');
+        data.paymentAuth = paymentAuth;
+      } else if (data.payReference) {
+        data.paymentAuth = await verifyPayment(data.payReference);
+        await updateUserInfo(id, { paymentAuth: data.paymentAuth });
+      }
       const reservation = await createReservation(data);
       const reservationResponse = omit(reservation.toJSON(), privateFields);
       const populatedProperty: any = await reservation.populate({
