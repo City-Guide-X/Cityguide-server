@@ -1,6 +1,7 @@
 import { AuthenticationError, BadRequestError, ConflictError, NotFoundError } from '@errors';
 import { privateFields, User } from '@models';
 import {
+  addCardInput,
   addFavouritePropertyInput,
   createUserInput,
   loginUserInput,
@@ -17,6 +18,7 @@ import {
   setUserRefreshToken,
   signTokens,
   updateUserInfo,
+  verifyPayment,
 } from '@services';
 import { EntityType } from '@types';
 import { asyncWrapper, sendEmail } from '@utils';
@@ -87,6 +89,16 @@ export const updateUserHandler = asyncWrapper(async (req: Request<{}, {}, update
   const body = req.body;
   const isUpdated = await updateUserInfo(id, body);
   if (!isUpdated.modifiedCount) throw new BadRequestError('Could not update user info');
+  return res.sendStatus(204);
+});
+
+export const addCardHandler = asyncWrapper(async (req: Request<{}, {}, addCardInput>, res: Response) => {
+  const { id } = res.locals.user;
+  const { reference } = req.body;
+  const { amount, ...paymentAuth } = await verifyPayment(reference);
+  const { matchedCount, modifiedCount } = await updateUserInfo(id, { paymentAuth });
+  if (!matchedCount) throw new NotFoundError('User not found');
+  if (!modifiedCount) throw new BadRequestError('Could not add card');
   return res.sendStatus(204);
 });
 
