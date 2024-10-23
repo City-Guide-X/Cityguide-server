@@ -15,11 +15,15 @@ export const getPartnerStays = (partner: string) => {
   return StayModel.find({ partner }).sort('-updatedAt');
 };
 
-export const getStayById = (_id: string) => {
-  return StayModel.findById(_id).populate({
+export const getStayById = async (_id: string, internal?: boolean) => {
+  const stay = await StayModel.findById(_id).populate({
     path: 'partner',
-    select: 'firstName lastName name email phoneNumber imgUrl cancellationPolicy',
+    select: `firstName lastName name email phoneNumber imgUrl cancellationPolicy${internal ? ' recipientCode' : ''}`,
   });
+  if (!stay) throw new NotFoundError('Stay not found');
+  const stayObj: any = stay.toJSON();
+  if (!stayObj.cancellationPolicy) stayObj.cancellationPolicy = stayObj.partner.cancellationPolicy;
+  return stayObj;
 };
 
 export const getTrendingStays = () => {

@@ -15,12 +15,17 @@ export const getPartnerRestaurants = (partner: string) => {
   return RestaurantModel.find({ partner }).sort('-updatedAt');
 };
 
-export const getRestaurantById = (_id: string) => {
-  return RestaurantModel.findById(_id).populate({
+export const getRestaurantById = async (_id: string, internal?: boolean) => {
+  const restaurant = await RestaurantModel.findById(_id).populate({
     path: 'partner',
-    select: 'name email phoneNumber imgUrl cancellationPolicy',
+    select: `name email phoneNumber imgUrl cancellationPolicy${internal ? ' recipientCode' : ''}`,
     model: 'Establishment',
   });
+  if (!restaurant) throw new NotFoundError('Restaurant not found');
+  const resObj: any = restaurant.toJSON();
+  if (resObj.details.reservation && !resObj.cancellationPolicy)
+    resObj.cancellationPolicy = resObj.partner.cancellationPolicy;
+  return resObj;
 };
 
 export const getTrendingRestaurants = () => {
