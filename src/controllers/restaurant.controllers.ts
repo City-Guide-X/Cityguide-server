@@ -94,11 +94,7 @@ export const getRestaurantDetailHandler = asyncWrapper(
   async (req: Request<getRestaurantDetailInput>, res: Response) => {
     const { restaurantId } = req.params;
     const restaurant = await getRestaurantById(restaurantId);
-    if (!restaurant) throw new NotFoundError('Restaurant not found');
-    const resObj: any = restaurant.toJSON();
-    if (resObj.details.reservation && !resObj.cancellationPolicy)
-      resObj.cancellationPolicy = resObj.partner.cancellationPolicy;
-    return res.status(200).json({ restaurant: omit(resObj, privateFields) });
+    return res.status(200).json({ restaurant: omit(restaurant.toJSON(), privateFields) });
   }
 );
 

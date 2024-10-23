@@ -94,10 +94,7 @@ export const getPartnerStaysHandler = asyncWrapper(async (req: Request, res: Res
 export const getStayDetailHandler = asyncWrapper(async (req: Request<getStayDetailInput>, res: Response) => {
   const { stayId } = req.params;
   const stay = await getStayById(stayId);
-  if (!stay) throw new NotFoundError('Stay not found');
-  const stayObj: any = stay.toJSON();
-  if (!stayObj.cancellationPolicy) stayObj.cancellationPolicy = stayObj.partner.cancellationPolicy;
-  return res.status(200).json({ stay: omit(stayObj, privateFields) });
+  return res.status(200).json({ stay: omit(stay.toJSON(), privateFields) });
 });
 
 export const updateStayHandler = asyncWrapper(
