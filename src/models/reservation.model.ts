@@ -72,6 +72,9 @@ export class Reservation {
   @prop({ required: true })
   price: number;
 
+  @prop({ required: true })
+  payByProxy: boolean;
+
   @prop()
   payReference?: string;
 
