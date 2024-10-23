@@ -9,6 +9,7 @@ import {
   updateReservationInput,
 } from '@schemas';
 import {
+  chargeCard,
   createNotification,
   createReservation,
   findReservationById,
@@ -47,6 +48,7 @@ export const createReservationHandler = asyncWrapper(
         if (dayjs().isBefore(`${paymentAuth.exp_year}-${paymentAuth.exp_month}-01`, 'month'))
           throw new BadRequestError('Payment method expired');
         data.paymentAuth = paymentAuth;
+        await chargeCard(paymentAuth.authorization_code, paymentAuth.email, String(data.price * 100));
       } else if (data.payReference) {
         data.paymentAuth = await verifyPayment(data.payReference);
         if (saveCard) await updateUserInfo(id, { paymentAuth: data.paymentAuth });
@@ -57,11 +59,8 @@ export const createReservationHandler = asyncWrapper(
         path: 'property',
         select: 'type name accommodation -_id',
       });
-      if (data.payReference) {
-        if (
-          data.propertyType === PropertyType.STAY &&
-          [StayType.APARTMENT, StayType.BnB].includes(populatedProperty.property.type as StayType)
-        ) {
+      if (data.payReference && !useSavedCard) {
+        if (populatedProperty.property.proxyPaymentEnabled) {
           if (data.paymentAuth!.amount !== data.price * 100) throw new BadRequestError('Invalid payment amount');
         } else await refundPayment(data.payReference);
       }
