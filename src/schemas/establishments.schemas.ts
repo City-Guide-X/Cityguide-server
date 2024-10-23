@@ -73,7 +73,7 @@ export const updateEstablishmentSchema = object({
         required_error: 'Percent refundable is required',
         invalid_type_error: 'Percent refundable should be a number',
       }).refine((val) => val >= 0 && val <= 1, { message: 'Percent refundable should be between 0 and 1' }),
-    }).nullish(),
+    }).optional(),
   }),
 });
 
