@@ -215,6 +215,7 @@ export interface IReservation {
   paymentAuth?: IPaymentAuth;
   useSavedCard?: boolean;
   saveCard?: boolean;
+  payByProxy: boolean;
 }
 
 export interface IPaymentAuth {
