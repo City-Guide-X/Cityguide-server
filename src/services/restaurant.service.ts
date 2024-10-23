@@ -1,5 +1,5 @@
 import { AuthorizationError, BadRequestError, NotFoundError } from '@errors';
-import { Restaurant, RestaurantModel } from '@models';
+import { Establishment, Restaurant, RestaurantModel, User } from '@models';
 import { DayOfWeek, ICreateRestaurant, IMenu } from '@types';
 import dayjs from 'dayjs';
 
@@ -16,16 +16,15 @@ export const getPartnerRestaurants = (partner: string) => {
 };
 
 export const getRestaurantById = async (_id: string, internal?: boolean) => {
-  const restaurant = await RestaurantModel.findById(_id).populate({
+  const restaurant = await RestaurantModel.findById(_id).populate<{ partner: Partial<User | Establishment> }>({
     path: 'partner',
     select: `name email phoneNumber imgUrl cancellationPolicy${internal ? ' recipientCode' : ''}`,
     model: 'Establishment',
   });
   if (!restaurant) throw new NotFoundError('Restaurant not found');
-  const resObj: any = restaurant.toJSON();
-  if (resObj.details.reservation && !resObj.cancellationPolicy)
-    resObj.cancellationPolicy = resObj.partner.cancellationPolicy;
-  return resObj;
+  if (restaurant.details.reservation && !restaurant.cancellationPolicy)
+    restaurant.cancellationPolicy = restaurant.partner.cancellationPolicy;
+  return restaurant;
 };
 
 export const getTrendingRestaurants = () => {

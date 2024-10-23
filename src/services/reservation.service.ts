@@ -135,6 +135,7 @@ export const validateReservationInput = async ({
   payReference,
   price,
   useSavedCard,
+  payByProxy,
 }: IReservation) => {
   if (isFuture(checkInDay!, checkInTime!)) throw new BadRequestError('The reservation date must be in the future');
   if (propertyType === PropertyType.STAY) {
@@ -151,6 +152,8 @@ export const validateReservationInput = async ({
       throw new BadRequestError(
         "Credit card information is required for this reservation due to the property's cancellation policy."
       );
+    if (stay.proxyPaymentEnabled !== payByProxy)
+      throw new BadRequestError('Invalid payment method, check property proxyPaymentEnabled status');
     if (dayjs(checkOutDay).diff(checkInDay, 'd') > stay.maxDays)
       throw new BadRequestError('The reservation exceeds the maximum stay');
     accommodations?.forEach(({ accommodationId, reservationCount, noOfGuests }) => {
@@ -179,6 +182,8 @@ export const validateReservationInput = async ({
       throw new BadRequestError(
         "Credit card information is required for this reservation due to the property's cancellation policy."
       );
+    if (restaurant.proxyPaymentEnabled !== payByProxy)
+      throw new BadRequestError('Invalid payment method, check restaurant proxyPaymentEnabled status');
     const isAvailable = [
       restaurant.availability
         .map(({ day, from, to }) => isValidDate(checkInDay!, checkInTime!, day, from, to))

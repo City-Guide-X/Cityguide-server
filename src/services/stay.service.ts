@@ -1,5 +1,5 @@
 import { AuthorizationError, BadRequestError, NotFoundError } from '@errors';
-import { Stay, StayModel } from '@models';
+import { Establishment, Stay, StayModel, User } from '@models';
 import { IAccommodation, ICreateStay, IReservationAccommodation } from '@types';
 import dayjs from 'dayjs';
 
@@ -16,14 +16,13 @@ export const getPartnerStays = (partner: string) => {
 };
 
 export const getStayById = async (_id: string, internal?: boolean) => {
-  const stay = await StayModel.findById(_id).populate({
+  const stay = await StayModel.findById(_id).populate<{ partner: Partial<User | Establishment> }>({
     path: 'partner',
     select: `firstName lastName name email phoneNumber imgUrl cancellationPolicy${internal ? ' recipientCode' : ''}`,
   });
   if (!stay) throw new NotFoundError('Stay not found');
-  const stayObj: any = stay.toJSON();
-  if (!stayObj.cancellationPolicy) stayObj.cancellationPolicy = stayObj.partner.cancellationPolicy;
-  return stayObj;
+  if (!stay.cancellationPolicy) stay.cancellationPolicy = stay.partner.cancellationPolicy;
+  return stay;
 };
 
 export const getTrendingStays = () => {
