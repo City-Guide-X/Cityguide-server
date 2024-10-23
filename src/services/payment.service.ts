@@ -1,7 +1,9 @@
 import { BadRequestError } from '@errors';
 import { IPaymentAuth } from '@types';
+import { withRetry } from '@utils';
 import axios from 'axios';
 import { get, put } from 'memory-cache';
+import { v4 } from 'uuid';
 
 const PAYSTACK_BASE_URL = 'https://api.paystack.co';
 
@@ -79,6 +81,23 @@ export const chargeCard = async (authorization_code: string, email: string, amou
   }
 };
 
+export const payRecipient = async (recipient: string, amount: number, reason: string) => {
+  const reference = v4();
+  return withRetry(async () => {
+    const response = await axios.post(
+      `${PAYSTACK_BASE_URL}/transfer`,
+      { source: 'balance', amount: amount * 100, recipient, reason, reference },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data.data;
+  });
+};
+
 export const getExchangeRate = async (base: string, currency: string): Promise<number> => {
   const EXPIRY = 1000 * 60 * 60 * 24;
   let rate = get(`exchange_rate_${base}`);
@@ -139,5 +158,7 @@ export const getBanks = async (country?: string) => {
       type: bank.type,
     }));
     return banks;
-  } catch (err: any) {}
+  } catch (err: any) {
+    throw new BadRequestError('Bank fetch failed');
+  }
 };
