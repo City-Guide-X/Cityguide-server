@@ -65,6 +65,9 @@ export class NightLife {
   @prop({ required: true, _id: false })
   contact: IContact;
 
+  @prop({ required: true })
+  currency: string;
+
   @prop({ default: null })
   deletedAt: Date | null;
 

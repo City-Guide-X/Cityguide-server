@@ -91,6 +91,12 @@ export class Stay {
   @prop({ default: null })
   cancellationPolicy: ICancellation | null;
 
+  @prop({ default: true })
+  proxyPaymentEnabled: boolean;
+
+  @prop({ default: 'NGN' })
+  currency: string;
+
   @prop({ default: null })
   deletedAt: Date | null;
 

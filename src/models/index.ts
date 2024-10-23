@@ -14,7 +14,7 @@ export const privateFields = [
   'otp',
   'creditCardToken',
   'payReference',
-  'paymentAuth',
+  'recipientCode',
   'deletedAt',
 ];
 export const privateUserFields = [
@@ -25,6 +25,7 @@ export const privateUserFields = [
   'isSocial',
   'isPartner',
   'cancellationPolicy',
+  'paymentAuth',
   'createdAt',
   'updatedAt',
 ];

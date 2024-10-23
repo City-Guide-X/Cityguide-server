@@ -185,6 +185,10 @@ export const createStaySchema = object({
     })
       .array()
       .min(1, 'Atleast one payment methods is required'),
+    currency: string({ required_error: 'Currency is required' }).regex(/^[A-Z]{3}$/, 'Invalid currency'),
+    proxyPaymentEnabled: boolean({ invalid_type_error: 'Proxy payment enabled should be true or false' })
+      .optional()
+      .default(true),
     optionalServices: object({
       title: string({ required_error: 'Optional service title is required' }).min(
         3,
@@ -273,6 +277,10 @@ export const updateStaySchema = object({
       .array()
       .min(1, 'Atleast one payment methods is required')
       .optional(),
+    currency: string()
+      .regex(/^[A-Z]{3}$/, 'Invalid currency')
+      .optional(),
+    proxyPaymentEnabled: boolean({ invalid_type_error: 'Proxy payment enabled should be true or false' }).optional(),
     optionalServices: object({
       title: string({ required_error: 'Optional service title is required' }).min(
         3,

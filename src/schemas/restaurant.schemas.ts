@@ -143,6 +143,10 @@ export const createRestaurantSchema = object({
       },
       { required_error: 'Contact is required' }
     ),
+    currency: string({ required_error: 'Currency is required' }).regex(/^[A-Z]{3}$/, 'Invalid currency'),
+    proxyPaymentEnabled: boolean({ invalid_type_error: 'Proxy payment enabled should be true or false' })
+      .optional()
+      .default(true),
   }),
 });
 
@@ -258,6 +262,10 @@ export const updateRestaurantSchema = object({
         .array()
         .optional(),
     }).optional(),
+    currency: string()
+      .regex(/^[A-Z]{3}$/, 'Invalid currency')
+      .optional(),
+    proxyPaymentEnabled: boolean({ invalid_type_error: 'Proxy payment enabled should be true or false' }).optional(),
     cancellationPolicy: object({
       daysFromReservation: number({
         required_error: 'Days from reservation is required',

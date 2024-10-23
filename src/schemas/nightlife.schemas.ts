@@ -103,6 +103,7 @@ export const createNightLifeSchema = object({
       },
       { required_error: 'Contact is required' }
     ),
+    currency: string({ required_error: 'Currency is required' }).regex(/^[A-Z]{3}$/, 'Invalid currency'),
   }),
 });
 
@@ -197,6 +198,9 @@ export const updateNightLifeSchema = object({
         .array()
         .optional(),
     }).optional(),
+    currency: string()
+      .regex(/^[A-Z]{3}$/, 'Invalid currency')
+      .optional(),
   }),
   params: object({
     nightLifeId: string({ required_error: 'NightLife id is required' }),

@@ -78,6 +78,12 @@ export class Restaurant {
   @prop({ default: null })
   cancellationPolicy: ICancellation | null;
 
+  @prop({ default: true })
+  proxyPaymentEnabled: boolean;
+
+  @prop({ required: true })
+  currency: string;
+
   @prop({ default: null })
   deletedAt: Date | null;
 
