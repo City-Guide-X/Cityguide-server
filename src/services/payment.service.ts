@@ -60,6 +60,25 @@ export const refundPayment = async (transaction: string, amount?: number) => {
   }
 };
 
+export const chargeCard = async (authorization_code: string, email: string, amount: string) => {
+  try {
+    const response = await axios.post(
+      `${PAYSTACK_BASE_URL}/charge`,
+      { authorization_code, email, amount },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    const { amount: chargedAmount, status } = response.data.data;
+    if (status !== 'success') throw new BadRequestError('Could not charge card');
+  } catch (err: any) {
+    throw new BadRequestError('Could not charge card');
+  }
+};
+
 export const getExchangeRate = async (base: string, currency: string): Promise<number> => {
   const EXPIRY = 1000 * 60 * 60 * 24;
   let rate = get(`exchange_rate_${base}`);
