@@ -16,7 +16,10 @@ import {
   findReservationByRef,
   findUserById,
   getPartnerReservations,
+  getRestaurantById,
+  getStayById,
   getUserReservations,
+  payRecipient,
   refundPayment,
   reservationAnalytics,
   updateAccommodationAvailability,
@@ -25,7 +28,7 @@ import {
   validateReservationInput,
   verifyPayment,
 } from '@services';
-import { EntityType, IReservation, NotificationType, PropertyType, Status, StayType } from '@types';
+import { EntityType, IReservation, NotificationType, PropertyType, Status } from '@types';
 import { asyncWrapper } from '@utils';
 import dayjs from 'dayjs';
 import { Request, Response } from 'express';
@@ -60,7 +63,7 @@ export const createReservationHandler = asyncWrapper(
         select: 'type name accommodation -_id',
       });
       if (data.payReference && !useSavedCard) {
-        if (populatedProperty.property.proxyPaymentEnabled) {
+        if (data.payByProxy) {
           if (data.paymentAuth!.amount !== data.price * 100) throw new BadRequestError('Invalid payment amount');
         } else await refundPayment(data.payReference);
       }
@@ -150,10 +153,33 @@ export const cancelReservationHandler = asyncWrapper(async (req: Request<cancelR
   try {
     const reservation = await updateReservation(reservationId, false, id, { status: Status.CANCELLED });
     if (!reservation) throw new NotFoundError('Reservation not found');
-    const populatedProperty: any = await reservation.populate({
-      path: 'property',
-      select: 'type name accommodation -_id',
-    });
+    const property = await (reservation.propertyType === PropertyType.STAY ? getStayById : getRestaurantById)(
+      reservation.property.id,
+      true
+    );
+
+    if (reservation.paymentAuth) {
+      let refundAmount = reservation.price;
+      let cancellationFee = 0;
+      if (property.cancellationPolicy) {
+        const { daysFromReservation, percentRefundable } = property.cancellationPolicy;
+        const daysToCheckin = dayjs(reservation.checkInDay).diff(dayjs(), 'd');
+        if (daysToCheckin < daysFromReservation) {
+          refundAmount = Math.floor(reservation.price * percentRefundable);
+          cancellationFee = reservation.price - refundAmount;
+        }
+      }
+      if (reservation.payByProxy) {
+        if (refundAmount) await refundPayment(reservation.payReference!, refundAmount);
+        if (cancellationFee)
+          await payRecipient(
+            property.partner.recipientCode!,
+            cancellationFee,
+            `Cancellation fees for reservation ${reservation.reservationRef}`
+          );
+      } else {
+      }
+    }
 
     const notification = {
       recipient: reservation.partner,
@@ -161,10 +187,10 @@ export const cancelReservationHandler = asyncWrapper(async (req: Request<cancelR
       type: NotificationType.RESERVATION,
       title: 'Reservation Cancelled',
       message: `A reservation (Ref: ${reservation.reservationRef}) at your ${
-        populatedProperty.property.type ?? 'Restaurant'
-      } — ${populatedProperty.property.name} has been cancelled. The reservation was for ${dayjs(
-        reservation.checkInDay
-      ).format('dddd, MMMM D, YYYY [at] h:mm A')}, with ${
+        (property as any).type ?? 'Restaurant'
+      } — ${property.name} has been cancelled. The reservation was for ${dayjs(reservation.checkInDay).format(
+        'dddd, MMMM D, YYYY [at] h:mm A'
+      )}, with ${
         reservation.noOfGuests.adults + reservation.noOfGuests.children
       } guest(s). Head to your dashboard for more details`,
     };
@@ -181,7 +207,7 @@ export const cancelReservationHandler = asyncWrapper(async (req: Request<cancelR
     if (socketId) res.locals.io?.to(socketId).emit('new_notification', omit(newNotification.toJSON(), privateFields));
     res.locals.io?.emit('update_reservation', { reservationId, status: Status.CANCELLED });
     if (reservation.propertyType === PropertyType.STAY) {
-      const updatedAccommodations = populatedProperty.property.accommodation.filter((a: any) =>
+      const updatedAccommodations = (property as any).accommodation.filter((a: any) =>
         reservation.accommodations!.some((da) => da.accommodationId === a.id)
       );
       res.locals.io?.emit('stay_acc', { id: reservation.property.id, action: 'update', body: updatedAccommodations });
