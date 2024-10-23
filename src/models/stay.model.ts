@@ -43,16 +43,16 @@ export class Stay {
   @prop({ required: true })
   summary: string;
 
-  @prop({ _id: false })
+  @prop()
   extraInfo?: IExtraInfo;
 
-  @prop({ required: true, _id: false })
+  @prop({ required: true })
   address: IAddress;
 
   @prop({ default: 0.0 })
   rating: number;
 
-  @prop({ default: defaultStayCatReviews, _id: false })
+  @prop({ default: defaultStayCatReviews })
   categoryRatings: ICategoryRating;
 
   @prop({ default: 0 })
@@ -70,7 +70,7 @@ export class Stay {
   @prop({ enum: HotelRating, type: Number })
   hotelRating?: HotelRating;
 
-  @prop({ required: true, _id: false })
+  @prop({ required: true })
   rules: IStayRules;
 
   @prop({ required: true, _id: false })
@@ -88,8 +88,8 @@ export class Stay {
   @prop({ default: [] })
   optionalServices: IOptionalService[];
 
-  @prop({ default: null })
-  cancellationPolicy: ICancellation | null;
+  @prop()
+  cancellationPolicy?: ICancellation;
 
   @prop({ default: true })
   proxyPaymentEnabled: boolean;

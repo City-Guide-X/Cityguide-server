@@ -35,13 +35,13 @@ export class NightLife {
   @prop({ required: true })
   summary: string;
 
-  @prop({ required: true, _id: false })
+  @prop({ required: true })
   address: IAddress;
 
   @prop({ default: 0.0 })
   rating: number;
 
-  @prop({ default: defaultNightLifeCatReviews, _id: false })
+  @prop({ default: defaultNightLifeCatReviews })
   categoryRatings: ICategoryRating;
 
   @prop({ default: 0 })
@@ -56,13 +56,13 @@ export class NightLife {
   @prop({ required: true, _id: false })
   availability: ICustomAvailability[];
 
-  @prop({ required: true, _id: false })
+  @prop({ required: true })
   rules: INightLifeRules;
 
-  @prop({ required: true, _id: false })
+  @prop({ required: true })
   details: INightLifeDetails;
 
-  @prop({ required: true, _id: false })
+  @prop({ required: true })
   contact: IContact;
 
   @prop({ required: true })

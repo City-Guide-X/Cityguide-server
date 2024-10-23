@@ -33,13 +33,13 @@ export class Restaurant {
   @prop({ required: true })
   summary: string;
 
-  @prop({ required: true, _id: false })
+  @prop({ required: true })
   address: IAddress;
 
   @prop({ default: 0.0 })
   rating: number;
 
-  @prop({ default: defaultRestaurantCatReviews, _id: false })
+  @prop({ default: defaultRestaurantCatReviews })
   categoryRatings: ICategoryRating;
 
   @prop({ default: 0 })
@@ -75,8 +75,8 @@ export class Restaurant {
   @prop({ required: true, _id: false })
   contact: IContact;
 
-  @prop({ default: null })
-  cancellationPolicy: ICancellation | null;
+  @prop()
+  cancellationPolicy?: ICancellation;
 
   @prop({ default: true })
   proxyPaymentEnabled: boolean;
