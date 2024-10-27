@@ -1,6 +1,5 @@
 import { PlaceData } from '@googlemaps/google-maps-services-js';
 import { privateFields, privateUserFields } from '@models';
-import { omit } from 'lodash';
 
 interface IRetryConfig {
   maxRetries?: number;
@@ -12,7 +11,7 @@ interface ISanitizeInner {
   field: string;
   fields: string[];
 }
-type SanitizedData = Record<string, any> | Array<Record<string, any>>;
+type SanitizedOutput<T> = T extends Array<any> ? Array<Partial<T[number]>> : Partial<T>;
 
 export const formatNearbyLocations = (res: Partial<PlaceData>) => ({
   name: res.name,
@@ -21,8 +20,8 @@ export const formatNearbyLocations = (res: Partial<PlaceData>) => ({
 });
 
 export const sanitizeEngagement = (engagement: any) => ({
-  ...omit(engagement, privateFields),
-  user: engagement.user[0] ? omit(engagement.user[0], privateUserFields) : null,
+  ...sanitize(engagement, privateFields),
+  user: engagement.user[0] ? sanitize(engagement.user[0], privateUserFields) : null,
 });
 
 export const withRetry = async <T>(fn: () => Promise<T>, config: IRetryConfig = {}) => {
@@ -48,19 +47,24 @@ export const withRetry = async <T>(fn: () => Promise<T>, config: IRetryConfig = 
   throw lastError;
 };
 
-export const sanitize = (data: SanitizedData, fields: string[], inners?: ISanitizeInner[]): SanitizedData => {
-  if (!data) return data;
-  if (!fields.length && !inners?.length) return data;
-  if (Array.isArray(data)) return data.map((item) => sanitize(item, fields, inners));
+export const sanitize = <T>(data: T | T[], fields: string[], inners?: ISanitizeInner[]): SanitizedOutput<T> => {
+  if (!data) return data as SanitizedOutput<T>;
+  if (!fields.length && !inners?.length) return data as SanitizedOutput<T>;
+  if (Array.isArray(data)) {
+    return data.map((item) => sanitize(item, fields, inners)) as unknown as SanitizedOutput<T>;
+  }
+  let dataset: T & { toJSON?: Function } = data;
+  if (typeof dataset.toJSON === 'function') dataset = dataset.toJSON();
   const fieldSet = new Set(fields);
-  const result: Record<string, any> = {};
-  Object.keys(data).forEach((key) => {
-    if (!fieldSet.has(key)) result[key] = data[key];
+  const result: Partial<T> = {};
+  Object.keys(dataset).forEach((key) => {
+    if (!fieldSet.has(key)) result[key as keyof T] = (dataset as Record<string, any>)[key];
   });
   if (inners?.length) {
     for (const { field, fields } of inners) {
-      if (data[field]) result[field] = sanitize(data[field], fields);
+      if (dataset[field as keyof T])
+        (result as Record<string, any>)[field] = sanitize((dataset as Record<string, any>)[field], fields);
     }
   }
-  return result;
+  return result as SanitizedOutput<T>;
 };
