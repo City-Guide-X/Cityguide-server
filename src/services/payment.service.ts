@@ -25,7 +25,7 @@ export const initiatePayment = async (email: string, amount?: number) => {
   }
 };
 
-export const verifyPayment = async (reference: string, payByProxy: boolean, price: number) => {
+export const verifyPayment = async (reference: string, options?: { payByProxy: boolean; price: number }) => {
   try {
     const response = await ax.get(`transaction/verify/${reference}`, {
       headers: {
@@ -42,7 +42,7 @@ export const verifyPayment = async (reference: string, payByProxy: boolean, pric
     } = response.data.data;
     if (status !== 'success' && gateway_response !== 'Successful')
       throw new BadRequestError('Payment was not successful');
-    if (payByProxy && amount !== price * 100) throw new BadRequestError('Amount paid does not match');
+    if (options?.payByProxy && amount !== options.price * 100) throw new BadRequestError('Amount paid does not match');
     return { ...authorization, email } as IPaymentAuth;
   } catch (error: any) {
     throw new BadRequestError('Payment verification failed');
