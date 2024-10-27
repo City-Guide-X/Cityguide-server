@@ -26,7 +26,7 @@ import {
   updateRestaurant,
 } from '@services';
 import { ILatLng, PropertyType } from '@types';
-import { asyncWrapper, summarizeRestaurant } from '@utils';
+import { asyncWrapper, sanitize, summarizeRestaurant } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
 
@@ -37,7 +37,7 @@ export const createRestaurantHandler = asyncWrapper(
     const summary = (await summarizeRestaurant(data)) as string;
     if (summary) data = { ...data, summary };
     const reservation = await createRestaurant(data);
-    return res.status(201).json({ reservation: omit(reservation.toJSON(), privateFields) });
+    return res.status(201).json({ reservation: sanitize(reservation, privateFields) });
   }
 );
 
@@ -49,14 +49,11 @@ export const getAllRestaurantHandler = asyncWrapper(
       const locations = properties.map((restaurant) => restaurant.address.geoLocation);
       const restaurantDistances = await calculateDistance([geoLocation as ILatLng], locations);
       if (!restaurantDistances)
-        return res.status(200).json({
-          count: properties.length,
-          properties: properties.map((restaurant) => omit(restaurant.toJSON(), privateFields)),
-        });
+        return res.status(200).json({ count: properties.length, properties: sanitize(properties, privateFields) });
       const result = properties
         .map((property, i) => {
           const restaurant = {
-            ...omit(property.toJSON(), privateFields),
+            ...sanitize(property, privateFields),
             locationInfo: {
               distance: restaurantDistances[i].distance?.value || 999999999,
               distanceInWords: restaurantDistances[i].distance?.text || '',
@@ -68,33 +65,26 @@ export const getAllRestaurantHandler = asyncWrapper(
         .sort((a, b) => a.locationInfo.distance - b.locationInfo.distance);
       return res.status(200).json({ count: result.length, properties: result });
     }
-    return res.status(200).json({
-      count: properties.length,
-      properties: properties.map((restaurant) => omit(restaurant.toJSON(), privateFields)),
-    });
+    return res.status(200).json({ count: properties.length, properties: sanitize(properties, privateFields) });
   }
 );
 
 export const getTrendingRestaurantsHandler = asyncWrapper(async (req: Request, res: Response) => {
   const properties = await getTrendingRestaurants();
-  return res
-    .status(200)
-    .json({ count: properties.length, properties: properties.map((restaurant) => omit(restaurant, privateFields)) });
+  return res.status(200).json({ count: properties.length, properties: sanitize(properties, privateFields) });
 });
 
 export const getPartnerRestaurantsHandler = asyncWrapper(async (req: Request, res: Response) => {
   const { id } = res.locals.user;
   const properties = await getPartnerRestaurants(id);
-  return res
-    .status(200)
-    .json({ count: properties.length, properties: properties.map((r) => omit(r.toJSON(), privateFields)) });
+  return res.status(200).json({ count: properties.length, properties: sanitize(properties, privateFields) });
 });
 
 export const getRestaurantDetailHandler = asyncWrapper(
   async (req: Request<getRestaurantDetailInput>, res: Response) => {
     const { restaurantId } = req.params;
     const restaurant = await getRestaurantById(restaurantId);
-    return res.status(200).json({ restaurant: omit(restaurant.toJSON(), privateFields) });
+    return res.status(200).json({ restaurant: sanitize(restaurant, privateFields) });
   }
 );
 
@@ -163,21 +153,15 @@ export const searchRestaurantHandler = asyncWrapper(
     const geoLocation = { lat, lng };
     const restaurants = await searchRestaurant(!!children, guests, time, day, count);
     if (!restaurants.length || !lat)
-      return res.status(200).json({
-        count: restaurants.length,
-        properties: restaurants.map((restaurant) => omit(restaurant, privateFields)),
-      });
+      return res.status(200).json({ count: restaurants.length, properties: sanitize(restaurants, privateFields) });
     const locations = restaurants.map((restaurant) => restaurant.address.geoLocation);
     const restaurantDistances = await calculateDistance([geoLocation as ILatLng], locations);
     if (!restaurantDistances)
-      return res.status(200).json({
-        count: restaurants.length,
-        properties: restaurants.map((restaurant) => omit(restaurant, privateFields)),
-      });
+      return res.status(200).json({ count: restaurants.length, properties: sanitize(restaurants, privateFields) });
     const result = restaurants
       .map((property, i) => {
         const restaurant = {
-          ...omit(property, privateFields),
+          ...sanitize(property, privateFields),
           locationInfo: {
             distance: restaurantDistances[i].distance?.value || 999999999,
             distanceInWords: restaurantDistances[i].distance?.text || '',

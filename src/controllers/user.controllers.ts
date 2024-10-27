@@ -1,5 +1,5 @@
 import { AuthenticationError, BadRequestError, ConflictError, NotFoundError } from '@errors';
-import { privateFields, User } from '@models';
+import { privateFields, privatePaymentAuthFields, User } from '@models';
 import {
   addCardInput,
   addFavouritePropertyInput,
@@ -21,9 +21,8 @@ import {
   verifyPayment,
 } from '@services';
 import { EntityType } from '@types';
-import { asyncWrapper, sendEmail } from '@utils';
+import { asyncWrapper, sanitize, sendEmail } from '@utils';
 import { Request, Response } from 'express';
-import { omit } from 'lodash';
 
 export const createUserHandler = asyncWrapper(async (req: Request<{}, {}, createUserInput>, res: Response) => {
   const body = req.body;
@@ -42,7 +41,7 @@ export const createUserHandler = asyncWrapper(async (req: Request<{}, {}, create
     isPartner: user.isPartner,
   });
   await setUserRefreshToken(user._id.toString(), refreshToken!);
-  return res.status(201).json({ user: omit(user.toJSON(), privateFields), accessToken, refreshToken });
+  return res.status(201).json({ user: sanitize(user.toJSON(), privateFields), accessToken, refreshToken });
 });
 
 export const loginUserHandler = asyncWrapper(async (req: Request<{}, {}, loginUserInput>, res: Response) => {
@@ -58,7 +57,11 @@ export const loginUserHandler = asyncWrapper(async (req: Request<{}, {}, loginUs
     isPartner: user.isPartner,
   });
   await setUserRefreshToken(user._id.toString(), refreshToken!);
-  return res.status(200).json({ user: omit(user.toJSON(), privateFields), accessToken, refreshToken });
+  return res.status(200).json({
+    user: sanitize(user.toJSON(), privateFields, [{ field: 'paymentAuth', fields: privatePaymentAuthFields }]),
+    accessToken,
+    refreshToken,
+  });
 });
 
 export const socialAuthHandler = asyncWrapper(async (req: Request, res: Response) => {
@@ -74,14 +77,20 @@ export const socialAuthHandler = asyncWrapper(async (req: Request, res: Response
     isPartner: user.isPartner,
   });
   await setUserRefreshToken(user._id.toString(), refreshToken!);
-  return res.status(200).json({ user: omit(user.toJSON(), privateFields), accessToken, refreshToken });
+  return res.status(200).json({
+    user: sanitize(user.toJSON(), privateFields, [{ field: 'paymentAuth', fields: privatePaymentAuthFields }]),
+    accessToken,
+    refreshToken,
+  });
 });
 
 export const getUserProfileHandler = asyncWrapper(async (req: Request, res: Response) => {
   const { id } = res.locals.user;
   const user = await findUserById(id);
   if (!user) throw new NotFoundError();
-  return res.status(200).json({ user: omit(user.toJSON(), privateFields) });
+  return res.status(200).json({
+    user: sanitize(user.toJSON(), privateFields, [{ field: 'paymentAuth', fields: privatePaymentAuthFields }]),
+  });
 });
 
 export const updateUserHandler = asyncWrapper(async (req: Request<{}, {}, updateUserInput>, res: Response) => {
@@ -95,7 +104,7 @@ export const updateUserHandler = asyncWrapper(async (req: Request<{}, {}, update
 export const addCardHandler = asyncWrapper(async (req: Request<{}, {}, addCardInput>, res: Response) => {
   const { id } = res.locals.user;
   const { reference } = req.body;
-  const { amount, ...paymentAuth } = await verifyPayment(reference);
+  const paymentAuth = await verifyPayment(reference);
   const { matchedCount, modifiedCount } = await updateUserInfo(id, { paymentAuth });
   if (!matchedCount) throw new NotFoundError('User not found');
   if (!modifiedCount) throw new BadRequestError('Could not add card');

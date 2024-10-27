@@ -29,10 +29,9 @@ import {
   verifyPayment,
 } from '@services';
 import { EntityType, IReservation, NotificationType, PropertyType, Status } from '@types';
-import { asyncWrapper } from '@utils';
+import { asyncWrapper, sanitize } from '@utils';
 import dayjs from 'dayjs';
 import { Request, Response } from 'express';
-import { omit } from 'lodash';
 import mongoose from 'mongoose';
 
 export const createReservationHandler = asyncWrapper(
@@ -59,7 +58,7 @@ export const createReservationHandler = asyncWrapper(
         if (!data.payByProxy) await refundPayment(data.payReference);
       }
       const reservation = await createReservation(data, session);
-      const reservationResponse = omit(reservation.toJSON(), privateReservationFields);
+      const reservationResponse = sanitize(reservation, privateReservationFields);
       const populatedProperty: any = await reservation.populate({
         path: 'property',
         select: 'type name accommodation -_id',
@@ -90,7 +89,7 @@ export const createReservationHandler = asyncWrapper(
       const socketId = onlineUsers.get(data.partner);
       if (socketId) {
         res.locals.io?.to(socketId).emit('new_reservation', reservationResponse);
-        res.locals.io?.to(socketId).emit('new_notification', omit(newNotification.toJSON(), privateFields));
+        res.locals.io?.to(socketId).emit('new_notification', sanitize(newNotification, privateFields));
       }
       if (data.propertyType === PropertyType.STAY) {
         const updatedAccommodations = populatedProperty.property.accommodation.filter((a: any) =>
@@ -111,19 +110,17 @@ export const createReservationHandler = asyncWrapper(
 export const getUserReservationsHandler = asyncWrapper(async (req: Request, res: Response) => {
   const { id } = res.locals.user;
   const reservations = await getUserReservations(id);
-  return res.status(200).json({
-    count: reservations.length,
-    reservations: reservations.map((r) => omit(r.toJSON(), privateReservationFields)),
-  });
+  return res
+    .status(200)
+    .json({ count: reservations.length, reservations: sanitize(reservations, privateReservationFields) });
 });
 
 export const getPartnerReservationsHandler = asyncWrapper(async (req: Request, res: Response) => {
   const { id } = res.locals.user;
   const reservations = await getPartnerReservations(id);
-  return res.status(200).json({
-    count: reservations.length,
-    reservations: reservations.map((r) => omit(r.toJSON(), privateReservationFields)),
-  });
+  return res
+    .status(200)
+    .json({ count: reservations.length, reservations: sanitize(reservations, privateReservationFields) });
 });
 
 export const getReservationDetailsHandler = asyncWrapper(
@@ -131,7 +128,7 @@ export const getReservationDetailsHandler = asyncWrapper(
     const { reservationId } = req.params;
     const reservation = await findReservationById(reservationId);
     if (!reservation) throw new NotFoundError('Reservation not found');
-    return res.status(200).json({ reservation: omit(reservation.toJSON(), privateReservationFields) });
+    return res.status(200).json({ reservation: sanitize(reservation, privateReservationFields) });
   }
 );
 
@@ -139,7 +136,7 @@ export const getReservationByRefHandler = asyncWrapper(async (req: Request<reser
   const { reservationRef } = req.params;
   const reservation = await findReservationByRef(reservationRef);
   if (!reservation) throw new NotFoundError('Reservation not found');
-  return res.status(200).json({ reservation: omit(reservation.toJSON(), privateReservationFields) });
+  return res.status(200).json({ reservation: sanitize(reservation, privateReservationFields) });
 });
 
 export const cancelReservationHandler = asyncWrapper(async (req: Request<cancelReservationInput>, res: Response) => {
@@ -207,7 +204,7 @@ export const cancelReservationHandler = asyncWrapper(async (req: Request<cancelR
     session.endSession();
 
     const socketId = onlineUsers.get(reservation.partner.toString());
-    if (socketId) res.locals.io?.to(socketId).emit('new_notification', omit(newNotification.toJSON(), privateFields));
+    if (socketId) res.locals.io?.to(socketId).emit('new_notification', sanitize(newNotification, privateFields));
     res.locals.io?.emit('update_reservation', { reservationId, status: Status.CANCELLED });
     if (reservation.propertyType === PropertyType.STAY) {
       const updatedAccommodations = (property as any).accommodation.filter((a: any) =>
@@ -271,7 +268,7 @@ export const updateReservationHandler = asyncWrapper(
       session.endSession();
 
       const socketId = onlineUsers.get(reservation.user.toString());
-      if (socketId) res.locals.io?.to(socketId).emit('new_notification', omit(newNotification.toJSON(), privateFields));
+      if (socketId) res.locals.io?.to(socketId).emit('new_notification', sanitize(newNotification, privateFields));
       res.locals.io?.emit('update_reservation', { reservationId, status });
       if (reservation.propertyType === PropertyType.STAY && [Status.CANCELLED, Status.COMPLETED].includes(status)) {
         const updatedAccommodations = (property as any).accommodation.filter((a: any) =>

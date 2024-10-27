@@ -10,7 +10,7 @@ import {
   updatePropertyReviewDetail,
 } from '@services';
 import { EntityType, NotificationType } from '@types';
-import { asyncWrapper } from '@utils';
+import { asyncWrapper, sanitize } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
 import mongoose from 'mongoose';
@@ -23,8 +23,8 @@ export const createReviewHandler = asyncWrapper(async (req: Request<{}, {}, crea
   try {
     const isValid = await canReview(data.property, data.propertyType, id);
     if (!isValid) throw new BadRequestError('You cannot review this property');
-    const review = await createReview(data);
-    const reviewResponse = omit(review.toJSON(), privateFields);
+    const review = await createReview(data, session);
+    const reviewResponse = sanitize(review, privateFields);
     const populatedReview: any = await review.populate({ path: 'property', select: 'name type partner -_id' });
 
     const notification = {
@@ -37,8 +37,8 @@ export const createReviewHandler = asyncWrapper(async (req: Request<{}, {}, crea
       } has recieved a new review! Check out what your guest has to say. Visit your dashboard for more details`,
     };
     const [newNotification] = await Promise.all([
-      createNotification(notification),
-      updatePropertyReviewDetail(data.property, data.propertyType),
+      createNotification(notification, session),
+      updatePropertyReviewDetail(data.property, data.propertyType, session),
     ]);
     await session.commitTransaction();
     session.endSession();
@@ -57,7 +57,7 @@ export const createReviewHandler = asyncWrapper(async (req: Request<{}, {}, crea
 export const getPropertyReviewsHandler = asyncWrapper(async (req: Request<getPropertyReviewInput>, res: Response) => {
   const { propertyId } = req.params;
   const reviews = await getReviews(propertyId);
-  return res.status(200).json({ reviews: reviews.map((review) => omit(review.toJSON(), privateFields)) });
+  return res.status(200).json({ reviews: sanitize(reviews, privateFields) });
 });
 
 export const getCanReviewHandler = asyncWrapper(async (req: Request<{}, {}, {}, canReviewInput>, res: Response) => {
@@ -73,7 +73,7 @@ export const deleteReviewHandler = asyncWrapper(async (req: Request<deleteReview
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
-    const review = await deleteReview(reviewId, id);
+    const review = await deleteReview(reviewId, id, session);
     if (!review) throw new NotFoundError('Review not found');
     const populatedReview: any = await review.populate({ path: 'property', select: 'name type partner -_id' });
 
@@ -87,8 +87,8 @@ export const deleteReviewHandler = asyncWrapper(async (req: Request<deleteReview
       } has recieved a new review! Check out what your guest has to say. Visit your dashboard for more details`,
     };
     const [newNotification] = await Promise.all([
-      createNotification(notification),
-      updatePropertyReviewDetail(review.property.id, review.propertyType),
+      createNotification(notification, session),
+      updatePropertyReviewDetail(review.property.id, review.propertyType, session),
     ]);
     await session.commitTransaction();
     session.endSession();

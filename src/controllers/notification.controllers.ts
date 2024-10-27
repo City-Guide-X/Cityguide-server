@@ -1,17 +1,13 @@
 import { privateFields } from '@models';
 import { readNotificationInput } from '@schemas';
 import { getUserNotifications, readNotification } from '@services';
-import { asyncWrapper } from '@utils';
+import { asyncWrapper, sanitize } from '@utils';
 import { Request, Response } from 'express';
-import { omit } from 'lodash';
 
 export const getUserNotificationsHandler = asyncWrapper(async (req: Request, res: Response) => {
   const { id } = res.locals.user;
   const notifications = await getUserNotifications(id).sort('-createdAt');
-  return res.status(200).json({
-    count: notifications.length,
-    notifications: notifications.map((notification) => omit(notification, privateFields)),
-  });
+  return res.status(200).json({ count: notifications.length, notifications: sanitize(notifications, privateFields) });
 });
 
 export const readNotificationHandler = asyncWrapper(

@@ -20,9 +20,8 @@ import {
   updateNightLife,
 } from '@services';
 import { ILatLng, PropertyType } from '@types';
-import { asyncWrapper, summarizeNightlife } from '@utils';
+import { asyncWrapper, sanitize, summarizeNightlife } from '@utils';
 import { Request, Response } from 'express';
-import { omit } from 'lodash';
 
 export const createNightLifeHandler = asyncWrapper(
   async (req: Request<{}, {}, createNightLifeInput>, res: Response) => {
@@ -31,7 +30,7 @@ export const createNightLifeHandler = asyncWrapper(
     const summary = (await summarizeNightlife(data)) as string;
     if (summary) data = { ...data, summary };
     const nightlife = await createNightLife(data);
-    return res.status(201).json({ nightlife: omit(nightlife.toJSON(), privateFields) });
+    return res.status(201).json({ nightlife: sanitize(nightlife, privateFields) });
   }
 );
 
@@ -43,14 +42,11 @@ export const getAllNightlifeHandler = asyncWrapper(
       const locations = properties.map((nightlife) => nightlife.address.geoLocation);
       const nightlifeDistances = await calculateDistance([geoLocation as ILatLng], locations);
       if (!nightlifeDistances)
-        return res.status(200).json({
-          count: properties.length,
-          properties: properties.map((nightlife) => omit(nightlife.toJSON(), privateFields)),
-        });
+        return res.status(200).json({ count: properties.length, properties: sanitize(properties, privateFields) });
       const result = properties
         .map((property, i) => {
           const nightlife = {
-            ...omit(property.toJSON(), privateFields),
+            ...sanitize(property, privateFields),
             locationInfo: {
               distance: nightlifeDistances[i].distance?.value || 999999999,
               distanceInWords: nightlifeDistances[i].distance?.text || '',
@@ -62,35 +58,26 @@ export const getAllNightlifeHandler = asyncWrapper(
         .sort((a, b) => a.locationInfo.distance - b.locationInfo.distance);
       return res.status(200).json({ count: result.length, properties: result });
     }
-    return res.status(200).json({
-      count: properties.length,
-      properties: properties.map((nightlife) => omit(nightlife.toJSON(), privateFields)),
-    });
+    return res.status(200).json({ count: properties.length, properties: sanitize(properties, privateFields) });
   }
 );
 
 export const getTrendingNightlifesHandler = asyncWrapper(async (req: Request, res: Response) => {
   const properties = await getTrendingNightlifes();
-  return res.status(200).json({
-    count: properties.length,
-    properties: properties.map((nightlife) => omit(nightlife, privateFields)),
-  });
+  return res.status(200).json({ count: properties.length, properties: sanitize(properties, privateFields) });
 });
 
 export const getPartnerNightlifesHandler = asyncWrapper(async (req: Request, res: Response) => {
   const { id } = res.locals.user;
   const properties = await getPartnerNightlifes(id);
-  return res.status(200).json({
-    count: properties.length,
-    properties: properties.map((nightlife) => omit(nightlife.toJSON(), privateFields)),
-  });
+  return res.status(200).json({ count: properties.length, properties: sanitize(properties, privateFields) });
 });
 
 export const getNightLifeDetailHandler = asyncWrapper(async (req: Request<getNightLifeDetailInput>, res: Response) => {
   const { nightLifeId } = req.params;
   const nightlife = await getNightLifeById(nightLifeId);
   if (!nightlife) throw new NotFoundError('Night Life not found');
-  return res.status(200).json({ nightlife: omit(nightlife.toJSON(), privateFields) });
+  return res.status(200).json({ nightlife: sanitize(nightlife, privateFields) });
 });
 
 export const updateNightLifeHandler = asyncWrapper(
@@ -122,21 +109,15 @@ export const searchNightlifeHandler = asyncWrapper(
     const geoLocation = { lat, lng };
     const nightlifes = await searchNightlife(day, time, minAge);
     if (!nightlifes.length || !lat)
-      return res.status(200).json({
-        count: nightlifes.length,
-        properties: nightlifes.map((nightlife) => omit(nightlife, privateFields)),
-      });
+      return res.status(200).json({ count: nightlifes.length, properties: sanitize(nightlifes, privateFields) });
     const locations = nightlifes.map((nightlife) => nightlife.address.geoLocation);
     const nightlifeDistances = await calculateDistance([geoLocation as ILatLng], locations);
     if (!nightlifeDistances)
-      return res.status(200).json({
-        count: nightlifes.length,
-        properties: nightlifes.map((nightlife) => omit(nightlife, privateFields)),
-      });
+      return res.status(200).json({ count: nightlifes.length, properties: sanitize(nightlifes, privateFields) });
     const result = nightlifes
       .map((property, i) => {
         const nightlife = {
-          ...omit(property, privateFields),
+          ...sanitize(property, privateFields),
           locationInfo: {
             distance: nightlifeDistances[i].distance?.value || 999999999,
             distanceInWords: nightlifeDistances[i].distance?.text || '',

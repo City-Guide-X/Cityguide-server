@@ -10,7 +10,7 @@ import {
   updateEstablishmentInfo,
 } from '@services';
 import { EntityType } from '@types';
-import { asyncWrapper, sendEmail } from '@utils';
+import { asyncWrapper, sanitize, sendEmail } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
 
@@ -34,7 +34,7 @@ export const createEstablishmentHandler = asyncWrapper(
     await setEstablishmentRefreshToken(establishment._id.toString(), refreshToken!);
     return res
       .status(201)
-      .json({ establishment: omit(establishment.toJSON(), privateFields), accessToken, refreshToken });
+      .json({ establishment: sanitize(establishment.toJSON(), privateFields), accessToken, refreshToken });
   }
 );
 
@@ -53,7 +53,7 @@ export const loginEstablishmentHandler = asyncWrapper(
     });
     await setEstablishmentRefreshToken(establishment._id.toString(), refreshToken!);
     return res.status(200).json({
-      establishment: omit(establishment.toJSON(), privateFields),
+      establishment: sanitize(establishment.toJSON(), privateFields),
       accessToken,
       refreshToken,
     });
@@ -64,7 +64,7 @@ export const getEstablishmentProfileHandler = asyncWrapper(async (req: Request, 
   const { id } = res.locals.user;
   const establishment = await findEstablishmentById(id);
   if (!establishment) throw new NotFoundError();
-  return res.status(200).json({ establishment: omit(establishment.toJSON(), privateFields) });
+  return res.status(200).json({ establishment: sanitize(establishment.toJSON(), privateFields) });
 });
 
 export const updateEstablishmentHandler = asyncWrapper(

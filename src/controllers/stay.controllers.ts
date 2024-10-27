@@ -26,7 +26,7 @@ import {
   updateStay,
 } from '@services';
 import { ILatLng, PropertyType } from '@types';
-import { asyncWrapper, summarizeProperty } from '@utils';
+import { asyncWrapper, sanitize, summarizeProperty } from '@utils';
 import { Request, Response } from 'express';
 import { omit } from 'lodash';
 
@@ -41,7 +41,7 @@ export const createStayHandler = asyncWrapper(async (req: Request<{}, {}, create
   const summary = (await summarizeProperty(data)) as string;
   if (summary) data = { ...data, summary };
   const stay = await createStay(data);
-  return res.status(201).json({ stay: omit(stay.toJSON(), privateFields) });
+  return res.status(201).json({ stay: sanitize(stay, privateFields) });
 });
 
 export const getAllStayHandler = asyncWrapper(
@@ -58,7 +58,7 @@ export const getAllStayHandler = asyncWrapper(
       const result = properties
         .map((property, i) => {
           const stay = {
-            ...omit(property.toJSON(), privateFields),
+            ...sanitize(property, privateFields),
             locationInfo: {
               distance: stayDistances[i].distance?.value || 999999999,
               distanceInWords: stayDistances[i].distance?.text || '',
@@ -70,31 +70,25 @@ export const getAllStayHandler = asyncWrapper(
         .sort((a, b) => a.locationInfo.distance - b.locationInfo.distance);
       return res.status(200).json({ count: result.length, properties: result });
     }
-    return res
-      .status(200)
-      .json({ count: properties.length, properties: properties.map((stay) => omit(stay.toJSON(), privateFields)) });
+    return res.status(200).json({ count: properties.length, properties: sanitize(properties, privateFields) });
   }
 );
 
 export const getTrendingStaysHandler = asyncWrapper(async (req: Request, res: Response) => {
   const properties = await getTrendingStays();
-  return res
-    .status(200)
-    .json({ count: properties.length, properties: properties.map((stay) => omit(stay, privateFields)) });
+  return res.status(200).json({ count: properties.length, properties: sanitize(properties, privateFields) });
 });
 
 export const getPartnerStaysHandler = asyncWrapper(async (req: Request, res: Response) => {
   const { id } = res.locals.user;
   const properties = await getPartnerStays(id);
-  return res
-    .status(200)
-    .json({ count: properties.length, properties: properties.map((stay) => omit(stay.toJSON(), privateFields)) });
+  return res.status(200).json({ count: properties.length, properties: sanitize(properties, privateFields) });
 });
 
 export const getStayDetailHandler = asyncWrapper(async (req: Request<getStayDetailInput>, res: Response) => {
   const { stayId } = req.params;
   const stay = await getStayById(stayId);
-  return res.status(200).json({ stay: omit(stay.toJSON(), privateFields) });
+  return res.status(200).json({ stay: sanitize(stay, privateFields) });
 });
 
 export const updateStayHandler = asyncWrapper(
@@ -163,15 +157,14 @@ export const searchStayHandler = asyncWrapper(async (req: Request<{}, {}, {}, se
   const geoLocation = { lat, lng };
   const stays = await searchStay(checkin, checkout, !!children, guests, count);
   if (!stays.length || !lat)
-    return res.status(200).json({ count: stays.length, properties: stays.map((stay) => omit(stay, privateFields)) });
+    return res.status(200).json({ count: stays.length, properties: sanitize(stays, privateFields) });
   const locations = stays.map((stay) => stay.address.geoLocation);
   const stayDistances = await calculateDistance([geoLocation as ILatLng], locations);
-  if (!stayDistances)
-    return res.status(200).json({ count: stays.length, properties: stays.map((stay) => omit(stay, privateFields)) });
+  if (!stayDistances) return res.status(200).json({ count: stays.length, properties: sanitize(stays, privateFields) });
   const result = stays
     .map((property, i) => {
       const stay = {
-        ...omit(property, privateFields),
+        ...sanitize(property, privateFields),
         locationInfo: {
           distance: stayDistances[i].distance?.value || 999999999,
           distanceInWords: stayDistances[i].distance?.text || '',
