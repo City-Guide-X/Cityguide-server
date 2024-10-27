@@ -8,6 +8,11 @@ interface IRetryConfig {
   maxDelay?: number;
   shouldRetry?: (error: any) => boolean;
 }
+interface ISanitizeInner {
+  field: string;
+  fields: string[];
+}
+type SanitizedData = Record<string, any> | Array<Record<string, any>>;
 
 export const formatNearbyLocations = (res: Partial<PlaceData>) => ({
   name: res.name,
@@ -41,4 +46,21 @@ export const withRetry = async <T>(fn: () => Promise<T>, config: IRetryConfig = 
   }
 
   throw lastError;
+};
+
+export const sanitize = (data: SanitizedData, fields: string[], inners?: ISanitizeInner[]): SanitizedData => {
+  if (!data) return data;
+  if (!fields.length && !inners?.length) return data;
+  if (Array.isArray(data)) return data.map((item) => sanitize(item, fields, inners));
+  const fieldSet = new Set(fields);
+  const result: Record<string, any> = {};
+  Object.keys(data).forEach((key) => {
+    if (!fieldSet.has(key)) result[key] = data[key];
+  });
+  if (inners?.length) {
+    for (const { field, fields } of inners) {
+      if (data[field]) result[field] = sanitize(data[field], fields);
+    }
+  }
+  return result;
 };
