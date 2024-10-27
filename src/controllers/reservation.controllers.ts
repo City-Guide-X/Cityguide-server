@@ -54,7 +54,7 @@ export const createReservationHandler = asyncWrapper(
         if (data.payByProxy)
           await chargeCard(paymentAuth.authorization_code, paymentAuth.email, String(data.price * 100));
       } else if (data.payReference) {
-        data.paymentAuth = await verifyPayment(data.payReference, data.payByProxy, data.price);
+        data.paymentAuth = await verifyPayment(data.payReference, { payByProxy: data.payByProxy, price: data.price });
         if (saveCard) await updateUserInfo(id, { paymentAuth: data.paymentAuth }, session);
         if (!data.payByProxy) await refundPayment(data.payReference);
       }
