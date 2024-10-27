@@ -2,14 +2,15 @@ import { BadRequestError } from '@errors';
 import { NightLifeModel, RestaurantModel, ReviewModel, StayModel } from '@models';
 import { ICategoryRating, ICreateReview, PropertyType } from '@types';
 import dayjs from 'dayjs';
-import { Types } from 'mongoose';
+import { ClientSession, Types } from 'mongoose';
 
-export const createReview = (input: ICreateReview) => {
-  return ReviewModel.create({ ...input });
+export const createReview = async (input: ICreateReview, session?: ClientSession) => {
+  const [review] = await ReviewModel.create([{ ...input }], { session });
+  return review;
 };
 
-export const deleteReview = (_id: string, user: string) => {
-  return ReviewModel.findOneAndUpdate({ _id, user }, { deletedAt: dayjs().toDate() });
+export const deleteReview = (_id: string, user: string, session?: ClientSession) => {
+  return ReviewModel.findOneAndUpdate({ _id, user }, { deletedAt: dayjs().toDate() }, { session });
 };
 
 export const getReviews = (property: string) => {
@@ -83,32 +84,35 @@ const modelMap = {
   [PropertyType.RESTAURANT]: RestaurantModel,
   [PropertyType.NIGHTLIFE]: NightLifeModel,
 };
-export const updatePropertyReviewDetail = async (property: string, type: PropertyType) => {
-  const [result] = await ReviewModel.aggregate([
-    {
-      $match: {
-        property: new Types.ObjectId(property),
-        propertyType: type,
-        deletedAt: null,
+export const updatePropertyReviewDetail = async (property: string, type: PropertyType, session?: ClientSession) => {
+  const [result] = await ReviewModel.aggregate(
+    [
+      {
+        $match: {
+          property: new Types.ObjectId(property),
+          propertyType: type,
+          deletedAt: null,
+        },
       },
-    },
-    {
-      $group: {
-        _id: null,
-        rating: { $avg: '$rating' },
-        reviewCount: { $sum: 1 },
-        categoryRatings: { $push: '$categoryRatings' },
+      {
+        $group: {
+          _id: null,
+          rating: { $avg: '$rating' },
+          reviewCount: { $sum: 1 },
+          categoryRatings: { $push: '$categoryRatings' },
+        },
       },
-    },
-    {
-      $project: {
-        _id: 0,
-        rating: { $round: ['$rating', 1] },
-        reviewCount: 1,
-        categoryRatings: 1,
+      {
+        $project: {
+          _id: 0,
+          rating: { $round: ['$rating', 1] },
+          reviewCount: 1,
+          categoryRatings: 1,
+        },
       },
-    },
-  ]);
+    ],
+    { session }
+  );
   if (!result) return;
   const { categoryRatings, reviewCount, rating } = result;
   const summedRatings = categoryRatings.reduce((acc: ICategoryRating, curr: ICategoryRating) => {
