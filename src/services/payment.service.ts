@@ -5,12 +5,12 @@ import axios from 'axios';
 import { get, put } from 'memory-cache';
 import { v4 } from 'uuid';
 
-const PAYSTACK_BASE_URL = 'https://api.paystack.co';
+const ax = axios.create({ baseURL: 'https://api.paystack.co' });
 
 export const initiatePayment = async (email: string, amount?: number) => {
   try {
-    const response = await axios.post(
-      `${PAYSTACK_BASE_URL}/transaction/initialize`,
+    const response = await ax.post(
+      'transaction/initialize',
       { email, amount: String((amount ?? 50) * 100), channels: ['card'] },
       {
         headers: {
@@ -25,9 +25,9 @@ export const initiatePayment = async (email: string, amount?: number) => {
   }
 };
 
-export const verifyPayment = async (reference: string) => {
+export const verifyPayment = async (reference: string, payByProxy: boolean, price: number) => {
   try {
-    const response = await axios.get(`${PAYSTACK_BASE_URL}/transaction/verify/${reference}`, {
+    const response = await ax.get(`transaction/verify/${reference}`, {
       headers: {
         Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
         'Content-Type': 'application/json',
@@ -42,7 +42,8 @@ export const verifyPayment = async (reference: string) => {
     } = response.data.data;
     if (status !== 'success' && gateway_response !== 'Successful')
       throw new BadRequestError('Payment was not successful');
-    return { ...authorization, email, amount } as IPaymentAuth;
+    if (payByProxy && amount !== price * 100) throw new BadRequestError('Amount paid does not match');
+    return { ...authorization, email } as IPaymentAuth;
   } catch (error: any) {
     throw new BadRequestError('Payment verification failed');
   }
@@ -51,7 +52,7 @@ export const verifyPayment = async (reference: string) => {
 export const refundPayment = async (transaction: string, amount?: number) => {
   const body = amount ? { transaction, amount: amount * 100 } : { transaction };
   try {
-    await axios.post(`${PAYSTACK_BASE_URL}/refund`, body, {
+    await ax.post('refund', body, {
       headers: {
         Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
         'Content-Type': 'application/json',
@@ -63,29 +64,33 @@ export const refundPayment = async (transaction: string, amount?: number) => {
 };
 
 export const chargeCard = async (authorization_code: string, email: string, amount: string) => {
-  try {
-    const response = await axios.post(
-      `${PAYSTACK_BASE_URL}/charge`,
-      { authorization_code, email, amount },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
-    const { amount: chargedAmount, status } = response.data.data;
-    if (status !== 'success') throw new BadRequestError('Could not charge card');
-  } catch (err: any) {
-    throw new BadRequestError('Could not charge card');
-  }
+  const reference = v4();
+  return withRetry(
+    async () => {
+      const response = await ax.post(
+        'charge',
+        { authorization_code, email, amount: String(+amount * 100), reference },
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      const { amount: chargedAmount, status } = response.data.data;
+      if (status !== 'success') throw new BadRequestError('Could not charge card');
+      if (chargedAmount !== +amount) throw new BadRequestError('Amount charged does not match');
+      return chargedAmount;
+    },
+    { shouldRetry: (error: any) => !(error instanceof BadRequestError) }
+  );
 };
 
 export const payRecipient = async (recipient: string, amount: number, reason: string) => {
   const reference = v4();
   return withRetry(async () => {
-    const response = await axios.post(
-      `${PAYSTACK_BASE_URL}/transfer`,
+    const response = await ax.post(
+      'transfer',
       { source: 'balance', amount: amount * 100, recipient, reason, reference },
       {
         headers: {
@@ -130,8 +135,8 @@ export const addRecipient = async (
   currency: string
 ): Promise<string> => {
   try {
-    const response = await axios.post(
-      `${PAYSTACK_BASE_URL}/transferrecipient`,
+    const response = await ax.post(
+      'transferrecipient',
       { type, name, account_number, bank_code, currency },
       {
         headers: {
@@ -146,10 +151,11 @@ export const addRecipient = async (
   }
 };
 
-export const getBanks = async (country?: string) => {
-  const url = `${PAYSTACK_BASE_URL}/bank?country=${country}&perPage=100`;
+export const getBanks = async (country: string) => {
   try {
-    const response = await axios.get(url, { headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` } });
+    const response = await ax.get(`bank?country=${country}&perPage=100`, {
+      headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` },
+    });
     const banks = response.data.data.map((bank: any) => ({
       name: bank.name,
       code: bank.code,

@@ -1,6 +1,7 @@
 import { User, UserModel } from '@models';
 import { ICancellation, IFavProperties } from '@types';
 import dayjs from 'dayjs';
+import { ClientSession } from 'mongoose';
 
 export const createUser = (input: Partial<User>) => {
   return UserModel.create({ ...input });
@@ -14,8 +15,8 @@ export const findUserByEmail = (email: string) => {
   return UserModel.findOne({ email });
 };
 
-export const updateUserInfo = (_id: string, options: Partial<User>) => {
-  return UserModel.updateOne({ _id }, { ...options });
+export const updateUserInfo = (_id: string, options: Partial<User>, session?: ClientSession) => {
+  return UserModel.updateOne({ _id }, { ...options }, { session });
 };
 
 export const setUserRefreshToken = (_id: string, refreshToken: string | null) => {

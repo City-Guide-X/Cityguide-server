@@ -2,6 +2,7 @@ import { AuthorizationError, BadRequestError, NotFoundError } from '@errors';
 import { Establishment, Stay, StayModel, User } from '@models';
 import { IAccommodation, ICreateStay, IReservationAccommodation } from '@types';
 import dayjs from 'dayjs';
+import { ClientSession } from 'mongoose';
 
 export const createStay = (input: ICreateStay) => {
   return StayModel.create({ ...input });
@@ -90,7 +91,8 @@ export const removeAccommodation = async (_id: string, partner: string, roomId: 
 export const updateAccommodationAvailability = (
   _id: string,
   accommodations: IReservationAccommodation[],
-  release?: boolean
+  release?: boolean,
+  session?: ClientSession
 ) => {
   const bulkOps = accommodations.map(({ accommodationId, reservationCount }) => ({
     updateOne: {
@@ -98,7 +100,7 @@ export const updateAccommodationAvailability = (
       update: { $inc: { 'accommodation.$.available': release ? reservationCount : -reservationCount } },
     },
   }));
-  return StayModel.bulkWrite(bulkOps);
+  return StayModel.bulkWrite(bulkOps, { session });
 };
 
 export const searchStay = async (

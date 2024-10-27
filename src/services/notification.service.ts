@@ -1,8 +1,10 @@
 import { BadRequestError, NotFoundError } from '@errors';
 import { NotificationModel } from '@models';
+import { ClientSession } from 'mongoose';
 
-export const createNotification = (input: Partial<Notification>) => {
-  return NotificationModel.create({ ...input });
+export const createNotification = async (input: Partial<Notification>, session?: ClientSession) => {
+  const [notification] = await NotificationModel.create([{ ...input }], { session });
+  return notification;
 };
 
 export const getUserNotifications = (recipient: string) => {

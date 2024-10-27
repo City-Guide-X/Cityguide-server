@@ -3,12 +3,13 @@ import { Reservation, ReservationModel } from '@models';
 import { IReservation, PropertyType, StayType } from '@types';
 import { isFuture, isValidDate } from '@utils';
 import dayjs from 'dayjs';
-import { Types } from 'mongoose';
+import { ClientSession, Types } from 'mongoose';
 import { getRestaurantById } from './restaurant.service';
 import { getStayById } from './stay.service';
 
-export const createReservation = (option: Partial<Reservation>) => {
-  return ReservationModel.create({ ...option });
+export const createReservation = async (option: Partial<Reservation>, session?: ClientSession) => {
+  const [reservation] = await ReservationModel.create([{ ...option }], { session });
+  return reservation;
 };
 
 export const getUserReservations = (user: string) => {
@@ -31,9 +32,15 @@ export const findReservationByRef = (reservationRef: string) => {
   return ReservationModel.findOne({ reservationRef });
 };
 
-export const updateReservation = (_id: string, isAdmin: boolean, id: string, option: Partial<Reservation>) => {
+export const updateReservation = (
+  _id: string,
+  isAdmin: boolean,
+  id: string,
+  option: Partial<Reservation>,
+  session?: ClientSession
+) => {
   const searchQuery = { _id, ...(isAdmin ? { partner: id } : { user: id }) };
-  return ReservationModel.findOneAndUpdate(searchQuery, { ...option });
+  return ReservationModel.findOneAndUpdate(searchQuery, { ...option }, { session });
 };
 
 export const reservationAnalytics = (
