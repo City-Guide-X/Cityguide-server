@@ -1,5 +1,5 @@
 import { BadRequestError, NotFoundError } from '@errors';
-import { privateFields } from '@models';
+import { privateFields, privateReservationFields } from '@models';
 import {
   cancelReservationInput,
   createReservationInput,
@@ -51,22 +51,19 @@ export const createReservationHandler = asyncWrapper(
         if (dayjs().isBefore(`${paymentAuth.exp_year}-${paymentAuth.exp_month}-01`, 'month'))
           throw new BadRequestError('Payment method expired');
         data.paymentAuth = paymentAuth;
-        await chargeCard(paymentAuth.authorization_code, paymentAuth.email, String(data.price * 100));
+        if (data.payByProxy)
+          await chargeCard(paymentAuth.authorization_code, paymentAuth.email, String(data.price * 100));
       } else if (data.payReference) {
-        data.paymentAuth = await verifyPayment(data.payReference);
-        if (saveCard) await updateUserInfo(id, { paymentAuth: data.paymentAuth });
+        data.paymentAuth = await verifyPayment(data.payReference, data.payByProxy, data.price);
+        if (saveCard) await updateUserInfo(id, { paymentAuth: data.paymentAuth }, session);
+        if (!data.payByProxy) await refundPayment(data.payReference);
       }
-      const reservation = await createReservation(data);
-      const reservationResponse = omit(reservation.toJSON(), privateFields);
+      const reservation = await createReservation(data, session);
+      const reservationResponse = omit(reservation.toJSON(), privateReservationFields);
       const populatedProperty: any = await reservation.populate({
         path: 'property',
         select: 'type name accommodation -_id',
       });
-      if (data.payReference && !useSavedCard) {
-        if (data.payByProxy) {
-          if (data.paymentAuth!.amount !== data.price * 100) throw new BadRequestError('Invalid payment amount');
-        } else await refundPayment(data.payReference);
-      }
 
       const notification = {
         recipient: data.partner,
@@ -82,9 +79,9 @@ export const createReservationHandler = asyncWrapper(
         } guest(s). Head to your dashboard for more details`,
       };
       const [newNotification] = await Promise.all([
-        createNotification(notification),
+        createNotification(notification, session),
         data.propertyType === PropertyType.STAY
-          ? updateAccommodationAvailability(data.property, data.accommodations!)
+          ? updateAccommodationAvailability(data.property, data.accommodations!, false, session)
           : Promise.resolve(),
       ]);
       await session.commitTransaction();
@@ -116,7 +113,7 @@ export const getUserReservationsHandler = asyncWrapper(async (req: Request, res:
   const reservations = await getUserReservations(id);
   return res.status(200).json({
     count: reservations.length,
-    reservations: reservations.map((r) => omit(r.toJSON(), privateFields)),
+    reservations: reservations.map((r) => omit(r.toJSON(), privateReservationFields)),
   });
 });
 
@@ -125,7 +122,7 @@ export const getPartnerReservationsHandler = asyncWrapper(async (req: Request, r
   const reservations = await getPartnerReservations(id);
   return res.status(200).json({
     count: reservations.length,
-    reservations: reservations.map((r) => omit(r.toJSON(), privateFields)),
+    reservations: reservations.map((r) => omit(r.toJSON(), privateReservationFields)),
   });
 });
 
@@ -134,7 +131,7 @@ export const getReservationDetailsHandler = asyncWrapper(
     const { reservationId } = req.params;
     const reservation = await findReservationById(reservationId);
     if (!reservation) throw new NotFoundError('Reservation not found');
-    return res.status(200).json({ reservation: omit(reservation.toJSON(), privateFields) });
+    return res.status(200).json({ reservation: omit(reservation.toJSON(), privateReservationFields) });
   }
 );
 
@@ -142,7 +139,7 @@ export const getReservationByRefHandler = asyncWrapper(async (req: Request<reser
   const { reservationRef } = req.params;
   const reservation = await findReservationByRef(reservationRef);
   if (!reservation) throw new NotFoundError('Reservation not found');
-  return res.status(200).json({ reservation: omit(reservation.toJSON(), privateFields) });
+  return res.status(200).json({ reservation: omit(reservation.toJSON(), privateReservationFields) });
 });
 
 export const cancelReservationHandler = asyncWrapper(async (req: Request<cancelReservationInput>, res: Response) => {
@@ -151,10 +148,10 @@ export const cancelReservationHandler = asyncWrapper(async (req: Request<cancelR
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
-    const reservation = await updateReservation(reservationId, false, id, { status: Status.CANCELLED });
+    const reservation = await updateReservation(reservationId, false, id, { status: Status.CANCELLED }, session);
     if (!reservation) throw new NotFoundError('Reservation not found');
     const property = await (reservation.propertyType === PropertyType.STAY ? getStayById : getRestaurantById)(
-      reservation.property.id,
+      reservation.property.toString(),
       true
     );
 
@@ -171,14 +168,20 @@ export const cancelReservationHandler = asyncWrapper(async (req: Request<cancelR
       }
       if (reservation.payByProxy) {
         if (refundAmount) await refundPayment(reservation.payReference!, refundAmount);
-        if (cancellationFee)
-          await payRecipient(
-            property.partner.recipientCode!,
-            cancellationFee,
-            `Cancellation fees for reservation ${reservation.reservationRef}`
-          );
       } else {
+        if (cancellationFee)
+          await chargeCard(
+            reservation.paymentAuth.authorization_code,
+            reservation.paymentAuth.email,
+            String(cancellationFee * 100)
+          );
       }
+      if (cancellationFee)
+        await payRecipient(
+          property.partner.recipientCode!,
+          cancellationFee,
+          `Cancellation fees for reservation ${reservation.reservationRef}`
+        );
     }
 
     const notification = {
@@ -195,9 +198,9 @@ export const cancelReservationHandler = asyncWrapper(async (req: Request<cancelR
       } guest(s). Head to your dashboard for more details`,
     };
     const [newNotification] = await Promise.all([
-      createNotification(notification),
+      createNotification(notification, session),
       reservation.propertyType === PropertyType.STAY
-        ? updateAccommodationAvailability(reservation.property.id, reservation.accommodations!, true)
+        ? updateAccommodationAvailability(reservation.property.toString(), reservation.accommodations!, true, session)
         : Promise.resolve(),
     ]);
     await session.commitTransaction();
@@ -210,7 +213,11 @@ export const cancelReservationHandler = asyncWrapper(async (req: Request<cancelR
       const updatedAccommodations = (property as any).accommodation.filter((a: any) =>
         reservation.accommodations!.some((da) => da.accommodationId === a.id)
       );
-      res.locals.io?.emit('stay_acc', { id: reservation.property.id, action: 'update', body: updatedAccommodations });
+      res.locals.io?.emit('stay_acc', {
+        id: reservation.property.toString(),
+        action: 'update',
+        body: updatedAccommodations,
+      });
     }
     return res.sendStatus(204);
   } catch (err: any) {
@@ -227,12 +234,19 @@ export const updateReservationHandler = asyncWrapper(
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
-      const reservation = await updateReservation(reservationId, true, id, { status });
+      const reservation = await updateReservation(reservationId, true, id, { status }, session);
       if (!reservation) throw new NotFoundError('Reservation not found');
-      const populatedProperty: any = await reservation.populate({
-        path: 'property',
-        select: 'type name accommodation -_id',
-      });
+      const property = await (reservation.propertyType === PropertyType.STAY ? getStayById : getRestaurantById)(
+        reservation.property.toString(),
+        true
+      );
+
+      if (status === Status.INHOUSE && reservation.payByProxy)
+        await payRecipient(
+          property.partner.recipientCode!,
+          reservation.price,
+          `Payment for reservation ${reservation.reservationRef}`
+        );
 
       const notification = {
         recipient: reservation.user,
@@ -240,7 +254,7 @@ export const updateReservationHandler = asyncWrapper(
         type: NotificationType.RESERVATION,
         title: `Reservation ${reservation.status}`,
         message: `Your reservation (Ref: ${reservation.reservationRef}) at ${
-          populatedProperty.property.name
+          property.name
         } is ${reservation.status.toLowerCase()}. The reservation was for ${dayjs(reservation.checkInDay).format(
           'dddd, MMMM D, YYYY [at] h:mm A'
         )}, with ${
@@ -248,9 +262,9 @@ export const updateReservationHandler = asyncWrapper(
         } guest(s). Head to your dashboard for more details`,
       };
       const [newNotification] = await Promise.all([
-        createNotification(notification),
+        createNotification(notification, session),
         reservation.propertyType === PropertyType.STAY && [Status.CANCELLED, Status.COMPLETED].includes(status)
-          ? updateAccommodationAvailability(reservation.property.id, reservation.accommodations!, true)
+          ? updateAccommodationAvailability(reservation.property.toString(), reservation.accommodations!, true, session)
           : Promise.resolve(),
       ]);
       await session.commitTransaction();
@@ -260,10 +274,14 @@ export const updateReservationHandler = asyncWrapper(
       if (socketId) res.locals.io?.to(socketId).emit('new_notification', omit(newNotification.toJSON(), privateFields));
       res.locals.io?.emit('update_reservation', { reservationId, status });
       if (reservation.propertyType === PropertyType.STAY && [Status.CANCELLED, Status.COMPLETED].includes(status)) {
-        const updatedAccommodations = populatedProperty.property.accommodation.filter((a: any) =>
+        const updatedAccommodations = (property as any).accommodation.filter((a: any) =>
           reservation.accommodations!.some((da) => da.accommodationId === a.id)
         );
-        res.locals.io?.emit('stay_acc', { id: reservation.property.id, action: 'update', body: updatedAccommodations });
+        res.locals.io?.emit('stay_acc', {
+          id: reservation.property.toString(),
+          action: 'update',
+          body: updatedAccommodations,
+        });
       }
       return res.sendStatus(204);
     } catch (err: any) {
