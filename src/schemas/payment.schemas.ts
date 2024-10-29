@@ -3,7 +3,10 @@ import { number, object, string, TypeOf, z } from 'zod';
 export const initiatePaymentSchema = object({
   body: object({
     amount: number({ invalid_type_error: 'Amount should be a number' }).optional(),
-  }),
+    currency: string()
+      .regex(/^[A-Z]{3}$/, 'Invalid currency')
+      .optional(),
+  }).refine((data) => !!data.amount === !!data.currency, { message: 'Currency is required when amount is provided' }),
 });
 
 export const exchangeRateSchema = object({

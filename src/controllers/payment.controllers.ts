@@ -7,9 +7,13 @@ import { Request, Response } from 'express';
 export const initiatePaymentHandler = asyncWrapper(
   async (req: Request<{}, {}, initiatePaymentInput>, res: Response) => {
     const { id } = res.locals.user;
-    const { amount } = req.body;
-    const user = await findUserById(id);
+    let { amount, currency } = req.body;
+    const [user, rate] = await Promise.all([
+      findUserById(id),
+      amount && currency && currency !== 'NGN' ? getExchangeRate(currency, 'NGN') : undefined,
+    ]);
     if (!user) throw new NotFoundError('User not found');
+    if (rate && amount) amount = +(amount * rate).toFixed(2);
     const payment = await initiatePayment(user.email, amount);
     return res.status(200).json(payment);
   }
