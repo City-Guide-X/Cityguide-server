@@ -12,7 +12,6 @@ import {
 import { EntityType, NotificationType } from '@types';
 import { asyncWrapper, sanitize } from '@utils';
 import { Request, Response } from 'express';
-import { omit } from 'lodash';
 import mongoose from 'mongoose';
 
 export const createReviewHandler = asyncWrapper(async (req: Request<{}, {}, createReviewInput>, res: Response) => {

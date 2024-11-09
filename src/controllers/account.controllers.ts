@@ -9,8 +9,6 @@ import {
 } from '@schemas';
 import {
   addRecipient,
-  changeEstablishmentCancellationPolicy,
-  changeUserCancellationPolicy,
   deleteEstablishment,
   deleteUser,
   findEstablishmentById,

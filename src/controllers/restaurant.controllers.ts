@@ -28,7 +28,6 @@ import {
 import { ILatLng, PropertyType } from '@types';
 import { asyncWrapper, sanitize, summarizeRestaurant } from '@utils';
 import { Request, Response } from 'express';
-import { omit } from 'lodash';
 
 export const createRestaurantHandler = asyncWrapper(
   async (req: Request<{}, {}, createRestaurantInput>, res: Response) => {

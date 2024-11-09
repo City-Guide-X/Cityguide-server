@@ -12,7 +12,6 @@ import {
 import { EntityType } from '@types';
 import { asyncWrapper, sanitize, sendEmail } from '@utils';
 import { Request, Response } from 'express';
-import { omit } from 'lodash';
 
 export const createEstablishmentHandler = asyncWrapper(
   async (req: Request<{}, {}, createEstablishmentInput>, res: Response) => {

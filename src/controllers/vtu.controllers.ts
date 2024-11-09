@@ -1,45 +1,32 @@
-import { getAirtimeInput, getDataInput, getPlansInput } from '@schemas';
-import { getBillers, initPurchase, Providers } from '@services';
-import { asyncWrapper } from '@utils';
+import { privateFields } from '@models';
+import { createReceiverInput, deleteReceiverInput, updateReceiverInput } from '@schemas';
+import { createReceiver, deleteReceiver, getUserReceivers, updateReceiver } from '@services';
+import { asyncWrapper, sanitize } from '@utils';
 import { Request, Response } from 'express';
 
-export const getPlansHandler = asyncWrapper(async (req: Request<getPlansInput>, res: Response) => {
-  const { provider } = req.params;
-  const response = await getBillers(provider as Providers, 'data');
-  const plans = response.data.PaymentItems.map((item: any) => ({
-    id: item.Id,
-    name: item.Name,
-    itemFee: item.ItemFee,
-    amount: item.Amount,
-    paymentCode: item.PaymentCode,
-  }));
-  return res.status(200).json({ plans });
+export const createReceiverHandler = asyncWrapper(async (req: Request<{}, {}, createReceiverInput>, res: Response) => {
+  const { id } = res.locals.user;
+  const data = { ...req.body, user: id as any };
+  const receiver = await createReceiver(data);
+  return res.status(201).json({ receiver: sanitize(receiver, privateFields) });
 });
 
-export const getAirtimeHandler = asyncWrapper(async (req: Request<{}, {}, getAirtimeInput>, res: Response) => {
-  const { provider, phoneNumber, amount } = req.body;
-  const response = await getBillers(provider as Providers, 'airtime');
-  const PaymentCode = response.data.PaymentItems[0].PaymentCode;
-  const purchase = await initPurchase({
-    PaymentCode,
-    Amount: amount,
-    CustomerId: phoneNumber,
-    CustomerMobile: phoneNumber,
-    CustomerEmail: 'oluwatobisalau2000@gmail.com',
-    requestReference: Math.random().toString().slice(-12),
-  });
-  return res.status(200).json(purchase.data);
+export const getUserReceiversHandler = asyncWrapper(async (req: Request, res: Response) => {
+  const { id } = res.locals.user;
+  const receivers = await getUserReceivers(id);
+  return res.status(200).json({ receivers: sanitize(receivers, privateFields) });
 });
 
-export const getDataHandler = asyncWrapper(async (req: Request<{}, {}, getDataInput>, res: Response) => {
-  const { paymentCode, phoneNumber, amount } = req.body;
-  const purchase = await initPurchase({
-    Amount: amount,
-    CustomerId: phoneNumber,
-    PaymentCode: paymentCode,
-    CustomerMobile: phoneNumber,
-    CustomerEmail: 'oluwatobisalau2000@gmail.com',
-    requestReference: Math.random().toString().slice(-12),
-  });
-  return res.status(200).json(purchase.data);
+export const updateReceiverHandler = asyncWrapper(
+  async (req: Request<updateReceiverInput['params'], {}, updateReceiverInput['body']>, res: Response) => {
+    const { receiverId } = req.params;
+    await updateReceiver(receiverId, req.body);
+    return res.sendStatus(204);
+  }
+);
+
+export const deleteReceiverHandler = asyncWrapper(async (req: Request<deleteReceiverInput>, res: Response) => {
+  const { receiverId } = req.params;
+  await deleteReceiver(receiverId);
+  return res.sendStatus(204);
 });
