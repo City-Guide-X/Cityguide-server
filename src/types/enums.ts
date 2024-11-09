@@ -90,3 +90,21 @@ export enum NotificationType {
   RESERVATION = 'Reservation',
   REVIEW = 'Review',
 }
+
+export enum ISPs {
+  MTN = 'MTN',
+  GLO = 'GLO',
+  AIRTEL = 'AIRTEL',
+  ETISALAT = '9MOBILE',
+}
+
+export enum VTUStatus {
+  PENDING = 'Pending',
+  SUCCESSFUL = 'Successful',
+  FAILED = 'Failed',
+}
+
+export enum VTUType {
+  AIRTIME = 'Airtime',
+  DATA = 'Data',
+}
