@@ -68,3 +68,14 @@ export const sanitize = <T>(data: T | T[], fields: string[], inners?: ISanitizeI
   }
   return result as SanitizedOutput<T>;
 };
+
+export const numberFormat = (number: number) => {
+  number = number || 0;
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+};
+
+export const numberToCurrency = (value: number) => {
+  const number = (+value || 0).toFixed(2);
+  const [currency, decimal] = number.split('.');
+  return `${numberFormat(+currency)}.${decimal}`;
+};
