@@ -1,36 +1,39 @@
-import { number, object, string, TypeOf } from 'zod';
+import { ISPs } from '@types';
+import { nativeEnum, object, string, TypeOf } from 'zod';
 
-export const getPlanSchema = object({
-  params: object({
-    provider: string().regex(/^(AIRTEL|MTN|GLO|ETISALAT)$/, 'Provider Invalid'),
-  }),
-});
-
-export const getAirtimeSchema = object({
+export const createReceiverSchema = object({
   body: object({
-    provider: string({ required_error: 'Service provider is required' }).regex(
-      /^(AIRTEL|MTN|GLO|ETISALAT)$/,
-      'Service provider not valid'
+    firstName: string({ required_error: 'First name is required' }).min(1, 'First name should be atleast 1 character'),
+    lastName: string({ required_error: 'Last name is required' }).min(1, 'Last name should be atleast 1 character'),
+    phoneNumber: string({ required_error: 'Phone number is required' }).min(
+      11,
+      'Phone number should be atleast 11 characters'
     ),
-    phoneNumber: string({ required_error: 'Top-up number is require' }).min(11, 'Invalid phone number'),
-    amount: number({
-      required_error: 'Top-up amount required',
-      invalid_type_error: 'Top-up amount should be a number',
+    network: nativeEnum(ISPs, {
+      required_error: 'Network is required',
+      invalid_type_error: 'Invalid network',
     }),
   }),
 });
 
-export const getDataSchema = object({
+export const updateReceiverSchema = object({
   body: object({
-    paymentCode: string({ required_error: 'Payment Code is required' }),
-    phoneNumber: string({ required_error: 'Top-up number is require' }).min(11, 'Invalid phone number'),
-    amount: number({
-      required_error: 'Top-up amount required',
-      invalid_type_error: 'Top-up amount should be a number',
-    }),
+    firstName: string().min(1, 'First name should be atleast 1 character').optional(),
+    lastName: string().min(1, 'Last name should be atleast 1 character').optional(),
+    phoneNumber: string().min(11, 'Phone number should be atleast 11 characters').optional(),
+    network: nativeEnum(ISPs, { invalid_type_error: 'Invalid network' }).optional(),
+  }),
+  params: object({
+    receiverId: string({ required_error: 'Receiver id is required' }),
   }),
 });
 
-export type getPlansInput = TypeOf<typeof getPlanSchema>['params'];
-export type getAirtimeInput = TypeOf<typeof getAirtimeSchema>['body'];
-export type getDataInput = TypeOf<typeof getDataSchema>['body'];
+export const deleteReceiverSchema = object({
+  params: object({
+    receiverId: string({ required_error: 'Receiver id is required' }),
+  }),
+});
+
+export type createReceiverInput = TypeOf<typeof createReceiverSchema>['body'];
+export type updateReceiverInput = TypeOf<typeof updateReceiverSchema>;
+export type deleteReceiverInput = TypeOf<typeof deleteReceiverSchema>['params'];
