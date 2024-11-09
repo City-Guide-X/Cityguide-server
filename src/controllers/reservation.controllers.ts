@@ -50,8 +50,7 @@ export const createReservationHandler = asyncWrapper(
         if (dayjs().isBefore(`${paymentAuth.exp_year}-${paymentAuth.exp_month}-01`, 'month'))
           throw new BadRequestError('Payment method expired');
         data.paymentAuth = paymentAuth;
-        if (data.payByProxy)
-          await chargeCard(paymentAuth.authorization_code, paymentAuth.email, String(data.price * 100));
+        if (data.payByProxy) await chargeCard(paymentAuth.authorization_code, paymentAuth.email, String(data.price));
       } else if (data.payReference) {
         data.paymentAuth = await verifyPayment(data.payReference, { payByProxy: data.payByProxy, price: data.price });
         if (saveCard) await updateUserInfo(id, { paymentAuth: data.paymentAuth }, session);
