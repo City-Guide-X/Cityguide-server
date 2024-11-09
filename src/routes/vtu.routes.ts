@@ -1,13 +1,19 @@
-import { getAirtimeHandler, getDataHandler, getPlansHandler } from '@controllers';
+import {
+  createReceiverHandler,
+  deleteReceiverHandler,
+  getUserReceiversHandler,
+  updateReceiverHandler,
+} from '@controllers';
 import { requireAuth, userOnly, validateSchema } from '@middlewares';
-import { getAirtimeSchema, getDataSchema, getPlanSchema } from '@schemas';
+import { createReceiverSchema, deleteReceiverSchema, updateReceiverSchema } from '@schemas';
 import { Router } from 'express';
 
 const router = Router();
 
 router.use(requireAuth, userOnly);
-router.get('/airtime', validateSchema(getAirtimeSchema), getAirtimeHandler);
-router.get('/data', validateSchema(getDataSchema), getDataHandler);
-router.get('/data/:provider', validateSchema(getPlanSchema), getPlansHandler);
+router.get('/receivers', getUserReceiversHandler);
+router.post('/receivers', validateSchema(createReceiverSchema), createReceiverHandler);
+router.patch('/receivers/:receiverId', validateSchema(updateReceiverSchema), updateReceiverHandler);
+router.delete('/receivers/:receiverId', validateSchema(deleteReceiverSchema), deleteReceiverHandler);
 
 export default router;
