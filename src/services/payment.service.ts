@@ -40,12 +40,11 @@ export const verifyPayment = async (reference: string, options?: { payByProxy: b
       authorization,
       customer: { email },
     } = response.data.data;
-    if (status !== 'success' && gateway_response !== 'Successful')
-      throw new BadRequestError('Payment was not successful');
-    if (options?.payByProxy && amount !== options.price * 100) throw new BadRequestError('Amount paid does not match');
+    if (status !== 'success' && gateway_response !== 'Successful') throw new Error('Payment was not successful');
+    if (options?.payByProxy && amount !== options.price * 100) throw new Error('Amount paid does not match');
     return { ...authorization, email } as IPaymentAuth;
   } catch (error: any) {
-    throw new BadRequestError('Payment verification failed');
+    throw new BadRequestError(error.message || 'Payment verification failed');
   }
 };
 

@@ -51,6 +51,9 @@ export class Transaction {
   @prop({ required: true })
   amount: number;
 
+  @prop()
+  dataValue?: string;
+
   @prop({ enum: VTUStatus, default: VTUStatus.PENDING, type: String })
   status: VTUStatus;
 

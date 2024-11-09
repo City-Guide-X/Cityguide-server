@@ -47,6 +47,7 @@ export const createTransactionSchema = object({
       invalid_type_error: 'Invalid network',
     }),
     amount: number({ required_error: 'Amount is required', invalid_type_error: 'Amount should be a number' }).min(1),
+    dataValue: string().optional(),
     type: nativeEnum(VTUType, {
       required_error: 'Transaction type is required',
       invalid_type_error: 'Invalid transaction type',
@@ -54,6 +55,9 @@ export const createTransactionSchema = object({
     payReference: string().optional(),
     useSavedCard: boolean({ invalid_type_error: 'Save card should be true or false' }).optional().default(false),
     saveCard: boolean({ invalid_type_error: 'Save card should be true or false' }).optional().default(true),
+  }).refine((data) => (data.type === VTUType.DATA && data.dataValue) || data.type !== VTUType.DATA, {
+    message: 'dataValue field is required for data transactions',
+    path: ['dataValue'],
   }),
 });
 

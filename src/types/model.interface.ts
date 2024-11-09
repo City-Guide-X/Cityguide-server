@@ -257,6 +257,7 @@ export interface IVtuTransaction {
   phoneNumber: string;
   network: ISPs;
   amount: number;
+  dataValue?: string;
   type: VTUType;
   payReference?: string;
   useSavedCard?: boolean;

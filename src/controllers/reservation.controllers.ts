@@ -47,7 +47,7 @@ export const createReservationHandler = asyncWrapper(
         if (!user) throw new NotFoundError('User not found');
         const paymentAuth = user.paymentAuth;
         if (!paymentAuth) throw new BadRequestError('No payment method found');
-        if (dayjs().isBefore(`${paymentAuth.exp_year}-${paymentAuth.exp_month}-01`, 'month'))
+        if (!dayjs().isBefore(`${paymentAuth.exp_year}-${paymentAuth.exp_month}-01`, 'month'))
           throw new BadRequestError('Payment method expired');
         data.paymentAuth = paymentAuth;
         if (data.payByProxy) await chargeCard(paymentAuth.authorization_code, paymentAuth.email, String(data.price));

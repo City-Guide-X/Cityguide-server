@@ -42,4 +42,5 @@ export const privatePaymentAuthFields = [
   'email',
   'amount',
 ];
-export const privateReservationFields = [...privateFields, 'paymentAuth', 'payReference'];
+export const privateReservationFields = [...privateFields, 'paymentAuth'];
+export const privateVTUFields = [...privateFields, 'paymentAuth', 'user'];
