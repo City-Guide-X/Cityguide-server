@@ -6,6 +6,7 @@ export * from './restaurant.model';
 export * from './review.model';
 export * from './stay.model';
 export * from './user.model';
+export * from './vtu.models';
 
 export const privateFields = [
   '__v',
