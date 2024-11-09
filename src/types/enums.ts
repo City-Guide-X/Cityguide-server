@@ -89,6 +89,7 @@ export enum DayOfWeek {
 export enum NotificationType {
   RESERVATION = 'Reservation',
   REVIEW = 'Review',
+  VTU = 'VTU',
 }
 
 export enum ISPs {

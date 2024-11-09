@@ -2,6 +2,7 @@ import { IAddress, ICustomAvailability } from './common.interface';
 import {
   EntityType,
   HotelRating,
+  ISPs,
   MaxDays,
   NightLifeType,
   Parking,
@@ -10,6 +11,7 @@ import {
   Rating,
   Status,
   StayType,
+  VTUType,
 } from './enums';
 
 // General
@@ -245,4 +247,19 @@ export interface ICreateReview {
 
 export interface ICategoryRating {
   [key: string]: Rating;
+}
+
+// VTU
+export interface IVtuTransaction {
+  user: any;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  network: ISPs;
+  amount: number;
+  type: VTUType;
+  payReference?: string;
+  useSavedCard?: boolean;
+  saveCard?: boolean;
+  paymentAuth?: IPaymentAuth;
 }
