@@ -1,13 +1,14 @@
-import { getModelForClass, modelOptions, prop, Ref, Severity } from '@typegoose/typegoose';
-import { ISPs, VTUStatus, VTUType } from '@types';
+import { getModelForClass, index, modelOptions, prop, Ref, Severity } from '@typegoose/typegoose';
+import { IPaymentAuth, ISPs, VTUStatus, VTUType } from '@types';
 import { User } from './user.model';
 
 @modelOptions({
   schemaOptions: { timestamps: true },
   options: { allowMixed: Severity.ALLOW },
 })
+@index({ createdAt: -1, user: 1 })
 export class Receiver {
-  @prop({ ref: () => 'User', required: true, index: true })
+  @prop({ ref: () => 'User', required: true })
   user!: Ref<User>;
 
   @prop({ required: true })
@@ -30,6 +31,7 @@ export class Receiver {
   schemaOptions: { timestamps: true },
   options: { allowMixed: Severity.ALLOW },
 })
+@index({ createdAt: -1, user: 1 })
 export class Transaction {
   @prop({ ref: () => 'User', required: true })
   user!: Ref<User>;
@@ -47,7 +49,7 @@ export class Transaction {
   network!: ISPs;
 
   @prop({ required: true })
-  price: number;
+  amount: number;
 
   @prop({ enum: VTUStatus, default: VTUStatus.PENDING, type: String })
   status: VTUStatus;
@@ -57,6 +59,9 @@ export class Transaction {
 
   @prop()
   payReference?: string;
+
+  @prop({ _id: false })
+  paymentAuth?: IPaymentAuth;
 
   public createdAt: Date;
   public updatedAt: Date;
