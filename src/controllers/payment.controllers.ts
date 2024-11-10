@@ -1,3 +1,4 @@
+import { currencies } from '@constants';
 import { NotFoundError } from '@errors';
 import { exchangeRateInput, getBanksInput, initiatePaymentInput } from '@schemas';
 import { findUserById, getBanks, getExchangeRate, initiatePayment } from '@services';
@@ -30,4 +31,8 @@ export const getBanksHandler = asyncWrapper(async (req: Request<{}, {}, {}, getB
   const { country } = req.query;
   const banks = await getBanks(country);
   return res.status(200).json({ banks });
+});
+
+export const getCurrenciesHandler = asyncWrapper(async (req: Request, res: Response) => {
+  return res.status(200).json({ currencies });
 });
