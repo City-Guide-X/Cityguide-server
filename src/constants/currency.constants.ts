@@ -1,8 +1,48 @@
 export const currencies = [
   {
+    code: '€$£',
+    name: "Property's Currency",
+    country: '',
+  },
+  {
+    code: 'USD',
+    name: 'United States Dollar',
+    country: 'United States',
+  },
+  {
+    code: 'EUR',
+    name: 'Euro',
+    country: 'European Union',
+  },
+  {
+    code: 'GBP',
+    name: 'Pound Sterling',
+    country: 'United Kingdom',
+  },
+  {
+    code: 'NGN',
+    name: 'Nigerian Naira',
+    country: 'Nigeria',
+  },
+  {
+    code: 'ZAR',
+    name: 'South African Rand',
+    country: 'South Africa',
+  },
+  {
+    code: 'CNY',
+    name: 'Chinese Renminbi',
+    country: 'China',
+  },
+  {
     code: 'AED',
     name: 'UAE Dirham',
     country: 'United Arab Emirates',
+  },
+  {
+    code: 'JPY',
+    name: 'Japanese Yen',
+    country: 'Japan',
   },
   {
     code: 'AFN',
@@ -145,11 +185,6 @@ export const currencies = [
     country: 'Chile',
   },
   {
-    code: 'CNY',
-    name: 'Chinese Renminbi',
-    country: 'China',
-  },
-  {
     code: 'COP',
     name: 'Colombian Peso',
     country: 'Colombia',
@@ -210,11 +245,6 @@ export const currencies = [
     country: 'Ethiopia',
   },
   {
-    code: 'EUR',
-    name: 'Euro',
-    country: 'European Union',
-  },
-  {
     code: 'FJD',
     name: 'Fiji Dollar',
     country: 'Fiji',
@@ -228,11 +258,6 @@ export const currencies = [
     code: 'FOK',
     name: 'Faroese Króna',
     country: 'Faroe Islands',
-  },
-  {
-    code: 'GBP',
-    name: 'Pound Sterling',
-    country: 'United Kingdom',
   },
   {
     code: 'GEL',
@@ -348,11 +373,6 @@ export const currencies = [
     code: 'JOD',
     name: 'Jordanian Dinar',
     country: 'Jordan',
-  },
-  {
-    code: 'JPY',
-    name: 'Japanese Yen',
-    country: 'Japan',
   },
   {
     code: 'KES',
@@ -503,11 +523,6 @@ export const currencies = [
     code: 'NAD',
     name: 'Namibian Dollar',
     country: 'Namibia',
-  },
-  {
-    code: 'NGN',
-    name: 'Nigerian Naira',
-    country: 'Nigeria',
   },
   {
     code: 'NIO',
@@ -725,11 +740,6 @@ export const currencies = [
     country: 'Uganda',
   },
   {
-    code: 'USD',
-    name: 'United States Dollar',
-    country: 'United States',
-  },
-  {
     code: 'UYU',
     name: 'Uruguayan Peso',
     country: 'Uruguay',
@@ -788,11 +798,6 @@ export const currencies = [
     code: 'YER',
     name: 'Yemeni Rial',
     country: 'Yemen',
-  },
-  {
-    code: 'ZAR',
-    name: 'South African Rand',
-    country: 'South Africa',
   },
   {
     code: 'ZMW',
