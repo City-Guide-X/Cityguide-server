@@ -102,14 +102,14 @@ export const payRecipient = async (recipient: string, amount: number, reason: st
   });
 };
 
-export const getExchangeRate = async (base: string, currency: string): Promise<number> => {
+export const getExchangeRate = async (base: string, currency?: string): Promise<number> => {
   const EXPIRY = 1000 * 60 * 60 * 24;
   let rate = get(`exchange_rate_${base}`);
   if (rate) {
     rate = JSON.parse(rate);
-    return rate[currency];
+    return currency ? rate[currency] : rate;
   }
-  rate = get(`exchange_rate_${currency}`);
+  rate = currency ? get(`exchange_rate_${currency}`) : undefined;
   if (rate) {
     rate = JSON.parse(rate);
     return 1 / rate[base];
@@ -120,7 +120,7 @@ export const getExchangeRate = async (base: string, currency: string): Promise<n
     });
     rate = response.data.conversion_rates;
     put(`exchange_rate_${base}`, JSON.stringify(rate), EXPIRY);
-    return rate[currency];
+    return currency ? rate[currency] : rate;
   } catch (error: any) {
     throw new BadRequestError('Exchange rate fetch failed');
   }
