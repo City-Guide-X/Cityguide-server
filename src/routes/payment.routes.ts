@@ -5,10 +5,10 @@ import { Router } from 'express';
 
 const router = Router();
 
-router.use(requireAuth);
-router.post('/initiate', validateSchema(initiatePaymentSchema), initiatePaymentHandler);
+router.get('/currencies', getCurrenciesHandler);
 router.get('/exchange-rate', validateSchema(exchangeRateSchema), exchangeRateHandler);
 router.get('/banks', validateSchema(getBanksSchema), getBanksHandler);
-router.get('/currencies', getCurrenciesHandler);
+router.use(requireAuth);
+router.post('/initiate', validateSchema(initiatePaymentSchema), initiatePaymentHandler);
 
 export default router;
