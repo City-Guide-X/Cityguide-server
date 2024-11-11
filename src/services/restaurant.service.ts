@@ -23,7 +23,7 @@ export const getRestaurantById = async (_id: string, internal?: boolean) => {
   });
   if (!restaurant) throw new NotFoundError('Restaurant not found');
   if (restaurant.details.reservation && !restaurant.cancellationPolicy)
-    restaurant.cancellationPolicy = restaurant.partner.cancellationPolicy;
+    restaurant.cancellationPolicy = restaurant.partner?.cancellationPolicy;
   return restaurant;
 };
 
