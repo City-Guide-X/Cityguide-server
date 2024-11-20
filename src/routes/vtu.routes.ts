@@ -15,7 +15,7 @@ const router = Router();
 router.use(requireAuth, userOnly);
 router.get('/receivers', getUserReceiversHandler);
 router.post('/receivers', validateSchema(createReceiverSchema), createReceiverHandler);
-router.patch('/receivers/:receiverId', validateSchema(updateReceiverSchema), updateReceiverHandler);
+router.put('/receivers/:receiverId', validateSchema(updateReceiverSchema), updateReceiverHandler);
 router.delete('/receivers/:receiverId', validateSchema(deleteReceiverSchema), deleteReceiverHandler);
 router.get('/transactions', getUserTransactionsHandler);
 router.post('/transactions', validateSchema(createTransactionSchema), createTransactionHandler);

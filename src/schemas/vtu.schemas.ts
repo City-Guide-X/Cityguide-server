@@ -17,12 +17,7 @@ export const createReceiverSchema = object({
 });
 
 export const updateReceiverSchema = object({
-  body: object({
-    firstName: string().min(1, 'First name should be atleast 1 character').optional(),
-    lastName: string().min(1, 'Last name should be atleast 1 character').optional(),
-    phoneNumber: string().min(11, 'Phone number should be atleast 11 characters').optional(),
-    network: nativeEnum(ISPs, { invalid_type_error: 'Invalid network' }).optional(),
-  }),
+  body: createReceiverSchema.shape.body,
   params: object({
     receiverId: string({ required_error: 'Receiver id is required' }),
   }),

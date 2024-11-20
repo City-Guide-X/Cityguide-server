@@ -10,8 +10,8 @@ export const getUserReceivers = (user: string) => {
   return ReceiverModel.find({ user }).sort('-createdAt');
 };
 
-export const updateReceiver = async (_id: string, options: Partial<Receiver>) => {
-  const { matchedCount, modifiedCount } = await ReceiverModel.updateOne({ _id }, { ...options });
+export const updateReceiver = async (_id: string, body: Partial<Receiver>) => {
+  const { matchedCount, modifiedCount } = await ReceiverModel.updateOne({ _id }, { $set: body });
   if (!matchedCount) throw new NotFoundError('Receiver not found');
   if (!modifiedCount) throw new BadRequestError('Receiver not updated');
 };
