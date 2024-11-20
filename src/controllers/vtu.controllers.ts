@@ -80,7 +80,7 @@ export const createTransactionHandler = asyncWrapper(
         )} has been successfully processed. Thank you for using our VTU service.`,
       };
       const notification = await createNotification(notificationObj, session);
-
+      await session.commitTransaction();
       const socketId = onlineUsers.get(id);
       if (socketId) res.locals.io?.to(socketId).emit('new_notification', sanitize(notification, privateFields));
       return res.status(201).json({ transaction: transactionResponse });
