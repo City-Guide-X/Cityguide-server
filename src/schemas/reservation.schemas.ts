@@ -72,6 +72,7 @@ export const createReservationSchema = object({
       { required_error: 'Number of guests is required', invalid_type_error: 'Number of guests should be an object' }
     ),
     price: number({ required_error: 'Price is required', invalid_type_error: 'Price is a number' }),
+    currency: string({ required_error: 'Currency is required' }).regex(/^[A-Z]{3}$/, 'Invalid currency'),
     guestFullName: string().min(3, 'Guest full name should be atleast 3 characters long').optional(),
     guestEmail: string().email('Invalid guest email').optional(),
     payReference: string().optional(),
@@ -79,6 +80,7 @@ export const createReservationSchema = object({
       required_error: 'Payed by proxy is required',
       invalid_type_error: 'Payed by proxy should be true or false',
     }),
+    convertedPriceNGN: number({ invalid_type_error: 'Converted Price NGN is a number' }).optional(),
     useSavedCard: boolean({ invalid_type_error: 'Save card should be true or false' }).optional().default(false),
     saveCard: boolean({ invalid_type_error: 'Save card should be true or false' }).optional().default(true),
     requests: string().array().min(1, 'Atleast 1 request').optional(),

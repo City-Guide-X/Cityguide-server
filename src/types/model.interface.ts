@@ -218,6 +218,8 @@ export interface IReservation {
   useSavedCard?: boolean;
   saveCard?: boolean;
   payByProxy: boolean;
+  currency: string;
+  convertedPriceNGN?: number;
 }
 
 export interface IPaymentAuth {

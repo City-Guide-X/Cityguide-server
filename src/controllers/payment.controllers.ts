@@ -16,7 +16,7 @@ export const initiatePaymentHandler = asyncWrapper(
     if (!user) throw new NotFoundError('User not found');
     if (rate && amount) amount = +(amount * rate).toFixed(2);
     const payment = await initiatePayment(user.email, amount);
-    return res.status(200).json(payment);
+    return res.status(200).json({ ...payment, amountToPay: amount ?? 50 });
   }
 );
 

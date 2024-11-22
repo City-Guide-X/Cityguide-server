@@ -73,6 +73,12 @@ export class Reservation {
   price: number;
 
   @prop({ required: true })
+  convertedPriceNGN: number;
+
+  @prop({ required: true })
+  currency: string;
+
+  @prop({ required: true })
   payByProxy: boolean;
 
   @prop()

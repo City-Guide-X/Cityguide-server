@@ -15,6 +15,7 @@ import {
   findReservationById,
   findReservationByRef,
   findUserById,
+  getExchangeRate,
   getPartnerReservations,
   getRestaurantById,
   getStayById,
@@ -41,6 +42,10 @@ export const createReservationHandler = asyncWrapper(
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
+      if (!data.convertedPriceNGN) {
+        const rate = data.currency !== 'NGN' ? await getExchangeRate(data.currency, 'NGN') : 1;
+        data.convertedPriceNGN = +(data.price * rate).toFixed(2);
+      }
       await validateReservationInput({ ...data, useSavedCard });
       if (useSavedCard) {
         const user = await findUserById(id);
@@ -50,9 +55,13 @@ export const createReservationHandler = asyncWrapper(
         if (!dayjs().isBefore(`${paymentAuth.exp_year}-${paymentAuth.exp_month}-01`, 'month'))
           throw new BadRequestError('Payment method expired');
         data.paymentAuth = paymentAuth;
-        if (data.payByProxy) await chargeCard(paymentAuth.authorization_code, paymentAuth.email, String(data.price));
+        if (data.payByProxy)
+          await chargeCard(paymentAuth.authorization_code, paymentAuth.email, String(data.convertedPriceNGN));
       } else if (data.payReference) {
-        data.paymentAuth = await verifyPayment(data.payReference, { payByProxy: data.payByProxy, price: data.price });
+        data.paymentAuth = await verifyPayment(data.payReference, {
+          payByProxy: data.payByProxy,
+          price: data.convertedPriceNGN,
+        });
         if (saveCard) await updateUserInfo(id, { paymentAuth: data.paymentAuth }, session);
         if (!data.payByProxy) await refundPayment(data.payReference);
       }
@@ -152,14 +161,14 @@ export const cancelReservationHandler = asyncWrapper(async (req: Request<cancelR
     );
 
     if (reservation.paymentAuth) {
-      let refundAmount = reservation.price;
+      let refundAmount = reservation.convertedPriceNGN;
       let cancellationFee = 0;
       if (property.cancellationPolicy) {
         const { daysFromReservation, percentRefundable } = property.cancellationPolicy;
         const daysToCheckin = dayjs(reservation.checkInDay).diff(dayjs(), 'd');
         if (daysToCheckin < daysFromReservation) {
-          refundAmount = Math.floor(reservation.price * percentRefundable);
-          cancellationFee = reservation.price - refundAmount;
+          refundAmount = Math.floor(reservation.convertedPriceNGN * percentRefundable);
+          cancellationFee = reservation.convertedPriceNGN - refundAmount;
         }
       }
       if (reservation.payByProxy) {
@@ -240,7 +249,7 @@ export const updateReservationHandler = asyncWrapper(
       if (status === Status.INHOUSE && reservation.payByProxy)
         await payRecipient(
           property.partner.recipientCode!,
-          reservation.price,
+          reservation.convertedPriceNGN,
           `Payment for reservation ${reservation.reservationRef}`
         );
 
