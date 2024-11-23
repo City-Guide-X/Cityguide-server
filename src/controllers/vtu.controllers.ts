@@ -1,13 +1,10 @@
-import { BadRequestError } from '@errors';
 import { privateFields, privateVTUFields } from '@models';
 import { createReceiverInput, createTransactionInput, deleteReceiverInput, updateReceiverInput } from '@schemas';
 import {
-  chargeCard,
   createNotification,
   createReceiver,
   createTransaction,
   deleteReceiver,
-  findUserById,
   getUserReceivers,
   getUserTransactions,
   updateReceiver,
@@ -16,7 +13,6 @@ import {
 } from '@services';
 import { EntityType, IVtuTransaction, NotificationType, VTUStatus } from '@types';
 import { asyncWrapper, numberToCurrency, sanitize } from '@utils';
-import dayjs from 'dayjs';
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 
@@ -54,19 +50,8 @@ export const createTransactionHandler = asyncWrapper(
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
-      if (useSavedCard) {
-        const user = await findUserById(id);
-        if (!user) throw new BadRequestError('User not found');
-        const paymentAuth = user.paymentAuth;
-        if (!paymentAuth) throw new BadRequestError('Payment authorization not found');
-        if (!dayjs().isBefore(`${paymentAuth.exp_year}-${paymentAuth.exp_month}-01`, 'month'))
-          throw new BadRequestError('Payment authorization expired');
-        data.paymentAuth = paymentAuth;
-        await chargeCard(paymentAuth.authorization_code, paymentAuth.email, String(data.amount));
-      } else if (data.payReference) {
-        data.paymentAuth = await verifyPayment(data.payReference, { payByProxy: true, price: data.amount });
-        if (saveCard) await updateUserInfo(id, { paymentAuth: data.paymentAuth }, session);
-      } else throw new BadRequestError('Payment is required for vtu purchase');
+      data.paymentAuth = await verifyPayment(data.payReference, { payByProxy: true, price: data.amount });
+      if (saveCard && !useSavedCard) await updateUserInfo(id, { paymentAuth: data.paymentAuth }, session);
       const transaction = await createTransaction({ ...data, status: VTUStatus.SUCCESSFUL }, session);
       const transactionResponse = sanitize(transaction, privateVTUFields);
 

@@ -1,4 +1,4 @@
-import { BadRequestError, NotFoundError } from '@errors';
+import { NotFoundError } from '@errors';
 import { privateFields, privateReservationFields } from '@models';
 import {
   cancelReservationInput,
@@ -14,7 +14,6 @@ import {
   createReservation,
   findReservationById,
   findReservationByRef,
-  findUserById,
   getExchangeRate,
   getPartnerReservations,
   getRestaurantById,
@@ -47,21 +46,11 @@ export const createReservationHandler = asyncWrapper(
         data.convertedPriceNGN = +(data.price * rate).toFixed(2);
       }
       await validateReservationInput({ ...data, useSavedCard });
-      if (useSavedCard) {
-        const user = await findUserById(id);
-        if (!user) throw new NotFoundError('User not found');
-        const paymentAuth = user.paymentAuth;
-        if (!paymentAuth) throw new BadRequestError('No payment method found');
-        if (!dayjs().isBefore(`${paymentAuth.exp_year}-${paymentAuth.exp_month}-01`, 'month'))
-          throw new BadRequestError('Payment method expired');
-        data.paymentAuth = paymentAuth;
-        if (data.payByProxy)
-          await chargeCard(paymentAuth.authorization_code, paymentAuth.email, String(data.convertedPriceNGN));
-      } else if (data.payReference) {
-        data.paymentAuth = await verifyPayment(data.payReference, {
-          payByProxy: data.payByProxy,
-          price: data.convertedPriceNGN,
-        });
+      data.paymentAuth = await verifyPayment(data.payReference, {
+        payByProxy: data.payByProxy,
+        price: data.convertedPriceNGN,
+      });
+      if (!useSavedCard) {
         if (saveCard) await updateUserInfo(id, { paymentAuth: data.paymentAuth }, session);
         if (!data.payByProxy) await refundPayment(data.payReference);
       }
@@ -178,7 +167,7 @@ export const cancelReservationHandler = asyncWrapper(async (req: Request<cancelR
           await chargeCard(
             reservation.paymentAuth.authorization_code,
             reservation.paymentAuth.email,
-            String(cancellationFee * 100)
+            String(cancellationFee)
           );
       }
       if (cancellationFee)
