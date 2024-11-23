@@ -213,7 +213,7 @@ export interface IReservation {
   reservationCount: number;
   noOfGuests: IGuests;
   price: number;
-  payReference?: string;
+  payReference: string;
   paymentAuth?: IPaymentAuth;
   useSavedCard?: boolean;
   saveCard?: boolean;
