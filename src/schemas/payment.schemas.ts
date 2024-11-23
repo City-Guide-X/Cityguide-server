@@ -1,4 +1,4 @@
-import { number, object, string, TypeOf, z, ZodIssueCode } from 'zod';
+import { boolean, coerce, number, object, string, TypeOf, z, ZodIssueCode } from 'zod';
 
 export const initiatePaymentSchema = object({
   body: object({
@@ -6,7 +6,28 @@ export const initiatePaymentSchema = object({
     currency: string()
       .regex(/^[A-Z]{3}$/, 'Invalid currency')
       .optional(),
+    useSavedCard: boolean({ invalid_type_error: 'useSavedCard should be true or false' }).optional().default(false),
   }).refine((data) => !!data.amount === !!data.currency, { message: 'Currency is required when amount is provided' }),
+});
+
+export const completePaymentSchema = object({
+  body: object({
+    pin: string().optional(),
+    otp: string().optional(),
+    phone: string().min(11, 'Phone should be atleast 11 characters long').optional(),
+    birthday: coerce.date({ invalid_type_error: 'Birthday should be a date' }).optional(),
+    reference: string({ required_error: 'Reference is required' }),
+  }).superRefine((data, ctx) => {
+    const optionalFields: Array<keyof typeof data> = ['pin', 'otp', 'phone', 'birthday'];
+    const providedFields = optionalFields.filter((field) => data[field] !== undefined);
+    if (providedFields.length !== 1) {
+      ctx.addIssue({
+        code: ZodIssueCode.custom,
+        message: 'Exactly one of pin, otp, phone, or birthday must be provided',
+        path: optionalFields,
+      });
+    }
+  }),
 });
 
 export const exchangeRateSchema = object({
@@ -39,3 +60,4 @@ export const getBanksSchema = object({
 export type getBanksInput = TypeOf<typeof getBanksSchema>['query'];
 export type exchangeRateInput = TypeOf<typeof exchangeRateSchema>['query'];
 export type initiatePaymentInput = TypeOf<typeof initiatePaymentSchema>['body'];
+export type completePaymentInput = TypeOf<typeof completePaymentSchema>['body'];

@@ -75,7 +75,7 @@ export const createReservationSchema = object({
     currency: string({ required_error: 'Currency is required' }).regex(/^[A-Z]{3}$/, 'Invalid currency'),
     guestFullName: string().min(3, 'Guest full name should be atleast 3 characters long').optional(),
     guestEmail: string().email('Invalid guest email').optional(),
-    payReference: string().optional(),
+    payReference: string({ required_error: 'Pay reference is required' }),
     payByProxy: boolean({
       required_error: 'Payed by proxy is required',
       invalid_type_error: 'Payed by proxy should be true or false',
