@@ -60,8 +60,8 @@ export class Transaction {
   @prop({ enum: VTUType, required: true, type: String })
   type: VTUType;
 
-  @prop()
-  payReference?: string;
+  @prop({ required: true })
+  payReference: string;
 
   @prop({ _id: false })
   paymentAuth?: IPaymentAuth;

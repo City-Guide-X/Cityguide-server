@@ -81,8 +81,8 @@ export class Reservation {
   @prop({ required: true })
   payByProxy: boolean;
 
-  @prop()
-  payReference?: string;
+  @prop({ required: true })
+  payReference: string;
 
   @prop({ _id: false })
   paymentAuth?: IPaymentAuth;
