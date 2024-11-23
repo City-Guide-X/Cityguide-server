@@ -261,7 +261,7 @@ export interface IVtuTransaction {
   amount: number;
   dataValue?: string;
   type: VTUType;
-  payReference?: string;
+  payReference: string;
   useSavedCard?: boolean;
   saveCard?: boolean;
   paymentAuth?: IPaymentAuth;
