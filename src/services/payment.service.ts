@@ -63,12 +63,12 @@ export const refundPayment = async (transaction: string, amount?: number) => {
 };
 
 export const chargeCard = async (authorization_code: string, email: string, amount: string) => {
-  const reference = v4();
+  const idempotentReference = v4();
   return withRetry(
     async () => {
       const response = await ax.post(
         'charge',
-        { authorization_code, email, amount: String(+amount * 100), reference },
+        { authorization_code, email, amount: String(+amount * 100), reference: idempotentReference },
         {
           headers: {
             Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
@@ -76,13 +76,45 @@ export const chargeCard = async (authorization_code: string, email: string, amou
           },
         }
       );
-      const { amount: chargedAmount, status } = response.data.data;
-      if (status !== 'success') throw new BadRequestError('Could not charge card');
-      if (chargedAmount !== +amount) throw new BadRequestError('Amount charged does not match');
-      return chargedAmount;
+      const { amount: chargedAmount, status, reference, url } = response.data.data;
+      if (status === 'failed') throw new BadRequestError('Could not charge card');
+      if (status === 'success' && chargedAmount !== +amount * 100)
+        throw new BadRequestError('Amount charged does not match');
+      let responseData: Record<string, any>;
+      if (status === 'pending') responseData = { reference, status, message: 'Payment is pending' };
+      else if (status === 'success')
+        responseData = { reference, amountPayed: chargedAmount, status, message: 'Payment successful' };
+      else if (status === 'send_otp') responseData = { reference, status, message: 'OTP required' };
+      else if (status === 'send_pin') responseData = { reference, status, message: 'PIN required' };
+      else if (status === 'open_url')
+        responseData = { reference, status, message: 'Open the URL to complete payment', authorization_url: url };
+      else if (status === 'send_phone') responseData = { reference, status, message: 'Phone number required' };
+      else if (status === 'send_birthday') responseData = { reference, status, message: 'Birthday required' };
+      else responseData = { reference, status, message: 'Payment failed' };
+      return responseData;
     },
     { shouldRetry: (error: any) => !(error instanceof BadRequestError) }
   );
+};
+
+export const completeCharge = async (url: string, reference: string, data: Record<string, any>) => {
+  try {
+    const response = await ax.post(
+      url,
+      { reference, ...data },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    const { status, reference: ref, amount } = response.data.data;
+    if (status !== 'success') throw new Error('Payment completion failed');
+    return { status, reference: ref, amount };
+  } catch (error: any) {
+    throw new BadRequestError(error.response?.data?.message || 'Payment completion failed');
+  }
 };
 
 export const payRecipient = async (recipient: string, amount: number, reason: string) => {
