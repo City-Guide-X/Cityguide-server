@@ -1,5 +1,7 @@
+import { airtimeDataAmounts, airtimeVTUAmounts } from '@constants';
 import { BadRequestError, NotFoundError } from '@errors';
 import { Receiver, ReceiverModel, Transaction, TransactionModel } from '@models';
+import { VTUType } from '@types';
 import { ClientSession } from 'mongoose';
 
 export const createReceiver = (option: Partial<Receiver>) => {
@@ -28,4 +30,8 @@ export const createTransaction = async (option: Partial<Transaction>, session?: 
 
 export const getUserTransactions = (user: string) => {
   return TransactionModel.find({ user }).sort('-createdAt');
+};
+
+export const getVTUServices = (type: VTUType) => {
+  return type === VTUType.AIRTIME ? airtimeVTUAmounts : airtimeDataAmounts;
 };

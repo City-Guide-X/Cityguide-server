@@ -4,10 +4,17 @@ import {
   deleteReceiverHandler,
   getUserReceiversHandler,
   getUserTransactionsHandler,
+  getVTUServicesHandler,
   updateReceiverHandler,
 } from '@controllers';
 import { requireAuth, userOnly, validateSchema } from '@middlewares';
-import { createReceiverSchema, createTransactionSchema, deleteReceiverSchema, updateReceiverSchema } from '@schemas';
+import {
+  createReceiverSchema,
+  createTransactionSchema,
+  deleteReceiverSchema,
+  updateReceiverSchema,
+  vtuServicesSchema,
+} from '@schemas';
 import { Router } from 'express';
 
 const router = Router();
@@ -19,5 +26,6 @@ router.put('/receivers/:receiverId', validateSchema(updateReceiverSchema), updat
 router.delete('/receivers/:receiverId', validateSchema(deleteReceiverSchema), deleteReceiverHandler);
 router.get('/transactions', getUserTransactionsHandler);
 router.post('/transactions', validateSchema(createTransactionSchema), createTransactionHandler);
+router.get('/services', validateSchema(vtuServicesSchema), getVTUServicesHandler);
 
 export default router;

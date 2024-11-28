@@ -1,5 +1,11 @@
 import { privateFields, privateVTUFields } from '@models';
-import { createReceiverInput, createTransactionInput, deleteReceiverInput, updateReceiverInput } from '@schemas';
+import {
+  createReceiverInput,
+  createTransactionInput,
+  deleteReceiverInput,
+  updateReceiverInput,
+  vtuServicesInput,
+} from '@schemas';
 import {
   createNotification,
   createReceiver,
@@ -7,6 +13,7 @@ import {
   deleteReceiver,
   getUserReceivers,
   getUserTransactions,
+  getVTUServices,
   updateReceiver,
   updateUserInfo,
   verifyPayment,
@@ -82,4 +89,10 @@ export const getUserTransactionsHandler = asyncWrapper(async (req: Request, res:
   const { id } = res.locals.user;
   const transactions = await getUserTransactions(id);
   return res.status(200).json({ transactions: sanitize(transactions, privateVTUFields) });
+});
+
+export const getVTUServicesHandler = asyncWrapper(async (req: Request<{}, {}, {}, vtuServicesInput>, res: Response) => {
+  const { type } = req.query;
+  const services = getVTUServices(type);
+  return res.status(200).json({ services });
 });

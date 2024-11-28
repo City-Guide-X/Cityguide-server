@@ -56,7 +56,21 @@ export const createTransactionSchema = object({
   }),
 });
 
+export const vtuServicesSchema = object({
+  query: object({
+    type: nativeEnum(VTUType, {
+      required_error: 'VTU type is required',
+      invalid_type_error: 'Invalid VTU type',
+    }),
+    isp: nativeEnum(ISPs, {
+      required_error: 'ISP is required',
+      invalid_type_error: 'Invalid ISP',
+    }),
+  }),
+});
+
 export type createReceiverInput = TypeOf<typeof createReceiverSchema>['body'];
 export type updateReceiverInput = TypeOf<typeof updateReceiverSchema>;
 export type deleteReceiverInput = TypeOf<typeof deleteReceiverSchema>['params'];
 export type createTransactionInput = TypeOf<typeof createTransactionSchema>['body'];
+export type vtuServicesInput = TypeOf<typeof vtuServicesSchema>['query'];
