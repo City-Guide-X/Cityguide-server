@@ -49,10 +49,13 @@ export class Transaction {
   network!: ISPs;
 
   @prop({ required: true })
+  serviceId: string;
+
+  @prop({ required: true })
   amount: number;
 
-  @prop()
-  dataValue?: string;
+  @prop({ required: true })
+  value: string;
 
   @prop({ enum: VTUStatus, default: VTUStatus.PENDING, type: String })
   status: VTUStatus;
