@@ -111,7 +111,7 @@ export const completeCharge = async (url: string, reference: string, data: Recor
     );
     const { status, reference: ref, amount } = response.data.data;
     if (status !== 'success') throw new Error('Payment completion failed');
-    return { status, reference: ref, amount };
+    return { status, reference: ref, amountPayed: amount };
   } catch (error: any) {
     throw new BadRequestError(error.response?.data?.message || 'Payment completion failed');
   }
