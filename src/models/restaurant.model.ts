@@ -76,7 +76,7 @@ export class Restaurant {
   contact: IContact;
 
   @prop()
-  cancellationPolicy?: ICancellation;
+  cancellationPolicy?: ICancellation | null;
 
   @prop({ default: true })
   proxyPaymentEnabled: boolean;

@@ -89,7 +89,7 @@ export class Stay {
   optionalServices: IOptionalService[];
 
   @prop()
-  cancellationPolicy?: ICancellation;
+  cancellationPolicy?: ICancellation | null;
 
   @prop({ default: true })
   proxyPaymentEnabled: boolean;
