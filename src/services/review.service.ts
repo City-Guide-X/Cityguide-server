@@ -14,7 +14,11 @@ export const deleteReview = (_id: string, user: string, session?: ClientSession)
 };
 
 export const getReviews = (property: string) => {
-  return ReviewModel.find({ property });
+  return ReviewModel.find({ property }).populate({
+    path: 'user',
+    select: 'firstName lastName email phoneNumber imgUrl',
+    model: 'User',
+  });
 };
 
 export const canReview = async (property: string, type: PropertyType, user: string) => {
