@@ -10,7 +10,7 @@ export const createReviewSchema = object({
       invalid_type_error: 'Property type should be a Stay | Restaurant | NightLife',
     }),
     categoryRatings: object({}, { required_error: 'Category rating is required' }).catchall(nativeEnum(Rating)),
-    message: string({ required_error: 'Message is required' }).min(10, 'Message requires atleast 10 characters'),
+    message: string({ required_error: 'Message is required' }),
   }).superRefine((data, ctx) => {
     const requiredCategories = categoryMap[data.propertyType];
     const providedCategories = Object.keys(data.categoryRatings);
