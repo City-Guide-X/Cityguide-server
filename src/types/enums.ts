@@ -109,3 +109,11 @@ export enum VTUType {
   AIRTIME = 'Airtime',
   DATA = 'Data',
 }
+
+export enum Reviewer {
+  FAMILY = 'Family',
+  COUPLE = 'Couple',
+  SOLO = 'Solo traveler',
+  BUSINESS = 'Business traveler',
+  FRIENDS = 'Group of friends',
+}

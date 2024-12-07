@@ -1,6 +1,6 @@
 import { BadRequestError } from '@errors';
-import { Reservation, ReservationModel } from '@models';
-import { IReservation, PropertyType, StayType } from '@types';
+import { Reservation, ReservationModel, Stay } from '@models';
+import { IAccommodation, IReservation, PropertyType, StayType } from '@types';
 import { isFuture, isValidDate } from '@utils';
 import dayjs from 'dayjs';
 import { ClientSession, Types } from 'mongoose';
@@ -41,6 +41,23 @@ export const updateReservation = (
 ) => {
   const searchQuery = { _id, ...(isAdmin ? { partner: id } : { user: id }) };
   return ReservationModel.findOneAndUpdate(searchQuery, { ...option }, { session });
+};
+
+export const getReviewInfoFromReservation = async (id: string) => {
+  const reservation = await ReservationModel.findById(id).populate<{ property: { accommodation: IAccommodation[] } }>({
+    path: 'property',
+    select: 'accommodation',
+  });
+  if (!reservation) throw new BadRequestError('Reservation not found');
+  const propertyAcc = reservation.property.accommodation;
+  const accommodation = reservation.accommodations!.map(({ accommodationId }) => {
+    const acc = propertyAcc.find((a) => a.id === accommodationId);
+    return acc?.name || '';
+  });
+  return {
+    accommodation: accommodation.join(', '),
+    stayDuration: dayjs(reservation.checkOutDay).diff(reservation.checkInDay, 'd'),
+  };
 };
 
 export const reservationAnalytics = (

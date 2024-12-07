@@ -6,6 +6,7 @@ import {
   createNotification,
   createReview,
   deleteReview,
+  getReviewInfoFromReservation,
   getReviews,
   updatePropertyReviewDetail,
 } from '@services';
@@ -16,7 +17,12 @@ import mongoose from 'mongoose';
 
 export const createReviewHandler = asyncWrapper(async (req: Request<{}, {}, createReviewInput>, res: Response) => {
   const { id } = res.locals.user;
-  const data = { ...req.body, user: id };
+  const { reservationId, ...body } = req.body;
+  let data = { ...body, user: id };
+  if (reservationId) {
+    const accInfo = await getReviewInfoFromReservation(reservationId);
+    data = { ...data, ...accInfo };
+  }
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
