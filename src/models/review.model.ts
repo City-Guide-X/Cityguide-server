@@ -1,7 +1,7 @@
 import { categoryMap } from '@constants';
 import { BadRequestError } from '@errors';
 import { getModelForClass, modelOptions, pre, prop, Ref, Severity } from '@typegoose/typegoose';
-import { ICategoryRating, PropertyType } from '@types';
+import { ICategoryRating, PropertyType, Reviewer } from '@types';
 import { Query } from 'mongoose';
 import { NightLife } from './nightlife.model';
 import { Restaurant } from './restaurant.model';
@@ -44,6 +44,15 @@ export class Review {
 
   @prop({ required: true })
   message!: string;
+
+  @prop({ enum: Reviewer, required: true, type: String })
+  reviewer!: Reviewer;
+
+  @prop()
+  accommodation?: string;
+
+  @prop()
+  stayDuration?: number;
 
   @prop({ default: null })
   deletedAt: Date | null;
