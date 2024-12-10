@@ -82,8 +82,7 @@ export const chargeCard = async (authorization_code: string, email: string, amou
         throw new BadRequestError('Amount charged does not match');
       let responseData: Record<string, any>;
       if (status === 'pending') responseData = { reference, status, message: 'Payment is pending' };
-      else if (status === 'success')
-        responseData = { reference, amountPayed: chargedAmount, status, message: 'Payment successful' };
+      else if (status === 'success') responseData = { reference, status, message: 'Payment successful' };
       else if (status === 'send_otp') responseData = { reference, status, message: 'OTP required' };
       else if (status === 'send_pin') responseData = { reference, status, message: 'PIN required' };
       else if (status === 'open_url')
