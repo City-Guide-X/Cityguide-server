@@ -40,7 +40,7 @@ export const updateReservation = (
   session?: ClientSession
 ) => {
   const searchQuery = { _id, ...(isAdmin ? { partner: id } : { user: id }) };
-  return ReservationModel.findOneAndUpdate(searchQuery, { ...option }, { session });
+  return ReservationModel.findOneAndUpdate(searchQuery, { ...option }, { session, new: true });
 };
 
 export const getReviewInfoFromReservation = async (id: string) => {
