@@ -1,4 +1,4 @@
-import { VTUType } from '@types';
+import { VTUTransactionStatus, VTUType } from '@types';
 
 export const airtimeVTUAmounts = [
   { id: 'aitime_50', amount: 50, type: VTUType.AIRTIME, value: '50 NGN' },
@@ -21,3 +21,11 @@ export const airtimeDataAmounts = [
   { id: 'data_50000', amount: 50000, type: VTUType.DATA, value: '50GB' },
   { id: 'data_100000', amount: 100000, type: VTUType.DATA, value: '100GB' },
 ];
+
+export const defaultStatusProgress: Record<VTUTransactionStatus, Date | null> = {
+  [VTUTransactionStatus.CREATED]: null,
+  [VTUTransactionStatus.PROCESSING]: null,
+  [VTUTransactionStatus.LOCAL_PROCESSING]: null,
+  [VTUTransactionStatus.SUCCESSFUL]: null,
+  [VTUTransactionStatus.FAILED]: null,
+};
