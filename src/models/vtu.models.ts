@@ -1,5 +1,5 @@
 import { getModelForClass, index, modelOptions, prop, Ref, Severity } from '@typegoose/typegoose';
-import { IPaymentAuth, ISPs, VTUStatus, VTUType } from '@types';
+import { IPaymentAuth, ISPs, VTUStatus, VTUTransactionStatus, VTUType } from '@types';
 import { User } from './user.model';
 
 @modelOptions({
@@ -57,8 +57,11 @@ export class Transaction {
   @prop({ required: true })
   value: string;
 
-  @prop({ enum: VTUStatus, default: VTUStatus.PENDING, type: String })
+  @prop({ enum: VTUStatus, default: VTUStatus.IN_PROGRESS, type: String })
   status: VTUStatus;
+
+  @prop({ required: true, default: {} })
+  statusProgress: Record<VTUTransactionStatus, Date | null>;
 
   @prop({ enum: VTUType, required: true, type: String })
   type: VTUType;

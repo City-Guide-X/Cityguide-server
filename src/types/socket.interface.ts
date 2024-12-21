@@ -1,4 +1,4 @@
-import { Establishment, NightLife, Reservation, Restaurant, Review, Stay } from '@models';
+import { Establishment, NightLife, Reservation, Restaurant, Review, Stay, Transaction } from '@models';
 import { PropertyType, Status } from './enums';
 import { Server } from 'socket.io';
 import { TAction } from './common.interface';
@@ -18,6 +18,7 @@ export interface ServerToClientEvents {
   delete_review: (data: { property: string; type: PropertyType; reviewId: string }) => void;
   update_establishment: (establishment: Partial<Establishment>) => void;
   new_notification: (notification: Partial<Notification>) => void;
+  vtu_transaction_status_progress: (transaction: Partial<Transaction>) => void;
 }
 export interface InterServerEvents {}
 export interface SocketData {}

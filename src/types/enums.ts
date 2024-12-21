@@ -99,8 +99,16 @@ export enum ISPs {
   ETISALAT = '9MOBILE',
 }
 
+export enum VTUTransactionStatus {
+  CREATED = 'Created',
+  PROCESSING = 'Processing',
+  LOCAL_PROCESSING = 'Local Processing',
+  SUCCESSFUL = 'Successful',
+  FAILED = 'Failed',
+}
+
 export enum VTUStatus {
-  PENDING = 'Pending',
+  IN_PROGRESS = 'In Progress',
   SUCCESSFUL = 'Successful',
   FAILED = 'Failed',
 }
