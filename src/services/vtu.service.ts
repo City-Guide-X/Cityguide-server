@@ -38,6 +38,10 @@ export const getUserTransactions = (user: string) => {
   return TransactionModel.find({ user }).sort('-createdAt');
 };
 
+export const getTransaction = (id: string) => {
+  return TransactionModel.findById(id);
+};
+
 export const getVTUServices = (type: VTUType) => {
   return type === VTUType.AIRTIME ? airtimeVTUAmounts : airtimeDataAmounts;
 };

@@ -2,6 +2,7 @@ import {
   createReceiverHandler,
   createTransactionHandler,
   deleteReceiverHandler,
+  getTransactionHandler,
   getUserReceiversHandler,
   getUserTransactionsHandler,
   getVTUServicesHandler,
@@ -12,6 +13,7 @@ import {
   createReceiverSchema,
   createTransactionSchema,
   deleteReceiverSchema,
+  getVTUTransactionSchema,
   updateReceiverSchema,
   vtuServicesSchema,
 } from '@schemas';
@@ -25,6 +27,7 @@ router.post('/receivers', validateSchema(createReceiverSchema), createReceiverHa
 router.put('/receivers/:receiverId', validateSchema(updateReceiverSchema), updateReceiverHandler);
 router.delete('/receivers/:receiverId', validateSchema(deleteReceiverSchema), deleteReceiverHandler);
 router.get('/transactions', getUserTransactionsHandler);
+router.get('/transactions/:transactionId', validateSchema(getVTUTransactionSchema), getTransactionHandler);
 router.post('/transactions', validateSchema(createTransactionSchema), createTransactionHandler);
 router.get('/services', validateSchema(vtuServicesSchema), getVTUServicesHandler);
 

@@ -54,6 +54,12 @@ export const createTransactionSchema = object({
   }),
 });
 
+export const getVTUTransactionSchema = object({
+  params: object({
+    transactionId: string({ required_error: 'Transaction id is required' }),
+  }),
+});
+
 export const vtuServicesSchema = object({
   query: object({
     type: nativeEnum(VTUType, {
@@ -72,3 +78,4 @@ export type updateReceiverInput = TypeOf<typeof updateReceiverSchema>;
 export type deleteReceiverInput = TypeOf<typeof deleteReceiverSchema>['params'];
 export type createTransactionInput = TypeOf<typeof createTransactionSchema>['body'];
 export type vtuServicesInput = TypeOf<typeof vtuServicesSchema>['query'];
+export type getVTUTransactionInput = TypeOf<typeof getVTUTransactionSchema>['params'];
