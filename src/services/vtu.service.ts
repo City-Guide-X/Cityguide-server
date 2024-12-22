@@ -28,6 +28,12 @@ export const createTransaction = async (option: Partial<Transaction>, session?: 
   return transaction;
 };
 
+export const updateTransaction = async (_id: string, body: Partial<Transaction>, session?: ClientSession) => {
+  const transaction = await TransactionModel.findOneAndUpdate({ _id }, { $set: body }, { new: true, session });
+  if (!transaction) throw new NotFoundError('Transaction not found');
+  return transaction;
+};
+
 export const getUserTransactions = (user: string) => {
   return TransactionModel.find({ user }).sort('-createdAt');
 };

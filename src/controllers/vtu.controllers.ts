@@ -1,3 +1,4 @@
+import { defaultStatusProgress } from '@constants';
 import { privateFields, privateVTUFields } from '@models';
 import {
   createReceiverInput,
@@ -15,10 +16,11 @@ import {
   getUserTransactions,
   getVTUServices,
   updateReceiver,
+  updateTransaction,
   updateUserInfo,
   verifyPayment,
 } from '@services';
-import { EntityType, IVtuTransaction, NotificationType, VTUStatus } from '@types';
+import { EntityType, IVtuTransaction, NotificationType, VTUStatus, VTUTransactionStatus } from '@types';
 import { asyncWrapper, numberToCurrency, sanitize } from '@utils';
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
@@ -54,13 +56,47 @@ export const createTransactionHandler = asyncWrapper(
   async (req: Request<{}, {}, createTransactionInput>, res: Response) => {
     const { id } = res.locals.user;
     const { useSavedCard, saveCard, ...data }: IVtuTransaction = { ...req.body, user: id as any };
+    const socketId = onlineUsers.get(id);
+    let transaction;
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
       data.paymentAuth = await verifyPayment(data.payReference, { payByProxy: true, price: data.amount });
       if (saveCard && !useSavedCard) await updateUserInfo(id, { paymentAuth: data.paymentAuth }, session);
-      const transaction = await createTransaction({ ...data, status: VTUStatus.SUCCESSFUL }, session);
-      const transactionResponse = sanitize(transaction, privateVTUFields);
+      // Create Transaction
+      const statusProgress = defaultStatusProgress;
+      statusProgress[VTUTransactionStatus.CREATED] = new Date();
+      transaction = await createTransaction({ ...data, status: VTUStatus.IN_PROGRESS, statusProgress }, session);
+      res.status(201).json({ transaction: sanitize(transaction, privateVTUFields) });
+      // Process Transaction
+      transaction = await updateTransaction(
+        transaction.id,
+        { statusProgress: { ...transaction.statusProgress, [VTUTransactionStatus.PROCESSING]: new Date() } },
+        session
+      );
+      if (socketId)
+        res.locals.io?.to(socketId).emit('vtu_transaction_status_progress', sanitize(transaction, privateVTUFields));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Send to Local partner for processing
+      transaction = await updateTransaction(
+        transaction.id,
+        { statusProgress: { ...transaction.statusProgress, [VTUTransactionStatus.LOCAL_PROCESSING]: new Date() } },
+        session
+      );
+      if (socketId)
+        res.locals.io?.to(socketId).emit('vtu_transaction_status_progress', sanitize(transaction, privateVTUFields));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Finalize transaction
+      transaction = await updateTransaction(
+        transaction.id,
+        {
+          status: VTUStatus.SUCCESSFUL,
+          statusProgress: { ...transaction.statusProgress, [VTUTransactionStatus.SUCCESSFUL]: new Date() },
+        },
+        session
+      );
+      if (socketId)
+        res.locals.io?.to(socketId).emit('vtu_transaction_status_progress', sanitize(transaction, privateVTUFields));
 
       const notificationObj = {
         recipient: id,
@@ -73,12 +109,25 @@ export const createTransactionHandler = asyncWrapper(
       };
       const notification = await createNotification(notificationObj, session);
       await session.commitTransaction();
-      const socketId = onlineUsers.get(id);
       if (socketId) res.locals.io?.to(socketId).emit('new_notification', sanitize(notification, privateFields));
-      return res.status(201).json({ transaction: transactionResponse });
+      return;
     } catch (err: any) {
-      await session.abortTransaction();
-      throw err;
+      if (transaction) {
+        transaction = await updateTransaction(
+          transaction.id,
+          {
+            status: VTUStatus.FAILED,
+            statusProgress: { ...transaction.statusProgress, [VTUTransactionStatus.FAILED]: new Date() },
+          },
+          session
+        );
+        if (socketId)
+          res.locals.io?.to(socketId).emit('vtu_transaction_status_progress', sanitize(transaction, privateVTUFields));
+        await session.commitTransaction();
+      } else {
+        await session.abortTransaction();
+        throw err;
+      }
     } finally {
       session.endSession();
     }
