@@ -154,6 +154,10 @@ export interface IStayRules {
   parties: boolean;
 }
 
+export interface IGroupedAmenities {
+  [key: string]: string[];
+}
+
 export interface IExtraInfo {
   property?: string;
   neighborhood?: {
