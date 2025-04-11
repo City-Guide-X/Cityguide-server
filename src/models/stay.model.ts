@@ -8,6 +8,7 @@ import {
   ICancellation,
   ICategoryRating,
   IExtraInfo,
+  IGroupedAmenities,
   IOptionalService,
   IStayRules,
   MaxDays,
@@ -66,6 +67,9 @@ export class Stay {
 
   @prop({ required: true })
   amenities: string[];
+
+  @prop({ default: {} })
+  groupedAmenities: IGroupedAmenities;
 
   @prop({ enum: HotelRating, type: Number })
   hotelRating?: HotelRating;
