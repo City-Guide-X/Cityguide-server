@@ -168,6 +168,11 @@ export interface IExtraInfo {
     info?: string;
     locations?: { name: string; distance: string }[];
   };
+  hotel?: {
+    name?: string;
+    logo?: string;
+    rating?: HotelRating;
+  };
 }
 
 export interface IOptionalService {
