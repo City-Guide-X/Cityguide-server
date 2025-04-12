@@ -252,6 +252,9 @@ export const updateStaySchema = object({
       .array()
       .min(1, 'Atleast one amenity is required')
       .optional(),
+    groupedAmenities: object({})
+      .catchall(string({ invalid_type_error: 'Each grouped amenity must be an array of strings' }).array())
+      .optional(),
     hotelRating: nativeEnum(HotelRating, {
       invalid_type_error: 'Hotel rating should be 0 | 1 | 2 | 3 | 4 | 5',
     }).optional(),
