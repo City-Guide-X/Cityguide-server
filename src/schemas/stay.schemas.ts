@@ -17,6 +17,13 @@ export const createStaySchema = object({
       neighborhood: object({
         info: string().min(10, 'Neighborhood description should be atleast 10 characters').optional(),
       }).optional(),
+      hotel: object({
+        name: string().optional(),
+        logo: string().optional(),
+        rating: nativeEnum(HotelRating, {
+          invalid_type_error: 'Hotel rating should be 0 | 1 | 2 | 3 | 4 | 5',
+        }).optional(),
+      }).optional(),
     }).optional(),
     address: object(
       {
@@ -53,9 +60,6 @@ export const createStaySchema = object({
     groupedAmenities: object({})
       .catchall(string({ invalid_type_error: 'Each grouped amenity must be an array of strings' }).array())
       .optional(),
-    hotelRating: nativeEnum(HotelRating, {
-      invalid_type_error: 'Hotel rating should be 0 | 1 | 2 | 3 | 4 | 5',
-    }).optional(),
     rules: object(
       {
         checkIn: string({ required_error: 'Check-in time is required' }),
@@ -227,6 +231,13 @@ export const updateStaySchema = object({
       neighborhood: object({
         info: string().min(10, 'Neighborhood description should be atleast 10 characters').optional(),
       }).optional(),
+      hotel: object({
+        name: string().optional(),
+        logo: string().optional(),
+        rating: nativeEnum(HotelRating, {
+          invalid_type_error: 'Hotel rating should be 0 | 1 | 2 | 3 | 4 | 5',
+        }).optional(),
+      }).optional(),
     }).optional(),
     address: object({
       name: string({ required_error: 'Address name is required' }),
@@ -259,9 +270,6 @@ export const updateStaySchema = object({
     groupedAmenities: object({})
       .catchall(string({ invalid_type_error: 'Each grouped amenity must be an array of strings' }).array())
       .optional(),
-    hotelRating: nativeEnum(HotelRating, {
-      invalid_type_error: 'Hotel rating should be 0 | 1 | 2 | 3 | 4 | 5',
-    }).optional(),
     rules: object({
       checkIn: string({ required_error: 'Check-in time is required' }),
       checkOut: string({ required_error: 'Check-out time is required' }),
