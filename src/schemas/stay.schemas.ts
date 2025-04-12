@@ -50,6 +50,9 @@ export const createStaySchema = object({
     })
       .array()
       .min(1, 'Atleast one amenity is required'),
+    groupedAmenities: object({})
+      .catchall(string({ invalid_type_error: 'Each grouped amenity must be an array of strings' }).array())
+      .optional(),
     hotelRating: nativeEnum(HotelRating, {
       invalid_type_error: 'Hotel rating should be 0 | 1 | 2 | 3 | 4 | 5',
     }).optional(),
@@ -303,7 +306,9 @@ export const updateStaySchema = object({
         required_error: 'Percent refundable is required',
         invalid_type_error: 'Percent refundable should be a number',
       }).refine((val) => val >= 0 && val <= 1, { message: 'Percent refundable should be between 0 and 1' }),
-    }).nullable().optional(),
+    })
+      .nullable()
+      .optional(),
   }),
   params: object({
     stayId: string({ required_error: 'Stay id is required' }),
