@@ -17,7 +17,7 @@ export const createStaySchema = object({
       neighborhood: object({
         info: string().min(10, 'Neighborhood description should be atleast 10 characters').optional(),
       }).optional(),
-      hotel: object({
+      brand: object({
         name: string().optional(),
         logo: string().optional(),
         rating: nativeEnum(HotelRating, {
@@ -231,7 +231,7 @@ export const updateStaySchema = object({
       neighborhood: object({
         info: string().min(10, 'Neighborhood description should be atleast 10 characters').optional(),
       }).optional(),
-      hotel: object({
+      brand: object({
         name: string().optional(),
         logo: string().optional(),
         rating: nativeEnum(HotelRating, {

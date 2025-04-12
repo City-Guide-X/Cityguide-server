@@ -162,17 +162,19 @@ export interface IGroupedAmenities {
   [key: string]: string[];
 }
 
+export interface IBrandInfo {
+  name?: string;
+  logo?: string;
+  rating?: HotelRating;
+}
+
 export interface IExtraInfo {
   property?: string;
   neighborhood?: {
     info?: string;
     locations?: { name: string; distance: string }[];
   };
-  hotel?: {
-    name?: string;
-    logo?: string;
-    rating?: HotelRating;
-  };
+  brand?: IBrandInfo;
 }
 
 export interface IOptionalService {
