@@ -28,7 +28,6 @@ import {
 import { ILatLng, PropertyType } from '@types';
 import { asyncWrapper, sanitize, summarizeProperty } from '@utils';
 import { Request, Response } from 'express';
-import { omit } from 'lodash';
 
 export const createStayHandler = asyncWrapper(async (req: Request<{}, {}, createStayInput>, res: Response) => {
   const { id, type } = res.locals.user;
@@ -52,9 +51,7 @@ export const getAllStayHandler = asyncWrapper(
       const locations = properties.map((stay) => stay.address.geoLocation);
       const stayDistances = await calculateDistance([geoLocation as ILatLng], locations);
       if (!stayDistances)
-        return res
-          .status(200)
-          .json({ count: properties.length, properties: properties.map((stay) => omit(stay.toJSON(), privateFields)) });
+        return res.status(200).json({ count: properties.length, properties: sanitize(properties, privateFields) });
       const result = properties
         .map((property, i) => {
           const stay = {
