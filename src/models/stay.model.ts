@@ -2,7 +2,6 @@ import { defaultStayCatReviews } from '@constants';
 import { getModelForClass, modelOptions, pre, prop, Ref, Severity } from '@typegoose/typegoose';
 import {
   EntityType,
-  HotelRating,
   IAccommodation,
   IAddress,
   ICancellation,
@@ -70,9 +69,6 @@ export class Stay {
 
   @prop({ default: {} })
   groupedAmenities: IGroupedAmenities;
-
-  @prop({ enum: HotelRating, type: Number })
-  hotelRating?: HotelRating;
 
   @prop({ required: true })
   rules: IStayRules;
