@@ -72,6 +72,10 @@ export const createStaySchema = object({
           required_error: 'Party rules are required',
           invalid_type_error: 'Party rules should be a boolean',
         }),
+        extraBeds: object({
+          cots: number({ required_error: 'Cots price is required if available' }),
+          extraBeds: number({ required_error: 'Extra beds price is required if available' }),
+        }).optional(),
       },
       { required_error: 'Stay rules are required' }
     ),
@@ -273,6 +277,10 @@ export const updateStaySchema = object({
         required_error: 'Party rules are required',
         invalid_type_error: 'Party rules should be a boolean',
       }),
+      extraBeds: object({
+        cots: number({ required_error: 'Cots price is required if available' }),
+        extraBeds: number({ required_error: 'Extra beds price is required if available' }),
+      }).optional(),
     }).optional(),
     maxDays: nativeEnum(MaxDays, { invalid_type_error: 'maxDays should be 28 | 45 | 60 | 90' }).optional(),
     language: string({ invalid_type_error: 'Languages should be an array' })
