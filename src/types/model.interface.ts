@@ -152,6 +152,10 @@ export interface IStayRules {
   smoking: boolean;
   pets: boolean;
   parties: boolean;
+  extraBeds?: {
+    cots: number;
+    extraBeds: number;
+  };
 }
 
 export interface IGroupedAmenities {
